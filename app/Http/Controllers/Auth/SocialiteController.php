@@ -42,6 +42,9 @@ class SocialiteController extends Controller
                     $user->google_id = $googleUser->getId();
                 }
                 $user->google_avatar = $googleUser->getAvatar();
+                 if (is_null($user->email_verified_at)) {
+                    $user->email_verified_at = now();
+                }
                 $user->save();
             } else {
                 // If user does not exist, create a new one
@@ -50,17 +53,22 @@ class SocialiteController extends Controller
                     'email' => $googleUser->getEmail(),
                     'google_id' => $googleUser->getId(),
                     'google_avatar' => $googleUser->getAvatar(),
-                    'password' => null, // Password can be null for socialite users
+                    'password' => null, 
+                    'role' => 'user',
+                    'email_verified_at' => now(),
                 ]);
             }
 
-            Auth::login($user);
+            Auth::login($user, true); // true untuk 'remember me'
 
-            // Ganti RouteServiceProvider::HOME dengan route('dashboard') atau langsung '/dashboard'
-            // Jika Anda ingin mengarahkan ke rute bernama 'dashboard':
-            return redirect()->intended(route('dashboard'));
-            // Atau jika Anda ingin mengarahkan langsung ke URL '/dashboard':
-            // return redirect()->intended('/dashboard');
+            
+            // --- LOGIKA REDIREKSI BERDASARKAN ROLE UNTUK LOGIN GOOGLE ---
+            if ($user->role === 'admin') {
+                return redirect()->intended(route('admin.index', absolute: false)); // Menggunakan admin.index
+            }
+
+            // Default redirection untuk user biasa (termasuk yang baru daftar via Google)
+            return redirect()->intended(route('dashboard', absolute: false));
 
         } catch (\Exception $e) {
             // Handle exceptions (e.g., connection issues, user cancels)

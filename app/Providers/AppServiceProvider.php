@@ -3,12 +3,16 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Route; // Tambahkan ini jika belum ada
+
 
 class AppServiceProvider extends ServiceProvider
 {
     /**
      * Register any application services.
      */
+
+    public const HOME = '/';
     public function register(): void
     {
         //
