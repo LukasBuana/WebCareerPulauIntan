@@ -44,6 +44,10 @@ Route::get('/auth/google/callback', [SocialiteController::class, 'callback'])->n
 // Menggunakan file rute autentikasi bawaan Laravel (dari Laravel Breeze/Jetstream)
 require __DIR__.'/auth.php';
 
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.index');
+});
+
 Route::get('/tentang', function () {
     return view('/tentang');
 })->name('tentang');
