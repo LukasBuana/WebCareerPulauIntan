@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('news', function (Blueprint $table) {
             $table->id();
             $table->string('title', 100)->unique()->nullable(false); // NOT NULL UNIQUE
-            $table->string('caregory', 100)->nullable(false); // NOT NULL UNIQUE
+            $table->string('category', 100)->nullable(false); // NOT NULL UNIQUE
             $table->string('subtitle',100)->nullable(false);
             $table->string('description',255)->nullable(false);
             $table->longText('image');

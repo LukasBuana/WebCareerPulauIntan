@@ -16,6 +16,7 @@ class NewsSeeder extends Seeder
          DB::table('news')->insert([
             [
                 'title' => 'Pemberitahuan kepada Kandidat: Hati-hati Modus Penipuan Rekrutmen!',
+                'category' => 'tips',
                 'subtitle' => 'Indofood menyatakan bahwa banyak lowongan pekerjaan palsu yang dipasang di situs web',
                 'description' => 'admin@example.com',
                 'image' => '',
@@ -24,6 +25,8 @@ class NewsSeeder extends Seeder
             ],
             [
                 'title' => 'Tutorial Melamar Kerja di Indofood Career',
+                                'category' => 'tips',
+
                 'subtitle' => 'Tahukah kamu cara melamar ke Indofood?',
                 'description' => 'admin@example.com',
                 'image' => '',
@@ -32,6 +35,8 @@ class NewsSeeder extends Seeder
             ],
             [
                 'title' => 'Tips Wawancara Kerja secara Online',
+                                'category' => 'tips',
+
                 'subtitle' => 'Tahap wawancara merupakan salah satu tahapan penting dalam proses seleksi',
                 'description' => 'admin@example.com',
                 'image' => '',
