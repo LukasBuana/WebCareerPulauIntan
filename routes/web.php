@@ -77,7 +77,7 @@ Route::get('/auth/google/callback', [SocialiteController::class, 'callback'])->n
 require __DIR__.'/auth.php';
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
-    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.index');
 
     // Resource routes for jobs (CRUD)
     // Ini akan otomatis membuat routes: index, create, store, show, edit, update, destroy
