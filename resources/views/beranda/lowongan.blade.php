@@ -517,58 +517,80 @@
         </div>
     </div>
 
-    <script>
-       const allJobsFromBackend = @json($jobs);
+   <script>
+        // --- DEFINISI VARIABEL JAVASCRIPT DARI BACKEND ---
+        // Pastikan variabel ini ada dan terisi dari PHP
+        const allJobsFromBackend = @json($jobs);
         const categoriesFromBackend = @json($categories);
         const locationsFromBackend = @json($locations);
         const jobTypesFromBackend = @json($jobTypes);
         const allUniqueTagsFromBackend = @json($allUniqueTags);
 
-        // Contoh bagaimana Anda bisa mengadaptasi renderJobTags dan renderCategoryCards
-        // jika ingin tetap menggunakan JavaScript untuk rendering awal atau manipulasi DOM
-       function renderCategoryCardsDynamic() {
-    const categoriesGrid = document.getElementById('categoriesGrid');
-    categoriesGrid.innerHTML = '';
+        // --- DEFINISI VARIABEL FILTER (Baru Ditambahkan) ---
+        // Inisialisasi currentFilters di sini agar bisa diakses oleh semua fungsi
+        const currentFilters = {
+            keyword: '',
+            category: '',
+            location: '',
+            tag: ''
+        };
 
-    // Re-calculate counts if needed, or get counts from backend if passed
-    const categoryCounts = {};
-    allJobsFromBackend.forEach(job => {
-        // Pastikan job.category dan job.category.name ada
-        const categoryName = job.category ? job.category.name : 'Uncategorized';
-        categoryCounts[categoryName] = (categoryCounts[categoryName] || 0) + 1;
-    });
+        // --- UI Elements ---
+        // Pastikan elemen-elemen ini ditemukan SETELAH DOM dimuat
+        const filterBtn = document.getElementById('filterBtn');
+        const filterDropdown = document.getElementById('filterDropdown');
+        const applyFiltersBtn = document.getElementById('applyFiltersBtn');
+        const searchInput = document.getElementById('searchInput');
+        const categoryFilterSelect = document.getElementById('categoryFilter');
+        const locationFilterSelect = document.getElementById('locationFilter');
 
-    categoriesFromBackend.forEach(cat => {
-        const count = categoryCounts[cat.name] || 0;
-        
-        // --- PERUBAHAN DI SINI: Mengambil ikon langsung dari data kategori ---
-        const icon = cat.icon || '❓'; // Mengambil nilai dari cat.icon. Gunakan '❓' sebagai default jika null
-        
+        // --- Fungsi-fungsi JavaScript Anda ---
+        function renderCategoryCardsDynamic() {
+            const categoriesGrid = document.getElementById('categoriesGrid');
+            if (!categoriesGrid) {
+                console.error('Element with ID "categoriesGrid" not found!');
+                return;
+            }
+            categoriesGrid.innerHTML = '';
 
-        const card = `
-            <div class="category-card" data-category="${cat.name}">
-                <div class="category-header">
-                    <div class="category-icon">${icon}</div>
-                    <div>
-                        <div class="category-title">${cat.name} (${count})</div>
-                        <div class="category-count">${count} Posisi</div>
+            const categoryCounts = {};
+            allJobsFromBackend.forEach(job => {
+                const categoryName = job.category ? job.category.name : 'Uncategorized';
+                categoryCounts[categoryName] = (categoryCounts[categoryName] || 0) + 1;
+            });
+
+            categoriesFromBackend.forEach(cat => {
+                const count = categoryCounts[cat.name] || 0;
+                const icon = cat.icon || '❓';
+
+                const card = `
+                    <div class="category-card" data-category="${cat.name}">
+                        <div class="category-header">
+                            <div class="category-icon">${icon}</div>
+                            <div>
+                                <div class="category-title">${cat.name} (${count})</div>
+                                <div class="category-count">${count} Posisi</div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-        `;
-        categoriesGrid.insertAdjacentHTML('beforeend', card);
-    });
-    categoriesGrid.querySelectorAll('.category-card').forEach(card => {
-        card.addEventListener('click', () => {
-            document.getElementById('categoryFilter').value = card.dataset.category;
-            applyFilters(); // Call your filter function
-        });
-    });
-}
+                `;
+                categoriesGrid.insertAdjacentHTML('beforeend', card);
+            });
+            categoriesGrid.querySelectorAll('.category-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    document.getElementById('categoryFilter').value = card.dataset.category;
+                    applyFilters();
+                });
+            });
+        }
 
-       function renderJobTagsDynamic() {
+        function renderJobTagsDynamic() {
             const jobTagsContainer = document.getElementById('jobTags');
-            jobTagsContainer.innerHTML = ''; // Clear existing tags
+            if (!jobTagsContainer) {
+                console.error('Element with ID "jobTags" not found!');
+                return;
+            }
+            jobTagsContainer.innerHTML = '';
 
             allUniqueTagsFromBackend.forEach(tag => {
                 const tagElement = `<div class="job-tag" data-tag="${tag}">${tag}</div>`;
@@ -579,30 +601,49 @@
             });
         }
 
+        function renderJobListings(jobsToDisplay) {
+            const jobListingsContainer = document.getElementById('jobListings');
+            if (!jobListingsContainer) {
+                console.error('Element with ID "jobListings" not found!');
+                return;
+            }
+            jobListingsContainer.innerHTML = '';
 
-        // Ini adalah fungsi utama untuk menerapkan filter.
-        // Anda perlu menyesuaikannya untuk mengirim permintaan AJAX ke backend
-        // atau untuk memfilter 'allJobsFromBackend' di frontend jika datanya tidak terlalu besar.
+            if (jobsToDisplay.length === 0) {
+                jobListingsContainer.innerHTML = '<p style="text-align: center; color: #777; padding: 20px;">Tidak ada lowongan yang ditemukan untuk filter yang dipilih.</p>';
+                return;
+            }
+
+            jobsToDisplay.forEach(job => {
+                const tagsHtml = job.skills.map(skill => `<span>${skill.name}</span>`).join(''); // Menggunakan job.skills
+                const jobCard = `
+                    <div class="job-card">
+                        <h3>${job.title}</h3>
+                        <p><strong>Perusahaan:</strong> ${job.poster ? job.poster.name : 'N/A'}</p>
+                        <p><strong>Kategori:</strong> ${job.category ? job.category.name : 'N/A'}</p>
+                        <p class="location"><strong>Lokasi:</strong> ${job.location ? job.location.name : 'N/A'}</p>
+                        <p class="type"><strong>Tipe:</strong> ${job.type ? job.type.name : 'N/A'}</p>
+                        <div class="tags">${tagsHtml}</div>
+                    </div>
+                `;
+                jobListingsContainer.insertAdjacentHTML('beforeend', jobCard);
+            });
+        }
+
         function applyFilters() {
-            const searchKeyword = document.getElementById('searchInput').value.toLowerCase();
-            const selectedCategory = document.getElementById('categoryFilter').value;
-            const selectedLocation = document.getElementById('locationFilter').value;
-            // const selectedJobType = document.getElementById('jobTypeFilter').value; // Jika Anda menambahkan filter ini
+            const searchKeyword = searchInput.value.toLowerCase().trim(); // Pastikan searchInput ditemukan
+            const selectedCategory = categoryFilterSelect.value; // Pastikan categoryFilterSelect ditemukan
+            const selectedLocation = locationFilterSelect.value; // Pastikan locationFilterSelect ditemukan
 
             let filteredJobs = allJobsFromBackend;
 
             if (searchKeyword) {
                 filteredJobs = filteredJobs.filter(job =>
-                    job.title.toLowerCase().includes(keywordLower) ||
-                    job.company.toLowerCase().includes(keywordLower) ||
-                    job.category.toLowerCase().includes(keywordLower) ||
-                    job.location.toLowerCase().includes(keywordLower) ||
-                    job.tags.some(tag => tag.toLowerCase().includes(keywordLower))
                     job.title.toLowerCase().includes(searchKeyword) ||
                     (job.description && job.description.toLowerCase().includes(searchKeyword)) ||
                     (job.responsibilities && job.responsibilities.toLowerCase().includes(searchKeyword)) ||
                     (job.qualifications && job.qualifications.toLowerCase().includes(searchKeyword)) ||
-                    (job.skills && job.skills.some(skill => skill.name.toLowerCase().includes(searchKeyword))) // Filter berdasarkan skill name
+                    (job.skills && job.skills.some(skill => skill.name.toLowerCase().includes(searchKeyword)))
                 );
             }
 
@@ -614,110 +655,38 @@
                 filteredJobs = filteredJobs.filter(job => job.location && job.location.name === selectedLocation);
             }
 
-            // Filter by tag
             if (currentFilters.tag) {
-                filteredJobs = filteredJobs.filter(job => job.tags.includes(currentFilters.tag));
+                filteredJobs = filteredJobs.filter(job => job.skills && job.skills.some(skill => skill.name === currentFilters.tag));
             }
-            
-            console.log('Applying Filters:', currentFilters); // Debugging: Check filter state
+
+            console.log('Applying Filters:', currentFilters);
             renderJobListings(filteredJobs);
-            updateCategoryCardHighlight(); // Always update highlights after applying filters
+            updateCategoryCardHighlight();
             updateJobTagHighlight();
-            syncDropdownsWithFilters(); // Ensure dropdowns and search input reflect currentFilters state
-        }
-
-        // --- UI Elements ---
-        const filterBtn = document.getElementById('filterBtn');
-        const filterDropdown = document.getElementById('filterDropdown');
-        const applyFiltersBtn = document.getElementById('applyFiltersBtn');
-        const searchInput = document.getElementById('searchInput');
-        const categoryFilterSelect = document.getElementById('categoryFilter');
-        const locationFilterSelect = document.getElementById('locationFilter');
-
-        // --- Event Listeners ---
-        filterBtn.addEventListener('click', function(event) {
-            filterDropdown.classList.toggle('show');
-            event.stopPropagation(); // Prevent click from closing immediately
-        });
-
-        // Add this new event listener to the filterDropdown
-        // Ini adalah perbaikan utama: Menghentikan event click agar tidak menyebar ke dokumen saat diklik di dalam dropdown.
-        filterDropdown.addEventListener('click', function(event) {
-            event.stopPropagation(); // Prevent clicks inside the dropdown from propagating to document
-        });
-
-        applyFiltersBtn.addEventListener('click', function() {
-            // Update currentFilters from search input and dropdowns
-            currentFilters.keyword = searchInput.value.trim();
-            currentFilters.category = categoryFilterSelect.value;
-            currentFilters.location = locationFilterSelect.value;
-            currentFilters.tag = ''; // Clear tag filter when applying main filters from search bar
-            
-            applyFilters();
-        }
-
-
-        // Event Listeners
-        document.getElementById('filterBtn').addEventListener('click', function() {
-            const dropdown = document.getElementById('filterDropdown');
-            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-        });
-
-        document.getElementById('applyFiltersBtn').addEventListener('click', applyFilters);
-        document.getElementById('searchInput').addEventListener('keyup', (e) => {
-            if (e.key === 'Enter') {
-                applyFilters();
-            }
-        });
-
-        categoryFilterSelect.addEventListener('change', function() {
-            currentFilters.category = this.value;
-            currentFilters.tag = ''; // Clear tag if category selected from dropdown (common UX)
-            applyFilters();
-        });
-
-        locationFilterSelect.addEventListener('change', function() {
-            currentFilters.location = this.value;
-            currentFilters.tag = ''; // Clear tag if location selected from dropdown (common UX)
-            applyFilters();
-        });
-
-        // Close dropdown if clicked outside
-        document.addEventListener('click', function(event) {
-            if (!filterDropdown.contains(event.target) && !filterBtn.contains(event.target)) {
-                filterDropdown.classList.remove('show');
-            }
-        });
-
-        // --- Filter Selection Functions ---
-        function selectCategory(category) {
-            // Toggle behavior: If the same category is clicked again, unselect it
-            if (currentFilters.category === category) {
-                currentFilters.category = '';
-            } else {
-                currentFilters.category = category;
-            }
-            
-            // Clear tag filter if a category card is clicked
-            currentFilters.tag = ''; 
-
-            applyFilters();
-            console.log('Category selected via card click:', currentFilters); // Debugging
+            syncDropdownsWithFilters();
         }
 
         function filterByTag(tag) {
-            // Toggle behavior: If the same tag is clicked again, unselect it
             if (currentFilters.tag === tag) {
                 currentFilters.tag = '';
             } else {
                 currentFilters.tag = tag;
             }
-            
             applyFilters();
-            console.log('Tag selected:', currentFilters); // Debugging
+            console.log('Tag selected:', currentFilters);
         }
 
-        // --- UI Synchronization Functions ---
+        function selectCategory(category) {
+            if (currentFilters.category === category) {
+                currentFilters.category = '';
+            } else {
+                currentFilters.category = category;
+            }
+            currentFilters.tag = '';
+            applyFilters();
+            console.log('Category selected via card click:', currentFilters);
+        }
+
         function updateCategoryCardHighlight() {
             const cards = document.querySelectorAll('.category-card');
             cards.forEach(card => {
@@ -738,18 +707,61 @@
             });
         }
 
-        // This function ensures the dropdowns and search input visually match the currentFilters state
         function syncDropdownsWithFilters() {
-            categoryFilterSelect.value = currentFilters.category;
-            locationFilterSelect.value = currentFilters.location;
-            searchInput.value = currentFilters.keyword; 
+            if (categoryFilterSelect) categoryFilterSelect.value = currentFilters.category;
+            if (locationFilterSelect) locationFilterSelect.value = currentFilters.location;
+            if (searchInput) searchInput.value = currentFilters.keyword;
         }
 
-        // --- Initial Rendering ---
+        // --- Event Listeners ---
+        // Wrap event listener assignments in DOMContentLoaded to ensure elements are ready
         document.addEventListener('DOMContentLoaded', () => {
-            renderCategoryCards();
-            renderJobTags();
-            applyFilters(); // Display all jobs initially based on empty filters
+            // Re-assign event listeners inside DOMContentLoaded for safety
+            filterBtn.addEventListener('click', function(event) {
+                filterDropdown.classList.toggle('show');
+                event.stopPropagation();
+            });
+
+            filterDropdown.addEventListener('click', function(event) {
+                event.stopPropagation();
+            });
+
+            applyFiltersBtn.addEventListener('click', function() {
+                currentFilters.keyword = searchInput.value.trim();
+                currentFilters.category = categoryFilterSelect.value;
+                currentFilters.location = locationFilterSelect.value;
+                currentFilters.tag = '';
+                applyFilters();
+            });
+
+            searchInput.addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') {
+                    applyFilters();
+                }
+            });
+
+            categoryFilterSelect.addEventListener('change', function() {
+                currentFilters.category = this.value;
+                currentFilters.tag = '';
+                applyFilters();
+            });
+
+            locationFilterSelect.addEventListener('change', function() {
+                currentFilters.location = this.value;
+                currentFilters.tag = '';
+                applyFilters();
+            });
+
+            document.addEventListener('click', function(event) {
+                if (!filterDropdown.contains(event.target) && !filterBtn.contains(event.target)) {
+                    filterDropdown.classList.remove('show');
+                }
+            });
+
+            // Initial rendering
+            renderCategoryCardsDynamic();
+            renderJobTagsDynamic();
+            applyFilters(); // Initial display of all jobs
         });
     </script>
 </body>
