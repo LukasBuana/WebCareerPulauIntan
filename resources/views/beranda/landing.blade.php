@@ -680,11 +680,11 @@
         
       
 
-        <section id="berita">
-            <h2 style="font-size: 2.5rem; color: #2563eb; text-align: center; margin-bottom: 40px;">Berita Terbaru</h2>
-            <p style="text-align: center; font-size: 1.1rem; color: #666;">Di sini akan muncul berita dan pembaruan terbaru dari Pulau Intan. Tetap ikuti kami untuk informasi menarik!</p>
-            {{-- Anda bisa menambahkan konten dinamis untuk berita di sini --}}
-        </section>
+          <section id="berita">
+            <!-- <h2 style="font-size: 2.5rem; color: #2563eb; text-align: center; margin-bottom: 40px;">Berita Terbaru</h2> -->
+            <!-- <p style="text-align: center; font-size: 1.1rem; color: #666;">Di sini akan muncul berita dan pembaruan terbaru dari Pulau Intan. Tetap ikuti kami untuk informasi menarik!</p> -->
+            @include('beranda.berita')
+        </section>
 
         
 

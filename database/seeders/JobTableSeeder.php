@@ -80,16 +80,16 @@ class JobTableSeeder extends Seeder
         // Misalnya untuk Jobs:
         DB::table('jobs')->insert([
             [
-                'title' => 'Legal Officer',
-                'slug' => 'legalofficer',
-                'job_category_id' => DB::table('job_categories')->where('name', 'IT & Software')->first()->id,
-                'job_location_id' => DB::table('job_locations')->where('name', 'Jakarta')->first()->id,
+                'title' => 'Product Owner',
+                'slug' => 'productowner',
+                'job_category_id' => DB::table('job_categories')->where('name', 'Marketing')->first()->id,
+                'job_location_id' => DB::table('job_locations')->where('name', 'Yogyakarta')->first()->id,
                 'job_type_id' => DB::table('job_types')->where('name', 'Full-time')->first()->id,
                 'description' => 'Kami mencari Legal Officer',
                 'responsibilities' => 'Merancang, mengembangkan, dan memelihara aplikasi backend; Menulis kode yang bersih, terdokumentasi dengan baik, dan dapat diuji; Berkolaborasi dengan tim frontend dan DevOps; Melakukan code review dan memberikan masukan konstruktif.',
                 'qualifications' => 'Pengalaman minimal 5 tahun dalam pengembangan backend; Mahir dengan PHP, Laravel, dan MySQL; Memahami prinsip-prinsip RESTful API dan arsitektur mikroservis; Pengalaman dengan Git, Docker, dan AWS/GCP.',
                 'min_salary' => 8000000.00,
-                'max_salary' => 15000000.00,
+                'max_salary' => 10000000.00,
                 'salary_currency' => 'IDR',
                 'experience_level' => 'Senior',
                 'education_level' => 'S1',

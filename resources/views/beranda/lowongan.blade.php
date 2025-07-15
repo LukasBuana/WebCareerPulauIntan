@@ -444,340 +444,174 @@
                 </div>
         </div>
 
-        <div class="latest-jobs">
+         <div class="latest-jobs">
             <h2>Lowongan Terbaru</h2>
             <div class="accent-bar"></div>
-            
+
             <div class="job-tags" id="jobTags">
-                </div>
+                {{-- Tags/Skills dari database, render di sisi server --}}
+                @foreach($allUniqueTags as $tag)
+                    <div class="job-tag" data-tag="{{ $tag }}">{{ $tag }}</div>
+                @endforeach
+            </div>
 
             <div class="job-listings" id="jobListings">
-                </div>
+                {{-- Loop untuk menampilkan setiap lowongan dari database --}}
+                @forelse($jobs as $job)
+                    <div class="job-card">
+                        <h3>{{ $job->title }}</h3>
+                        <p><strong>Perusahaan:</strong> {{ $job->poster->name ?? 'N/A' }}</p> {{-- Asumsi 'poster' adalah user yang memposting --}}
+                        <p><strong>Kategori:</strong> {{ $job->category->name ?? 'N/A' }}</p>
+                        <p class="location"><strong>Lokasi:</strong> {{ $job->location->name ?? 'N/A' }}</p>
+                        <p class="type"><strong>Tipe:</strong> {{ $job->type->name ?? 'N/A' }}</p>
+                        <div class="tags">
+                            @foreach($job->skills as $skill)
+                                <span>{{ $skill->name }}</span>
+                            @endforeach
+                        </div>
+                    </div>
+                @empty
+                    <p style="text-align: center; color: #777; padding: 20px;">Tidak ada lowongan yang ditemukan.</p>
+                @endforelse
+            </div>
         </div>
     </div>
 
     <script>
-        // Sample Job Data (this would typically come from an API)
-        const allJobs = [
-            {
-                id: 1,
-                title: "Sales Executive",
-                company: "PT. Indofood Sukses Makmur Tbk.",
-                location: "Jakarta",
-                category: "Sales",
-                type: "Full-time",
-                tags: ["Sales", "Marketing", "FMCG"]
-            },
-            {
-                id: 2,
-                title: "Production Supervisor",
-                company: "PT. Indofood CBP Sukses Makmur Tbk.",
-                location: "Surabaya",
-                category: "Manufacturing",
-                type: "Full-time",
-                tags: ["Production", "Manufacturing", "Supply Chain"]
-            },
-            {
-                id: 3,
-                title: "HR Staff",
-                company: "PT. Indofood Group",
-                location: "Bandung",
-                category: "Human Resources",
-                type: "Full-time",
-                tags: ["HR", "Recruitment", "Admin"]
-            },
-            {
-                id: 4,
-                title: "Mechanical Engineer",
-                company: "PT. Indofood Fortuna Inti",
-                location: "Jakarta",
-                category: "Engineering",
-                type: "Full-time",
-                tags: ["Engineering", "Maintenance", "Machinery"]
-            },
-            {
-                id: 5,
-                title: "Finance Analyst",
-                company: "PT. Indofood Sukses Makmur Tbk.",
-                location: "Medan",
-                category: "Finance",
-                type: "Full-time",
-                tags: ["Finance", "Accounting", "Analysis"]
-            },
-            {
-                id: 6,
-                title: "IT Support Specialist",
-                company: "PT. Indofood Group",
-                location: "Jakarta",
-                category: "IT & Technology",
-                type: "Full-time",
-                tags: ["IT", "Support", "Network"]
-            },
-            {
-                id: 7,
-                title: "Digital Marketing Specialist",
-                company: "PT. Indofood CBP Sukses Makmur Tbk.",
-                location: "Bandung",
-                category: "Marketing",
-                type: "Full-time",
-                tags: ["Marketing", "Digital", "Social Media"]
-            },
-            {
-                id: 8,
-                title: "Logistics Coordinator",
-                company: "PT. Indofood Sukses Makmur Tbk.",
-                location: "Surabaya",
-                category: "Logistics",
-                type: "Full-time",
-                tags: ["Logistics", "Supply Chain", "Warehouse"]
-            },
-            {
-                id: 9,
-                title: "Senior Sales Manager",
-                company: "PT. Indofood Sukses Makmur Tbk.",
-                location: "Jakarta",
-                category: "Sales",
-                type: "Full-time",
-                tags: ["Sales", "Management", "Leadership"]
-            },
-            {
-                id: 10,
-                title: "Quality Control Staff",
-                company: "PT. Indofood CBP Sukses Makmur Tbk.",
-                location: "Semarang",
-                category: "Manufacturing",
-                type: "Full-time",
-                tags: ["Quality Control", "Manufacturing"]
-            }
-        ];
+       const allJobsFromBackend = @json($jobs);
+        const categoriesFromBackend = @json($categories);
+        const locationsFromBackend = @json($locations);
+        const jobTypesFromBackend = @json($jobTypes);
+        const allUniqueTagsFromBackend = @json($allUniqueTags);
 
-        // Functions to render elements
-        function renderCategoryCards() {
-            const categoriesGrid = document.getElementById('categoriesGrid');
-            categoriesGrid.innerHTML = ''; // Clear existing cards
+        // Contoh bagaimana Anda bisa mengadaptasi renderJobTags dan renderCategoryCards
+        // jika ingin tetap menggunakan JavaScript untuk rendering awal atau manipulasi DOM
+       function renderCategoryCardsDynamic() {
+    const categoriesGrid = document.getElementById('categoriesGrid');
+    categoriesGrid.innerHTML = '';
 
-            const categoryCounts = {};
-            allJobs.forEach(job => {
-                categoryCounts[job.category] = (categoryCounts[job.category] || 0) + 1;
-            });
+    // Re-calculate counts if needed, or get counts from backend if passed
+    const categoryCounts = {};
+    allJobsFromBackend.forEach(job => {
+        // Pastikan job.category dan job.category.name ada
+        const categoryName = job.category ? job.category.name : 'Uncategorized';
+        categoryCounts[categoryName] = (categoryCounts[categoryName] || 0) + 1;
+    });
 
-            const categories = [
-                { name: "Sales", icon: "📊" },
-                { name: "Manufacturing", icon: "🏭" },
-                { name: "Human Resources", icon: "👥" },
-                { name: "Engineering", icon: "⚙️" },
-                { name: "Finance", icon: "💰" },
-                { name: "IT & Technology", icon: "💻" },
-                { name: "Marketing", icon: "📢" },
-                { name: "Logistics", icon: "🚚" }
-            ];
+    categoriesFromBackend.forEach(cat => {
+        const count = categoryCounts[cat.name] || 0;
+        
+        // --- PERUBAHAN DI SINI: Mengambil ikon langsung dari data kategori ---
+        const icon = cat.icon || '❓'; // Mengambil nilai dari cat.icon. Gunakan '❓' sebagai default jika null
+        
 
-            categories.forEach(cat => {
-                const count = categoryCounts[cat.name] || 0;
-                const card = `
-                    <div class="category-card" data-category="${cat.name}">
-                        <div class="category-header">
-                            <div class="category-icon">${cat.icon}</div>
-                            <div>
-                                <div class="category-title">${cat.name} (${count})</div>
-                                <div class="category-count">${count} Posisi</div>
-                            </div>
-                        </div>
+        const card = `
+            <div class="category-card" data-category="${cat.name}">
+                <div class="category-header">
+                    <div class="category-icon">${icon}</div>
+                    <div>
+                        <div class="category-title">${cat.name} (${count})</div>
+                        <div class="category-count">${count} Posisi</div>
                     </div>
-                `;
-                categoriesGrid.insertAdjacentHTML('beforeend', card);
-            });
-            // Add event listeners to newly created cards
-            categoriesGrid.querySelectorAll('.category-card').forEach(card => {
-                card.addEventListener('click', () => selectCategory(card.dataset.category));
-            });
-        }
+                </div>
+            </div>
+        `;
+        categoriesGrid.insertAdjacentHTML('beforeend', card);
+    });
+    categoriesGrid.querySelectorAll('.category-card').forEach(card => {
+        card.addEventListener('click', () => {
+            document.getElementById('categoryFilter').value = card.dataset.category;
+            applyFilters(); // Call your filter function
+        });
+    });
+}
 
-        function renderJobTags() {
+       function renderJobTagsDynamic() {
             const jobTagsContainer = document.getElementById('jobTags');
             jobTagsContainer.innerHTML = ''; // Clear existing tags
 
-            const uniqueTags = new Set();
-            allJobs.forEach(job => {
-                job.tags.forEach(tag => uniqueTags.add(tag));
-            });
-
-            // Sort tags alphabetically
-            const sortedTags = Array.from(uniqueTags).sort();
-
-            sortedTags.forEach(tag => {
+            allUniqueTagsFromBackend.forEach(tag => {
                 const tagElement = `<div class="job-tag" data-tag="${tag}">${tag}</div>`;
                 jobTagsContainer.insertAdjacentHTML('beforeend', tagElement);
             });
-            // Add event listeners to newly created tags
             jobTagsContainer.querySelectorAll('.job-tag').forEach(tagElement => {
                 tagElement.addEventListener('click', () => filterByTag(tagElement.dataset.tag));
             });
         }
 
-        function renderJobListings(jobsToDisplay) {
-            const jobListingsContainer = document.getElementById('jobListings');
-            jobListingsContainer.innerHTML = ''; // Clear existing listings
 
-            if (jobsToDisplay.length === 0) {
-                jobListingsContainer.innerHTML = '<p style="text-align: center; color: #777; padding: 20px;">Tidak ada lowongan yang ditemukan untuk filter yang dipilih.</p>';
-                return;
-            }
-
-            jobsToDisplay.forEach(job => {
-                const tagsHtml = job.tags.map(tag => `<span>${tag}</span>`).join('');
-                const jobCard = `
-                    <div class="job-card">
-                        <h3>${job.title}</h3>
-                        <p><strong>Perusahaan:</strong> ${job.company}</p>
-                        <p><strong>Kategori:</strong> ${job.category}</p>
-                        <p class="location"><strong>Lokasi:</strong> ${job.location}</p>
-                        <p class="type"><strong>Tipe:</strong> ${job.type}</p>
-                        <div class="tags">${tagsHtml}</div>
-                    </div>
-                `;
-                jobListingsContainer.insertAdjacentHTML('beforeend', jobCard);
-            });
-        }
-
-        // Filtering Logic
-        let currentFilters = {
-            keyword: '',
-            category: '',
-            location: '',
-            tag: ''
-        };
-
+        // Ini adalah fungsi utama untuk menerapkan filter.
+        // Anda perlu menyesuaikannya untuk mengirim permintaan AJAX ke backend
+        // atau untuk memfilter 'allJobsFromBackend' di frontend jika datanya tidak terlalu besar.
         function applyFilters() {
-            let filteredJobs = allJobs;
+            const searchKeyword = document.getElementById('searchInput').value.toLowerCase();
+            const selectedCategory = document.getElementById('categoryFilter').value;
+            const selectedLocation = document.getElementById('locationFilter').value;
+            // const selectedJobType = document.getElementById('jobTypeFilter').value; // Jika Anda menambahkan filter ini
 
-            // Filter by keyword
-            if (currentFilters.keyword) {
-                const keywordLower = currentFilters.keyword.toLowerCase();
+            let filteredJobs = allJobsFromBackend;
+
+            if (searchKeyword) {
                 filteredJobs = filteredJobs.filter(job =>
-                    job.title.toLowerCase().includes(keywordLower) ||
-                    job.company.toLowerCase().includes(keywordLower) ||
-                    job.category.toLowerCase().includes(keywordLower) || // Include category in keyword search
-                    job.location.toLowerCase().includes(keywordLower) || // Include location in keyword search
-                    job.tags.some(tag => tag.toLowerCase().includes(keywordLower))
+                    job.title.toLowerCase().includes(searchKeyword) ||
+                    (job.description && job.description.toLowerCase().includes(searchKeyword)) ||
+                    (job.responsibilities && job.responsibilities.toLowerCase().includes(searchKeyword)) ||
+                    (job.qualifications && job.qualifications.toLowerCase().includes(searchKeyword)) ||
+                    (job.skills && job.skills.some(skill => skill.name.toLowerCase().includes(searchKeyword))) // Filter berdasarkan skill name
                 );
             }
 
-            // Filter by category
-            if (currentFilters.category) {
-                filteredJobs = filteredJobs.filter(job => job.category === currentFilters.category);
+            if (selectedCategory) {
+                filteredJobs = filteredJobs.filter(job => job.category && job.category.name === selectedCategory);
             }
 
-            // Filter by location
-            if (currentFilters.location) {
-                filteredJobs = filteredJobs.filter(job => job.location === currentFilters.location);
-            }
-
-            // Filter by tag (if a tag was specifically clicked)
-            // This filter should be applied *after* category and location,
-            // and acts as a refinement or a primary filter if other filters are clear.
-            if (currentFilters.tag) {
-                filteredJobs = filteredJobs.filter(job => job.tags.includes(currentFilters.tag));
+            if (selectedLocation) {
+                filteredJobs = filteredJobs.filter(job => job.location && job.location.name === selectedLocation);
             }
             
-            console.log('Applying Filters:', currentFilters); // Debugging: Check filter state
-            renderJobListings(filteredJobs);
-        }
+            // if (selectedJobType) { // Jika Anda menambahkan filter ini
+            //     filteredJobs = filteredJobs.filter(job => job.type && job.type.name === selectedJobType);
+            // }
 
-        // Event Listeners
-        const filterBtn = document.getElementById('filterBtn');
-        const filterDropdown = document.getElementById('filterDropdown');
-        const applyFiltersBtn = document.getElementById('applyFiltersBtn');
-        const searchInput = document.getElementById('searchInput');
-        const categoryFilterSelect = document.getElementById('categoryFilter');
-        const locationFilterSelect = document.getElementById('locationFilter');
-
-        filterBtn.addEventListener('click', function(event) {
-            filterDropdown.classList.toggle('show');
-            event.stopPropagation(); // Prevent click from closing immediately
-        });
-
-        applyFiltersBtn.addEventListener('click', function() {
-            currentFilters.keyword = searchInput.value.trim();
-            currentFilters.category = categoryFilterSelect.value;
-            currentFilters.location = locationFilterSelect.value;
-            currentFilters.tag = ''; // Reset tag filter when applying main filters
-            applyFilters();
-            filterDropdown.classList.remove('show'); // Hide dropdown after applying
-        });
-
-        searchInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                applyFiltersBtn.click();
-            }
-        });
-
-        // Event listeners for dropdowns to update currentFilters when selection changes
-        // Keep these if you want immediate filtering on dropdown changes
-        categoryFilterSelect.addEventListener('change', function() {
-            currentFilters.category = this.value;
-            currentFilters.keyword = ''; // Clear keyword if category selected from dropdown
-            searchInput.value = '';
-            currentFilters.tag = ''; // Clear tag if category selected from dropdown
-            applyFilters(); // Apply filters immediately on category dropdown change
-        });
-
-        locationFilterSelect.addEventListener('change', function() {
-            currentFilters.location = this.value;
-            currentFilters.keyword = ''; // Clear keyword if location selected from dropdown
-            searchInput.value = '';
-            currentFilters.tag = ''; // Clear tag if location selected from dropdown
-            applyFilters(); // Apply filters immediately on location dropdown change
-        });
-
-
-        // Close dropdown if clicked outside
-        document.addEventListener('click', function(event) {
-            if (!filterDropdown.contains(event.target) && !filterBtn.contains(event.target)) {
-                filterDropdown.classList.remove('show');
-            }
-        });
-
-        function selectCategory(category) {
-            currentFilters.category = category;
-            categoryFilterSelect.value = category; // Update dropdown selection
-            
-            // Hanya reset keyword dan tag, biarkan lokasi tetap jika ada
-            currentFilters.keyword = ''; 
-            searchInput.value = ''; 
-            currentFilters.tag = ''; 
-
-            applyFilters();
-
-            // Visual feedback: Add/remove 'active' class
-            const cards = document.querySelectorAll('.category-card');
-            cards.forEach(card => {
-                card.classList.remove('active-category'); // Remove active from all
-                if (card.dataset.category === category) {
-                    card.classList.add('active-category'); // Add active to the selected one
-                }
-            });
-            console.log('Category selected via card click:', currentFilters); // Debugging
+            renderJobListings(filteredJobs); // Render hasil filter
         }
 
         function filterByTag(tag) {
-            currentFilters.tag = tag;
-            
-            // Hanya reset keyword dan category, biarkan lokasi tetap jika ada
-            currentFilters.keyword = ''; 
-            searchInput.value = ''; 
-            currentFilters.category = ''; 
-            categoryFilterSelect.value = ''; 
-
-            applyFilters();
-            console.log('Tag selected:', currentFilters); // Debugging
+            const filteredJobs = allJobsFromBackend.filter(job =>
+                job.skills && job.skills.some(skill => skill.name === tag)
+            );
+            renderJobListings(filteredJobs);
+            // Opsional: reset filter dropdown lainnya atau update UI
+            document.getElementById('searchInput').value = '';
+            document.getElementById('categoryFilter').value = '';
+            document.getElementById('locationFilter').value = '';
         }
 
-        // Initial rendering
+        function selectCategory(categoryName) {
+            document.getElementById('categoryFilter').value = categoryName;
+            applyFilters();
+        }
+
+
+        // Event Listeners
+        document.getElementById('filterBtn').addEventListener('click', function() {
+            const dropdown = document.getElementById('filterDropdown');
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        });
+
+        document.getElementById('applyFiltersBtn').addEventListener('click', applyFilters);
+        document.getElementById('searchInput').addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') {
+                applyFilters();
+            }
+        });
+
+
+        // Initial render on page load
         document.addEventListener('DOMContentLoaded', () => {
-            renderCategoryCards();
-            renderJobTags();
-            renderJobListings(allJobs); // Display all jobs initially
+            renderCategoryCardsDynamic(); // Panggil fungsi untuk merender kartu kategori secara dinamis
+            renderJobTagsDynamic(); // Panggil fungsi untuk merender tag secara dinamis
+            renderJobListings(allJobsFromBackend); // Render semua lowongan di awal
         });
     </script>
 </body>

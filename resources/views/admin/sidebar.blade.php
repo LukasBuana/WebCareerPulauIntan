@@ -18,14 +18,14 @@
                 <i class="icon-home"></i>Home
             </a>
         </li>
-        <li class="{{ Request::is('admin/book') ? 'active' : '' }}">
-            <a href="{{ url('/admin/book') }}">
-                <i class="icon-grid"></i>Book
+        <li class="{{ Request::is('admin/jobs*') ? 'active' : '' }}">
+            <a href="{{ route('admin.jobs.index') }}">
+                <i class="fa fa-briefcase"></i>Jobs
             </a>
         </li>
-        <li class="{{ Request::is('admin/payment') ? 'active' : '' }}">
-            <a href="{{ url('/admin/payment') }}">
-                <i class="fa fa-money-bill-wave"></i>Payment
+        <li class="{{ Request::is('admin/news*') ? 'active' : '' }}">
+            <a href="{{ route('admin.news.index') }}">
+                <i class="fa fa-newspaper"></i>News
             </a>
         </li>
         <li class="{{ Request::is('admin/service') ? 'active' : '' }}">

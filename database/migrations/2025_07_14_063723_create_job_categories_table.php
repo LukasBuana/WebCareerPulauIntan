@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('name', 100)->unique()->nullable(false); // NOT NULL UNIQUE
             $table->string('slug', 100)->unique()->nullable();
             $table->text('description')->nullable();
+            $table->string('icon',100)->nullable();
+
             $table->timestamps();
         });
     }

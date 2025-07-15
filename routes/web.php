@@ -3,8 +3,17 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\SocialiteController;
-use App\Http\Controllers\AdminDashboardController;
-use App\Http\Controllers\WordProcessorController; 
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminJobController; 
+use App\Http\Controllers\Admin\AdminNewsController;
+use App\Models\Job;
+use App\Models\JobLocation;
+use App\Models\JobCategory;
+use App\Models\JobType;
+use App\Models\Skill;
+use App\Models\News;
+
+
 
 use Illuminate\Support\Facades\Auth;
 
@@ -16,9 +25,32 @@ Route::get('/', function () {
     if (Auth::check()) {
         $user = Auth::user(); // Jika sudah login, ambil objek user
     }
-    // Kirim variabel user ke view landing
-    return view('beranda.landing', compact('user'));
-})->name('home'); // Beri nama rute ini 'home' agar mudah direferensikan
+
+    // --- BAGIAN BARU: Ambil data untuk jobs ---
+    $jobs = Job::with(['category', 'location', 'type', 'skills'])
+                ->where('status', 'Published')
+                ->latest()
+                ->get();
+
+    $categories = JobCategory::orderBy('name')->get();
+    $locations = JobLocation::orderBy('name')->get();
+    $jobTypes = JobType::orderBy('name')->get();
+    $allUniqueTags = Skill::orderBy('name')->pluck('name')->toArray();
+    $newsArticles = News::latest()->limit(3)->get(); // Ambil 3 berita terbaru
+
+    // --- AKHIR BAGIAN BARU ---
+
+    // Kirim semua variabel ke view landing
+    return view('beranda.landing', compact(
+        'user',
+        'jobs',
+        'categories',
+        'locations',
+        'jobTypes',
+        'allUniqueTags',
+        'newsArticles',
+    ));
+})->name('home');
 
 // Rute Dashboard
 // Rute ini tetap ada dan dilindungi oleh middleware 'auth' dan 'verified'.
@@ -44,8 +76,29 @@ Route::get('/auth/google/callback', [SocialiteController::class, 'callback'])->n
 // Menggunakan file rute autentikasi bawaan Laravel (dari Laravel Breeze/Jetstream)
 require __DIR__.'/auth.php';
 
-Route::middleware(['auth', 'admin'])->group(function () {
-    Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.index');
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+
+    // Resource routes for jobs (CRUD)
+    // Ini akan otomatis membuat routes: index, create, store, show, edit, update, destroy
+    Route::resource('jobs', AdminJobController::class)->names([
+        'index'   => 'admin.jobs.index',
+        'create'  => 'admin.jobs.create',
+        'store'   => 'admin.jobs.store',
+        'show'    => 'admin.jobs.show',
+        'edit'    => 'admin.jobs.edit',
+        'update'  => 'admin.jobs.update',
+        'destroy' => 'admin.jobs.destroy',
+    ]);
+    Route::resource('news', AdminNewsController::class)->names([
+        'index'   => 'admin.news.index',
+        'create'  => 'admin.news.create',
+        'store'   => 'admin.news.store',
+        'show'    => 'admin.news.show',
+        'edit'    => 'admin.news.edit',
+        'update'  => 'admin.news.update',
+        'destroy' => 'admin.news.destroy',
+    ]);
 });
 
 Route::get('/tentang', function () {
