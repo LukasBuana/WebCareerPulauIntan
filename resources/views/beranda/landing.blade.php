@@ -425,6 +425,7 @@
             width: 100%;
             height: 100%;
             pointer-events: none;
+        
         }
 
         .dot {
@@ -667,24 +668,24 @@
                 <div class="dot dot-2"></div>
                 <div class="dot dot-3"></div>
                 <div class="dot dot-4"></div>
+
             </div>
+            
         </section>
+
+        
+
 
         <section id="lowongan">
-            <h2 style="font-size: 2.5rem; color: #2563eb; text-align: center; margin-bottom: 40px;">Lowongan Pekerjaan</h2>
-            <!-- <p style="text-align: center; font-size: 1.1rem; color: #666;">Jelajahi kesempatan karier di Pulau Intan. Kami mencari talenta terbaik untuk bergabung dengan tim kami yang dinamis!</p> -->
             @include('beranda.lowongan')
         </section>
-
-       
-        
       
 
-          <section id="berita">
+        <section id="berita">
             <!-- <h2 style="font-size: 2.5rem; color: #2563eb; text-align: center; margin-bottom: 40px;">Berita Terbaru</h2> -->
             <!-- <p style="text-align: center; font-size: 1.1rem; color: #666;">Di sini akan muncul berita dan pembaruan terbaru dari Pulau Intan. Tetap ikuti kami untuk informasi menarik!</p> -->
             @include('beranda.berita')
-        </section>
+        </section>
 
         
 

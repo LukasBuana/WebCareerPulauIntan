@@ -25,36 +25,6 @@
         }
 
         /* Header with search and decorative elements */
-        .header {
-            background: linear-gradient(135deg, #4a90e2 0%, #2c5aa0 100%);
-            padding: 40px 0;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -20%;
-            width: 200px;
-            height: 200px;
-            background: #ffb84d;
-            border-radius: 50%;
-            opacity: 0.3;
-        }
-
-        .header::after {
-            content: '';
-            position: absolute;
-            bottom: -30%;
-            left: -10%;
-            width: 400px;
-            height: 400px;
-            background: #2c5aa0;
-            border-radius: 50%;
-            opacity: 0.2;
-        }
 
         .search-section {
             position: relative;
@@ -170,19 +140,36 @@
 
         /* Categories Section */
         .categories-section {
-            padding: 40px 0;
+            padding: 30px 0;
         }
 
         .section-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
+        }
+        .carousel-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+        .carousel {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            overflow: hidden;
+            width: 800px;
+            position: relative;
         }
 
-        .section-title {
-            font-size: 1.3rem;
-            font-weight: 600;
+        .lowongansection-title {
+            font-size: medium;
+            font-weight: 800;
             color: #333;
         }
 
@@ -201,7 +188,7 @@
 
         .categories-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
             margin-bottom: 60px;
         }
@@ -230,8 +217,9 @@
         .category-header {
             display: flex;
             align-items: center;
-            gap: 15px;
-            margin-bottom: 8px;
+            gap: 10px;
+            margin-bottom: -10px;
+            margin-top: -10px;
         }
 
         .category-icon {
@@ -247,7 +235,7 @@
         }
 
         .category-title {
-            font-size: 1.1rem;
+            font-size: 1.0rem;
             font-weight: 600;
             color: #4a90e2;
         }
@@ -260,14 +248,15 @@
         /* Latest Jobs Section */
         .latest-jobs {
             text-align: center;
-            padding: 60px 0;
+            padding: 10px 0;
         }
+      
 
         .latest-jobs h2 {
             font-size: 2.5rem;
             font-weight: 700;
-            color: #333;
-            margin-bottom: 20px;
+            color: #2c3e50;
+            margin-bottom: 10px;
         }
 
         .accent-bar {
@@ -277,6 +266,26 @@
             margin: 0 auto 40px;
             border-radius: 2px;
         }
+        .accent-bar1 {
+            width: 80px;
+            height: 4px;
+            background: #ffb84d;
+            margin: 0 auto 40px;
+            border-radius: 2px;
+            margin-top: 50px;
+            margin-left: 187px;
+        }
+
+          .accent-bar2 {
+            width: 80px;
+            height: 4px;
+            background: transparent;
+            margin: 0 auto 40px;
+            border-radius: 2px;
+            margin-top: 50px;
+            margin-left: 187px;
+        }
+        
 
         .job-tags {
             display: flex;
@@ -301,6 +310,11 @@
             background: #ff9f1a;
         }
 
+        .job-tag.active-tag {
+            background: #2c5aa0; /* Highlight active tag */
+            color: white;
+        }
+
         /* Job Listing Styles */
         .job-listings {
             display: grid;
@@ -311,55 +325,78 @@
 
         .job-card {
             background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-            transition: transform 0.3s, box-shadow 0.3s;
-            border: 1px solid #f0f0f0;
-            text-align: left;
+            border-radius: 16px;
+            padding: 30px;
+            min-width: 300px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
         }
 
-        .job-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+        .job-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1;
         }
 
-        .job-card h3 {
-            font-size: 1.2rem;
-            color: #4a90e2;
-            margin-bottom: 10px;
+        .job-card.active::before {
+            opacity: 1;
         }
 
-        .job-card p {
-            font-size: 0.95rem;
-            color: #555;
-            margin-bottom: 5px;
+        .job-card.active {
+            transform: scale(1.1);
+            box-shadow: 0 10px 40px rgba(52, 152, 219, 0.3);
+            z-index: 2;
         }
 
-        .job-card .location, .job-card .type {
-            font-size: 0.85rem;
-            color: #888;
-        }
-        
-        .job-card .tags {
-            margin-top: 10px;
+        .job-card.inactive {
+            transform: scale(0.9);
+            opacity: 0.7;
         }
 
-        .job-card .tags span {
-            display: inline-block;
-            background: #e6f2ff;
-            color: #4a90e2;
-            padding: 4px 8px;
-            border-radius: 5px;
-            font-size: 0.8rem;
-            margin-right: 5px;
-            margin-bottom: 5px;
+        .job-card-content {
+            position: relative;
+            z-index: 2;
+            transition: color 0.3s ease;
         }
+
+        .job-card.active .job-card-content {
+            color: white;
+        }
+        .job-card.active .job-title {
+            color: white;
+        }
+        .job-card.active .job-details {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
 
         @media (max-width: 768px) {
             .search-container {
                 flex-direction: column;
                 gap: 10px;
+            }
+             .carousel {
+                width: 100%;
+                max-width: 350px;
+            }
+
+            .job-card {
+                min-width: 280px;
+                padding: 25px;
+            }
+
+            .carousel-container {
+                gap: 15px;
             }
 
             .search-input {
@@ -387,11 +424,14 @@
                 box-shadow: none;
                 border-top: 1px solid #eee;
             }
+
         }
+        
     </style>
 </head>
 <body>
-    <div class="header">
+    <div class="accent-bar2"></div>
+    <div class="accent-bar1"></div>
         <div class="container">
             <div class="search-section">
                 <div class="search-container">
@@ -436,7 +476,7 @@
     <div class="container">
         <div class="categories-section">
             <div class="section-header">
-                <h2 class="section-title">Kategori pekerjaan berdasarkan fungsi</h2>
+                <h2 class="lowongansection-title">Kategori Pekerjaan Berdasarkan Fungsi</h2>
                 <a href="#" class="view-all">Lainnya ></a>
             </div>
 
@@ -553,6 +593,11 @@
 
             if (searchKeyword) {
                 filteredJobs = filteredJobs.filter(job =>
+                    job.title.toLowerCase().includes(keywordLower) ||
+                    job.company.toLowerCase().includes(keywordLower) ||
+                    job.category.toLowerCase().includes(keywordLower) ||
+                    job.location.toLowerCase().includes(keywordLower) ||
+                    job.tags.some(tag => tag.toLowerCase().includes(keywordLower))
                     job.title.toLowerCase().includes(searchKeyword) ||
                     (job.description && job.description.toLowerCase().includes(searchKeyword)) ||
                     (job.responsibilities && job.responsibilities.toLowerCase().includes(searchKeyword)) ||
@@ -568,27 +613,46 @@
             if (selectedLocation) {
                 filteredJobs = filteredJobs.filter(job => job.location && job.location.name === selectedLocation);
             }
+
+            // Filter by tag
+            if (currentFilters.tag) {
+                filteredJobs = filteredJobs.filter(job => job.tags.includes(currentFilters.tag));
+            }
             
-            // if (selectedJobType) { // Jika Anda menambahkan filter ini
-            //     filteredJobs = filteredJobs.filter(job => job.type && job.type.name === selectedJobType);
-            // }
-
-            renderJobListings(filteredJobs); // Render hasil filter
-        }
-
-        function filterByTag(tag) {
-            const filteredJobs = allJobsFromBackend.filter(job =>
-                job.skills && job.skills.some(skill => skill.name === tag)
-            );
+            console.log('Applying Filters:', currentFilters); // Debugging: Check filter state
             renderJobListings(filteredJobs);
-            // Opsional: reset filter dropdown lainnya atau update UI
-            document.getElementById('searchInput').value = '';
-            document.getElementById('categoryFilter').value = '';
-            document.getElementById('locationFilter').value = '';
+            updateCategoryCardHighlight(); // Always update highlights after applying filters
+            updateJobTagHighlight();
+            syncDropdownsWithFilters(); // Ensure dropdowns and search input reflect currentFilters state
         }
 
-        function selectCategory(categoryName) {
-            document.getElementById('categoryFilter').value = categoryName;
+        // --- UI Elements ---
+        const filterBtn = document.getElementById('filterBtn');
+        const filterDropdown = document.getElementById('filterDropdown');
+        const applyFiltersBtn = document.getElementById('applyFiltersBtn');
+        const searchInput = document.getElementById('searchInput');
+        const categoryFilterSelect = document.getElementById('categoryFilter');
+        const locationFilterSelect = document.getElementById('locationFilter');
+
+        // --- Event Listeners ---
+        filterBtn.addEventListener('click', function(event) {
+            filterDropdown.classList.toggle('show');
+            event.stopPropagation(); // Prevent click from closing immediately
+        });
+
+        // Add this new event listener to the filterDropdown
+        // Ini adalah perbaikan utama: Menghentikan event click agar tidak menyebar ke dokumen saat diklik di dalam dropdown.
+        filterDropdown.addEventListener('click', function(event) {
+            event.stopPropagation(); // Prevent clicks inside the dropdown from propagating to document
+        });
+
+        applyFiltersBtn.addEventListener('click', function() {
+            // Update currentFilters from search input and dropdowns
+            currentFilters.keyword = searchInput.value.trim();
+            currentFilters.category = categoryFilterSelect.value;
+            currentFilters.location = locationFilterSelect.value;
+            currentFilters.tag = ''; // Clear tag filter when applying main filters from search bar
+            
             applyFilters();
         }
 
@@ -606,12 +670,86 @@
             }
         });
 
+        categoryFilterSelect.addEventListener('change', function() {
+            currentFilters.category = this.value;
+            currentFilters.tag = ''; // Clear tag if category selected from dropdown (common UX)
+            applyFilters();
+        });
 
-        // Initial render on page load
+        locationFilterSelect.addEventListener('change', function() {
+            currentFilters.location = this.value;
+            currentFilters.tag = ''; // Clear tag if location selected from dropdown (common UX)
+            applyFilters();
+        });
+
+        // Close dropdown if clicked outside
+        document.addEventListener('click', function(event) {
+            if (!filterDropdown.contains(event.target) && !filterBtn.contains(event.target)) {
+                filterDropdown.classList.remove('show');
+            }
+        });
+
+        // --- Filter Selection Functions ---
+        function selectCategory(category) {
+            // Toggle behavior: If the same category is clicked again, unselect it
+            if (currentFilters.category === category) {
+                currentFilters.category = '';
+            } else {
+                currentFilters.category = category;
+            }
+            
+            // Clear tag filter if a category card is clicked
+            currentFilters.tag = ''; 
+
+            applyFilters();
+            console.log('Category selected via card click:', currentFilters); // Debugging
+        }
+
+        function filterByTag(tag) {
+            // Toggle behavior: If the same tag is clicked again, unselect it
+            if (currentFilters.tag === tag) {
+                currentFilters.tag = '';
+            } else {
+                currentFilters.tag = tag;
+            }
+            
+            applyFilters();
+            console.log('Tag selected:', currentFilters); // Debugging
+        }
+
+        // --- UI Synchronization Functions ---
+        function updateCategoryCardHighlight() {
+            const cards = document.querySelectorAll('.category-card');
+            cards.forEach(card => {
+                card.classList.remove('active-category');
+                if (currentFilters.category && card.dataset.category === currentFilters.category) {
+                    card.classList.add('active-category');
+                }
+            });
+        }
+
+        function updateJobTagHighlight() {
+            const tags = document.querySelectorAll('.job-tag');
+            tags.forEach(tagElement => {
+                tagElement.classList.remove('active-tag');
+                if (currentFilters.tag && tagElement.dataset.tag === currentFilters.tag) {
+                    tagElement.classList.add('active-tag');
+                }
+            });
+        }
+
+        // This function ensures the dropdowns and search input visually match the currentFilters state
+        function syncDropdownsWithFilters() {
+            categoryFilterSelect.value = currentFilters.category;
+            locationFilterSelect.value = currentFilters.location;
+            searchInput.value = currentFilters.keyword; 
+        }
+
+        // --- Initial Rendering ---
         document.addEventListener('DOMContentLoaded', () => {
-            renderCategoryCardsDynamic(); // Panggil fungsi untuk merender kartu kategori secara dinamis
-            renderJobTagsDynamic(); // Panggil fungsi untuk merender tag secara dinamis
-            renderJobListings(allJobsFromBackend); // Render semua lowongan di awal
+            renderCategoryCards();
+            renderJobTags();
+            applyFilters(); // Display all jobs initially based on empty filters
         });
     </script>
 </body>
