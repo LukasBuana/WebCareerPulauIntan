@@ -92,7 +92,7 @@
         }
 
         .jp-search-btn:hover {
-            background: #E54155;
+            background: #DA251C;
         }
 
         /* Filter Dropdown */
@@ -191,7 +191,7 @@
         }
 
         .jp-category-card.jp-active-category {
-            border: 2px solid #E54155;
+            border: 2px solid #DA251C;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
         }
 
@@ -218,7 +218,7 @@
         .jp-category-title {
             font-size: 1.0rem;
             font-weight: 600;
-            color: #E54155;
+            color: #DA251C;
         }
 
         .jp-category-count {
@@ -243,8 +243,8 @@
 
 .jp-accent-bar1 {
     display: flex;
-    color: #E54155; /* This applies to text content if any */
-    background-color: #E54155; /* Use this to make the bar itself orange */
+    color: #DA251C; /* This applies to text content if any */
+    background-color: #DA251C; /* Use this to make the bar itself orange */
     width: 200px; /* Example width */
     height: 10px; /* Example height */
     margin-top: 20px;
@@ -264,8 +264,8 @@
  }
   .jp-accent-bar3{
     display: flex;
-    color: #E54155; /* This applies to text content if any */
-    background-color: #E54155; /* Use this to make the bar itself orange */
+    color: #DA251C; /* This applies to text content if any */
+    background-color: #DA251C; /* Use this to make the bar itself orange */
     width: 200px; /* Example width */
     height: 10px; /* Example height */
     margin-top: 30px;
@@ -299,12 +299,12 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
             font-size: 1.2rem;
-            color: #E54155;
+            color: #DA251C;
             flex-shrink: 0; /* Prevent buttons from shrinking */
         }
 
         .jp-nav-button:hover {
-            background: #E54155;
+            background: #DA251C;
             color: white;
             transform: scale(1.1);
             box-shadow: 0 6px 25px rgba(52, 152, 219, 0.3);
@@ -354,7 +354,7 @@
             right: 0;
             bottom: 0;
             /* background: linear-gradient(135deg, #3498db, #2980b9); */
-            background: #E54155;
+            background: #DA251C;
             opacity: 0;
             transition: opacity 0.3s ease;
             z-index: 1;
@@ -435,8 +435,8 @@
 
         .jp-view-all-btn {
             background: transparent;
-            border: 2px solid #E54155;
-            color: #E54155;
+            border: 2px solid #DA251C;
+            color: #DA251C;
             padding: 12px 30px;
             border-radius: 25px;
             font-size: 1rem;
@@ -449,7 +449,7 @@
         }
 
         .jp-view-all-btn:hover {
-            background: #E54155;
+            background: #DA251C;
             color: white;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);

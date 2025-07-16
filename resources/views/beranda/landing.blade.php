@@ -233,7 +233,7 @@
             font-weight: 700;
             margin-bottom: 30px;
             line-height: 1.2;
-            color: #E54155;
+            color: #DA251C;
         }
 
         .hero-subtitle {

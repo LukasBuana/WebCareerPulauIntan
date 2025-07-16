@@ -25,7 +25,7 @@
 
         /* Navigation */
         .aboutnav {
-            background: #E54155;
+            background: #DA251C;
             padding: 15px 0;
             position: relative;
             
@@ -76,7 +76,7 @@
 
         /* Section Styling - General */
         .section {
-            background: #E54155;
+            background: #DA251C;
             min-height: 100vh;
             display: flex;
             align-items: center;

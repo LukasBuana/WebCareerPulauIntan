@@ -13,7 +13,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #ffffffff 0%, #ffffffff 100%);
             min-height: 100vh;
             color: #333;
         }
@@ -22,19 +22,21 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
+            margin-bottom: 500px;
         }
 
-        .header {
-            background: rgba(255, 255, 255, 0.1);
+        .job-detail-hero {
+            background:#DA251C;
             backdrop-filter: blur(10px);
             border-radius: 20px;
-            padding: 30px;
+            padding: 50px;
+            margin-top: 120px;
             margin-bottom: 30px;
             position: relative;
             overflow: hidden;
         }
 
-        .header::before {
+        .job-detail-hero::before {
             content: '';
             position: absolute;
             top: -50%;
@@ -162,7 +164,7 @@
         }
 
         .job-info-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #DA251C;
             border-radius: 20px;
             padding: 25px;
             text-align: center;
@@ -222,7 +224,7 @@
 
         .apply-button {
             width: 100%;
-            background: #667eea;
+            background: #DA251C;
             color: white;
             border: none;
             padding: 15px;
@@ -259,9 +261,18 @@
         }
     </style>
 </head>
+
 <body>
+    
+
     <div class="container">
         <div class="header">
+            @include('beranda.header_user')
+
+        </div>
+        
+        <div class="job-detail-hero">
+            
             <div class="breadcrumb">
                 <a href="{{ route('home') }}">Beranda</a> >
                 <a href="{{ route('jobs.index') }}">Lowongan</a> >
