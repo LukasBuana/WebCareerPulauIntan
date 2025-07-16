@@ -3,14 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Job; // Import model Job
-use App\Models\JobCategory; // Import model JobCategory
-use App\Models\JobLocation; // Import model JobLocation
-use App\Models\JobType; // Import model JobType
-use App\Models\Skill; // Import model Skill
+use App\Models\Jobs\Job; // Import model Job
+use App\Models\Jobs\JobCategory; // Import model JobCategory
+use App\Models\Jobs\JobLocation; // Import model JobLocation
+use App\Models\Jobs\JobType; // Import model JobType
+use App\Models\Jobs\Skill; // Import model Skill
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth; // Untuk mendapatkan ID user yang memposting
-
+use Illuminate\Support\Str;
 class AdminJobController extends Controller
 {
     /**
@@ -64,10 +64,20 @@ class AdminJobController extends Controller
             'is_featured' => 'boolean',
             'skills' => 'array', // Pastikan skills adalah array
             'skills.*' => 'exists:skills,id', // Setiap skill di array harus ada di tabel skills
+            'requirements' => 'nullable|array',
+            'requirements.*' => 'nullable|string|max:255', // Setiap persyaratan adalah string
+            'benefits' => 'nullable|array',
+            'benefits.*' => 'nullable|string|max:255', // Setiap manfaat adalah string
+            // --- Akhir Validasi ---
         ], [
             'max_salary.gt' => 'Maximum salary must be greater than minimum salary.'
         ]);
-
+        $slug = Str::slug($request->title);
+        $originalSlug = $slug;
+        $count = 1;
+        while (Job::where('slug', $slug)->exists()) {
+            $slug = $originalSlug . '-' . $count++;
+        }
         $job = Job::create([
             'title' => $request->title,
             'job_category_id' => $request->job_category_id,
@@ -94,6 +104,27 @@ class AdminJobController extends Controller
             $job->skills()->detach(); // Hapus semua skill jika tidak ada yang dipilih
         }
 
+         if ($request->has('requirements')) {
+            foreach ($request->input('requirements') as $index => $reqDescription) {
+                if (!empty(trim($reqDescription))) { // Pastikan input tidak kosong
+                    $job->requirements()->create([
+                        'description' => $reqDescription,
+                        'order' => $index + 1, // Set order berdasarkan urutan input
+                    ]);
+                }
+            }
+        }
+ // --- Simpan Manfaat Pekerjaan ---
+        if ($request->has('benefits')) {
+            foreach ($request->input('benefits') as $index => $benefitDescription) {
+                if (!empty(trim($benefitDescription))) { // Pastikan input tidak kosong
+                    $job->benefits()->create([
+                        'description' => $benefitDescription,
+                        'order' => $index + 1, // Set order berdasarkan urutan input
+                    ]);
+                }
+            }
+        }
 
         return redirect()->route('admin.jobs.index')->with('message', 'Lowongan berhasil ditambahkan!');
     }
@@ -119,8 +150,11 @@ class AdminJobController extends Controller
         $skills = Skill::orderBy('name')->get();
         // Ambil skill_ids yang terkait dengan job ini untuk menandai di form
         $jobSkills = $job->skills->pluck('id')->toArray();
+        $jobRequirements = $job->requirements()->orderBy('order')->pluck('description')->toArray();
+        $jobBenefits = $job->benefits()->orderBy('order')->pluck('description')->toArray();
 
-        return view('admin.jobs.edit', compact('job', 'categories', 'locations', 'jobTypes', 'skills', 'jobSkills'));
+
+        return view('admin.jobs.edit', compact('job', 'categories', 'locations', 'jobTypes', 'skills', 'jobSkills','jobRequirements','jobBenefits'));
     }
 
     /**
@@ -146,9 +180,24 @@ class AdminJobController extends Controller
             'is_featured' => 'boolean',
             'skills' => 'array',
             'skills.*' => 'exists:skills,id',
+            'requirements' => 'nullable|array',
+            'requirements.*' => 'nullable|string|max:255',
+            'benefits' => 'nullable|array',
+            'benefits.*' => 'nullable|string|max:255',
         ], [
             'max_salary.gt' => 'Maximum salary must be greater than minimum salary.'
         ]);
+// Perbarui slug hanya jika judul berubah
+        $slug = $job->slug; // Gunakan slug yang sudah ada sebagai default
+        if ($request->title !== $job->title) {
+            $slug = Str::slug($request->title);
+            $originalSlug = $slug;
+            $count = 1;
+            // Pastikan slug unik, kecuali jika slug itu milik job yang sedang diedit
+            while (Job::where('slug', $slug)->where('id', '!=', $job->id)->exists()) {
+                $slug = $originalSlug . '-' . $count++;
+            }
+        }
 
         $job->update([
             'title' => $request->title,
@@ -174,7 +223,30 @@ class AdminJobController extends Controller
         } else {
             $job->skills()->detach(); // Hapus semua skill jika tidak ada yang dipilih
         }
+        $job->requirements()->delete(); // Hapus semua persyaratan lama
+        if ($request->has('requirements')) {
+            foreach ($request->input('requirements') as $index => $reqDescription) {
+                if (!empty(trim($reqDescription))) {
+                    $job->requirements()->create([
+                        'description' => $reqDescription,
+                        'order' => $index + 1,
+                    ]);
+                }
+            }
+        }
 
+        // --- Perbarui Manfaat Pekerjaan (Delete & Recreate) ---
+        $job->benefits()->delete(); // Hapus semua manfaat lama
+        if ($request->has('benefits')) {
+            foreach ($request->input('benefits') as $index => $benefitDescription) {
+                if (!empty(trim($benefitDescription))) {
+                    $job->benefits()->create([
+                        'description' => $benefitDescription,
+                        'order' => $index + 1,
+                    ]);
+                }
+            }
+        }
 
         return redirect()->route('admin.jobs.index')->with('message', 'Lowongan berhasil diperbarui!');
     }

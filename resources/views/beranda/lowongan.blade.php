@@ -573,7 +573,7 @@
                             </div>
                         </div>
                     </div>
-                `;
+                `;  
                 categoriesGrid.insertAdjacentHTML('beforeend', card);
             });
             categoriesGrid.querySelectorAll('.category-card').forEach(card => {
