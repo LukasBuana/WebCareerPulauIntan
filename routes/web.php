@@ -60,6 +60,10 @@ Route::get('/detail_lowongan', function () {
     return view('beranda.detail_lowongan');
 });
 
+Route::get('/detail_berita', function () {
+    return view('beranda.detail_berita');
+});
+
 
 
 

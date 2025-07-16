@@ -229,7 +229,7 @@
         }
 
         .hero-title {
-            font-size: 3.5rem;
+            font-size: 4.5rem;
             font-weight: 700;
             margin-bottom: 30px;
             line-height: 1.2;
@@ -237,7 +237,7 @@
         }
 
         .hero-subtitle {
-            font-size: 1.2rem;
+            font-size: 1.1  rem;
             margin-bottom: 40px;
             opacity: 0.9;
             line-height: 1.6;
