@@ -25,7 +25,7 @@
 
         /* Navigation */
         .aboutnav {
-            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            background: #E54155;
             padding: 15px 0;
             position: relative;
             
@@ -76,7 +76,7 @@
 
         /* Section Styling - General */
         .section {
-            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            background: #E54155;
             min-height: 100vh;
             display: flex;
             align-items: center;

@@ -10,6 +10,18 @@
             padding: 0;
             box-sizing: border-box;
         }
+         .berita-accent-bar1{
+    display: flex;
+    color: #E54155; /* This applies to text content if any */
+    background-color: #E54155; /* Use this to make the bar itself orange */
+    width: 200px; /* Example width */
+    height: 10px; /* Example height */
+    margin-top: 0px;
+    margin-left: 0px;
+    margin-bottom: 20px;
+    border-radius: 50px;
+
+ }
 
         .beritabody {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -240,7 +252,10 @@
 </head>
 <body>
     <div class="beritacontainer">
+        <div class="berita-accent-bar1"></div>
+
         <div class="beritaheader">
+
             <h1>Berita & Artikel</h1>
             <a href="#" class="beritaview-all">Lihat semua</a> {{-- Anda mungkin ingin membuat route untuk halaman "Lihat Semua Berita" --}}
         </div>

@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Job;           // Model Job Anda
 use App\Models\JobCategory;   // Model untuk Kategori Pekerjaan
 use App\Models\JobLocation;   // Model untuk Lokasi Pekerjaan
-use App\Models\JobType;      // Model untuk Tipe Pekerjaan
+use App\Models\JobType;       // Model untuk Tipe Pekerjaan
 use App\Models\Skill;        // Model untuk Skill (jika digunakan untuk tag)
 // use App\Models\User; // Tidak perlu diimpor di sini jika hanya untuk 'poster' di Job model
 
@@ -48,5 +48,20 @@ class JobController extends Controller
 
         // 7. Mengirimkan semua data yang sudah diambil ke view Blade.
         return view('beranda.lowongan', compact('jobs', 'categories', 'locations', 'jobTypes', 'allUniqueTags', 'experienceLevels', 'educationLevels'));
+    }
+
+    /**
+     * Menampilkan detail dari satu lowongan pekerjaan.
+     *
+     * @param  int  $id
+     * @return \Illuminate\View\View
+     */
+    public function showDetail($id)
+    {
+        // Mengambil detail lowongan pekerjaan berdasarkan ID, dengan eager loading relasi yang relevan
+        $job = Job::with(['category', 'location', 'type', 'poster', 'skills'])->findOrFail($id);
+
+        // Mengirimkan data lowongan ke view detail_lowongan.blade.php
+        return view('detail_lowongan', compact('job'));
     }
 }

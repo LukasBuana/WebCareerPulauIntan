@@ -54,12 +54,13 @@
         }
 
         .logo-text {
-            margin-left: 5px;
+            margin-left: 0px;
+            color: red;
         }
 
         .logo-subtitle {
             font-size: 0.7rem;
-            color: #64748b;
+            color:red;
             font-weight: 400;
             letter-spacing: 2px;
             margin-top: -5px;
@@ -208,7 +209,7 @@
 
         /* Hero Section Styles */
         .hero-section {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: transparent;
             padding: 160px 0 80px;
             position: relative;
             overflow: hidden;
@@ -232,6 +233,7 @@
             font-weight: 700;
             margin-bottom: 30px;
             line-height: 1.2;
+            color: #E54155;
         }
 
         .hero-subtitle {
@@ -239,6 +241,7 @@
             margin-bottom: 40px;
             opacity: 0.9;
             line-height: 1.6;
+            color: gray;
         }
 
         .hero-image {
@@ -632,8 +635,9 @@
             <div class="container">
                 <div class="hero-content">
                     <div class="hero-text">
-                        <h1 class="hero-title">{{ $heroTitle ?? 'Bersama Kita Tumbuh untuk Masa Depan yang Lebih Baik' }}</h1>
-                        <p class="hero-subtitle">{{ $heroSubtitle ?? 'Bersama-sama kita berusaha menghadirkan kebahagiaan dan kenyamanan untuk setiap keluarga melalui produk berkualitas tinggi dan inovasi.' }}</p>
+                        <h1 class="hero-title">{{ $heroTitle ?? 'DEVELOP YOUR CAREER WITH US' }}</h1>
+                        <p class="hero-subtitle">{{ $heroSubtitle ?? 'Join our construction team and build your career with endless opportunities for growth and development.
+Unlock your full potential with opportunities for training, mentorship, and advancement in a supportive environment that encourages personal and professional growth.' }}</p>
                     </div>
                     <div class="hero-image">
                         <div class="team-huddle">
