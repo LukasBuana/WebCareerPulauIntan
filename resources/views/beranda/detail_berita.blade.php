@@ -38,275 +38,15 @@
             padding: 0 40px;
         }
 
-        .hero-illustration {
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+         .hero-illustration img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 15px; /* Sesuaikan dengan border-radius elemen hero */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
-        .office-scene {
-            position: relative;
-            width: 100%;
-            max-width: 400px;
-            height: 300px;
-        }
-
-        .desk {
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 280px;
-            height: 30px;
-            background: #2c3e50;
-            border-radius: 5px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        .person {
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80px;
-            height: 120px;
-        }
-
-        .person-body {
-            width: 80px;
-            height: 80px;
-            background: #f39c12;
-            border-radius: 10px;
-            position: relative;
-        }
-
-        .person-head {
-            width: 40px;
-            height: 40px;
-            background: #fdbcb4;
-            border-radius: 50%;
-            position: absolute;
-            top: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .person-hair {
-            width: 35px;
-            height: 20px;
-            background: #2c3e50;
-            border-radius: 20px 20px 0 0;
-            position: absolute;
-            top: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .person-face {
-            position: absolute;
-            top: 5px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .eye {
-            width: 4px;
-            height: 4px;
-            background: #2c3e50;
-            border-radius: 50%;
-            display: inline-block;
-            margin: 0 2px;
-        }
-
-        .smile {
-            width: 15px;
-            height: 8px;
-            border: 2px solid #2c3e50;
-            border-top: none;
-            border-radius: 0 0 15px 15px;
-            margin-top: 5px;
-        }
-
-        .laptop {
-            width: 60px;
-            height: 40px;
-            background: #ecf0f1;
-            border-radius: 5px;
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        }
-
-        .laptop::before {
-            content: '';
-            position: absolute;
-            top: -25px;
-            left: 2px;
-            width: 56px;
-            height: 30px;
-            background: #34495e;
-            border-radius: 5px 5px 0 0;
-        }
-
-        .laptop-screen {
-            position: absolute;
-            top: -22px;
-            left: 5px;
-            width: 50px;
-            height: 25px;
-            background: #3498db;
-            border-radius: 3px;
-        }
-
-        .lamp {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            width: 15px;
-            height: 80px;
-        }
-
-        .lamp-base {
-            width: 20px;
-            height: 5px;
-            background: #2c3e50;
-            border-radius: 10px;
-            position: absolute;
-            bottom: 0;
-            left: -2.5px;
-        }
-
-        .lamp-arm {
-            width: 3px;
-            height: 50px;
-            background: #2c3e50;
-            position: absolute;
-            bottom: 5px;
-            left: 6px;
-            transform: rotate(-10deg);
-        }
-
-        .lamp-head {
-            width: 25px;
-            height: 15px;
-            background: #27ae60;
-            border-radius: 0 0 10px 10px;
-            position: absolute;
-            top: 0;
-            left: -6px;
-        }
-
-        .plant {
-            position: absolute;
-            bottom: 30px;
-            right: 40px;
-            width: 30px;
-            height: 40px;
-        }
-
-        .pot {
-            width: 30px;
-            height: 15px;
-            background: #8b4513;
-            border-radius: 0 0 15px 15px;
-            position: absolute;
-            bottom: 0;
-        }
-
-        .leaf {
-            width: 15px;
-            height: 20px;
-            background: #27ae60;
-            border-radius: 50% 0;
-            position: absolute;
-            bottom: 10px;
-        }
-
-        .leaf:nth-child(1) {
-            left: 5px;
-            transform: rotate(-20deg);
-        }
-
-        .leaf:nth-child(2) {
-            right: 5px;
-            transform: rotate(20deg);
-        }
-
-        .interview-bubble {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 180px;
-            height: 120px;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-            padding: 15px;
-            animation: float 3s ease-in-out infinite;
-        }
-
-        .interview-bubble::before {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 30px;
-            width: 0;
-            height: 0;
-            border-left: 10px solid transparent;
-            border-right: 10px solid transparent;
-            border-top: 10px solid white;
-        }
-
-        .bubble-header {
-            background: #1abc9c;
-            color: white;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 12px;
-            text-align: center;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        .interviewer-profile {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .interviewer-avatar {
-            width: 40px;
-            height: 40px;
-            background: #3498db;
-            border-radius: 8px;
-            position: relative;
-        }
-
-        .interviewer-info {
-            flex: 1;
-        }
-
-        .interviewer-name {
-            font-size: 10px;
-            font-weight: 600;
-            color: #2c3e50;
-        }
-
-        .rating-stars {
-            display: flex;
-            gap: 2px;
-            margin-top: 3px;
-        }
-
-        .star {
-            width: 8px;
-            height: 8px;
-            background: #f39c12;
-            border-radius: 50%;
-        }
+        
 
         .status-indicator {
             width: 12px;
@@ -385,6 +125,8 @@
             line-height: 1.8;
             color: #444;
             margin-bottom: 30px;
+                white-space: pre-wrap; /* <<< TAMBAHKAN INI */
+
         }
 
         .highlight {
@@ -494,85 +236,86 @@
     <div class="hero-section">
         <div class="hero-content">
             <div class="hero-illustration">
-                <div class="office-scene">
-                    <div class="desk"></div>
-                    <div class="person">
-                        <div class="person-body">
-                            <div class="person-head">
-                                <div class="person-hair"></div>
-                                <div class="person-face">
-                                    <div class="eye"></div>
-                                    <div class="eye"></div>
-                                    <div class="smile"></div>
+                @if($news->image)
+                    <img src="{{ $news->image }}" alt="{{ $news->title }}">
+                @else
+                    {{-- Tampilkan ilustrasi default jika tidak ada gambar --}}
+                    <div class="office-scene">
+                        <div class="desk"></div>
+                        <div class="person">
+                            <div class="person-body">
+                                <div class="person-head">
+                                    <div class="person-hair"></div>
+                                    <div class="person-face">
+                                        <div class="eye"></div>
+                                        <div class="eye"></div>
+                                        <div class="smile"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="laptop">
+                            <div class="laptop-screen"></div>
+                        </div>
+                        <div class="lamp">
+                            <div class="lamp-base"></div>
+                            <div class="lamp-arm"></div>
+                            <div class="lamp-head"></div>
+                        </div>
+                        <div class="plant">
+                            <div class="pot"></div>
+                            <div class="leaf"></div>
+                            <div class="leaf"></div>
+                        </div>
+                        <div class="interview-bubble">
+                            <div class="status-indicator"></div>
+                            <div class="bubble-header">
+                                🟢 ONLINE JOB INTERVIEW
+                            </div>
+                            <div class="interviewer-profile">
+                                <div class="interviewer-avatar"></div>
+                                <div class="interviewer-info">
+                                    <div class="interviewer-name">HR Manager</div>
+                                    <div class="rating-stars">
+                                        <div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="laptop">
-                        <div class="laptop-screen"></div>
-                    </div>
-                    <div class="lamp">
-                        <div class="lamp-base"></div>
-                        <div class="lamp-arm"></div>
-                        <div class="lamp-head"></div>
-                    </div>
-                    <div class="plant">
-                        <div class="pot"></div>
-                        <div class="leaf"></div>
-                        <div class="leaf"></div>
-                    </div>
-                    <div class="interview-bubble">
-                        <div class="status-indicator"></div>
-                        <div class="bubble-header">
-                            🟢 ONLINE JOB INTERVIEW
-                        </div>
-                        <div class="interviewer-profile">
-                            <div class="interviewer-avatar"></div>
-                            <div class="interviewer-info">
-                                <div class="interviewer-name">HR Manager</div>
-                                <div class="rating-stars">
-                                    <div class="star"></div>
-                                    <div class="star"></div>
-                                    <div class="star"></div>
-                                    <div class="star"></div>
-                                    <div class="star"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                @endif
             </div>
             
             <div class="hero-text">
-                <h1 class="hero-title">Tips Wawancara Kerja secara Online</h1>
-                <p class="hero-subtitle">
-                    Panduan lengkap untuk mempersiapkan dan menghadapi wawancara kerja online dengan percaya diri dan profesional.
-                </p>
+                <h1 class="hero-title">{{ $news->title }}</h1>
+                <p class="hero-subtitle">{{ $news->subtitle }}</p>
                 <div class="hero-date">
                     <div class="date-icon">📅</div>
-                    <span>24 Apr 2025</span>
+                    <span>{{ \Carbon\Carbon::parse($news->created_at)->format('d M Y') }}</span>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="content-section">
-            
-            <div class="tip-card">
-                <h3 class="tip-title">Atur Lingkungan</h3>
-                <p class="tip-description">
-                    Pilih tempat yang tenang dengan pencahayaan yang baik. Pastikan background terlihat profesional dan tidak mengganggu fokus pewawancara.
-                    Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
-                    Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
-                    Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
-                    Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
-                    Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
-                    
-                </p>
+        <div class="article-content">
+            <h2 class="section-title">Deskripsi Berita</h2>
+            <div class="article-text">
+                <p>{{ $news->description }}</p>
+                {{-- Jika ada kolom content_full atau body untuk teks artikel lengkap --}}
+                {{-- <p>{{ $news->body_content_full }}</p> --}}
             </div>
-            
-            
         </div>
+        
+        {{-- Jika Anda memiliki "Tips" atau sub-bagian yang disimpan di database, Anda bisa menampilkan di sini --}}
+        {{-- Saat ini, elemen .tip-card statis, jadi ini tidak dinamis --}}
+        {{-- <div class="tips-grid">
+            <div class="tip-card">
+                <div class="tip-number">1</div>
+                <h3 class="tip-title">Atur Lingkungan</h3>
+                <p class="tip-description">Pilih tempat yang tenang dengan pencahayaan yang baik. Pastikan background terlihat profesional dan tidak mengganggu fokus pewawancara.</p>
+            </div>
+            </div> --}}
     </div>
 </body>
 </html>

@@ -782,6 +782,20 @@ Unlock your full potential with opportunities for training, mentorship, and adva
                 header.style.backdropFilter = 'none';
             }
         });
+
+        document.querySelectorAll('.beritaarticle-card').forEach(card => {
+        card.addEventListener('click', function() {
+            const newsId = this.dataset.newsId; // Ambil ID dari data-news-id
+            if (newsId) {
+                // Arahkan ke route detail berita
+                window.location.href = `/berita/${newsId}`; // Atau gunakan route helper jika bisa di JS
+                // Contoh dengan route helper (jika Anda menyediakan route helper di JS):
+                // window.location.href = '{{ route("news.show_detail", ["news" => "NEWS_ID_PLACEHOLDER"]) }}'.replace('NEWS_ID_PLACEHOLDER', newsId);
+            } else {
+                console.warn('News ID not found for the clicked article card.');
+            }
+        });
+    });
     </script>
 </body>
 </html>

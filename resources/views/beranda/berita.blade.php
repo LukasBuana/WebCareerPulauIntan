@@ -263,7 +263,7 @@
         <div class="beritaarticles-grid">
             {{-- Loop untuk menampilkan setiap berita dari database --}}
             @forelse($newsArticles as $news)
-                <article class="beritaarticle-card">
+                 <article class="beritaarticle-card" data-news-id="{{ $news->id }}"> {{-- <<< TAMBAHKAN INI --}}
                     <div class="beritaarticle-image">
                       <img src="{{ $news->image }}" alt="{{ $news->title }}">
                         {{-- Jika ada badge seperti "WE ARE HIRING" yang disimpan di DB, Anda bisa menambahkannya di sini --}}

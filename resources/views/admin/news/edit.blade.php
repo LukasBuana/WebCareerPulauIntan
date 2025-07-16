@@ -63,8 +63,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="description">Deskripsi</label>
-                                <textarea class="form-control" id="description" name="description" maxlength="255" required>{{ old('description', $news->description) }}</textarea>
-                                <small class="form-text text-muted">Maksimal 255 karakter.</small>
+                                <textarea class="form-control" id="description" name="description" required>{{ old('description', $news->description) }}</textarea>
                             </div>
 
                             <div class="form-group">

@@ -22,12 +22,12 @@ class JobTableSeeder extends Seeder
       
         
                 -- Dummy Data untuk job_categories
-            INSERT INTO job_categories (name, slug, description, created_at, updated_at) VALUES
-            ('IT & Software', 'it-software', 'Pekerjaan yang berkaitan dengan pengembangan perangkat lunak, IT support, jaringan, dan data.', NOW(), NOW()),
-            ('Engineering', 'engineering', 'Posisi di bidang teknik sipil, mesin, elektro, dan industri.', NOW(), NOW()),
-            ('Marketing', 'marketing', 'Lowongan di bidang pemasaran digital, branding, riset pasar, dan komunikasi.', NOW(), NOW()),
-            ('Human Resources', 'human-resources', 'Pekerjaan terkait manajemen sumber daya manusia, rekrutmen, dan pelatihan.', NOW(), NOW()),
-            ('Finance & Accounting', 'finance-accounting', 'Posisi di bidang keuangan, akuntansi, audit, dan analisis finansial.', NOW(), NOW());
+            INSERT INTO job_categories (name, slug, description,icon, created_at, updated_at) VALUES
+            ('IT & Software', 'it-software', 'Pekerjaan yang berkaitan dengan pengembangan perangkat lunak, IT support, jaringan, dan data.','💻', NOW(), NOW()),
+            ('Engineering', 'engineering', 'Posisi di bidang teknik sipil, mesin, elektro, dan industri.','⚙️', NOW(), NOW()),
+            ('Marketing', 'marketing', 'Lowongan di bidang pemasaran digital, branding, riset pasar, dan komunikasi.','📊', NOW(), NOW()),
+            ('Human Resources', 'human-resources', 'Pekerjaan terkait manajemen sumber daya manusia, rekrutmen, dan pelatihan.','🤝🏻', NOW(), NOW()),
+            ('Finance & Accounting', 'finance-accounting', 'Posisi di bidang keuangan, akuntansi, audit, dan analisis finansial.','💰', NOW(), NOW());
 
             -- Dummy Data untuk job_locations
             INSERT INTO job_locations (name, city, province, country, created_at, updated_at) VALUES

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('title', 100)->unique()->nullable(false); // NOT NULL UNIQUE
             $table->string('category', 100)->nullable(false); // NOT NULL UNIQUE
             $table->string('subtitle',100)->nullable(false);
-            $table->string('description',255)->nullable(false);
+            $table->longText('description')->nullable(false);
             $table->longText('image');
             $table->timestamps();
         });

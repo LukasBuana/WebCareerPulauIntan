@@ -14,7 +14,7 @@ use App\Models\Jobs\Skill;
 use App\Models\News;
 use App\Http\Controllers\Job\JobDetailController;
 use App\Http\Controllers\Job\JobListingController; 
-
+use App\Http\Controllers\News\NewsDetailController;
 
 use Illuminate\Support\Facades\Auth;
 
@@ -61,9 +61,7 @@ Route::get('/detail_lowongan', function () {
 });
 Route::get('/detail_lowongan/{job}', [JobDetailController::class, 'show'])->name('jobs.show_detail');
 
-Route::get('/detail_berita', function () {
-    return view('beranda.detail_berita');
-});
+Route::get('/berita/{news}', [NewsDetailController::class, 'show'])->name('news.show_detail');
 
 Route::get('/jobs', [JobListingController::class, 'index'])->name('jobs.index'); // <<< TAMBAHKAN INI
 

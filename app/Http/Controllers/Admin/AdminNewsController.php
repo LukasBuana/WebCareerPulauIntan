@@ -35,7 +35,7 @@ class AdminNewsController extends Controller
             'title' => 'required|string|max:100',
             'subtitle' => 'required|string|max:100',
             'category' => 'required|string|max:100',
-            'description' => 'required|string|max:255',
+            'description' => 'required|string',
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Validasi tetap sebagai file gambar
         ]);
 
@@ -84,7 +84,7 @@ class AdminNewsController extends Controller
             'title' => 'required|string|max:100',
             'subtitle' => 'required|string|max:100',
             'category' => 'required|string|max:100',
-            'description' => 'required|string|max:255',
+            'description' => 'required|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Gambar opsional untuk update
         ]);
 
