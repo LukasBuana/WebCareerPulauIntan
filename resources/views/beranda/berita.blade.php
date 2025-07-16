@@ -10,6 +10,18 @@
             padding: 0;
             box-sizing: border-box;
         }
+         .berita-accent-bar1{
+    display: flex;
+    color: #E54155; /* This applies to text content if any */
+    background-color: #E54155; /* Use this to make the bar itself orange */
+    width: 200px; /* Example width */
+    height: 10px; /* Example height */
+    margin-top: 0px;
+    margin-left: 0px;
+    margin-bottom: 20px;
+    border-radius: 50px;
+
+ }
 
         .beritabody {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -240,7 +252,10 @@
 </head>
 <body>
     <div class="beritacontainer">
+        <div class="berita-accent-bar1"></div>
+
         <div class="beritaheader">
+
             <h1>Berita & Artikel</h1>
             <a href="#" class="beritaview-all">Lihat semua</a> {{-- Anda mungkin ingin membuat route untuk halaman "Lihat Semua Berita" --}}
         </div>
@@ -547,79 +562,5 @@
         }
     </style>
 </head>
-<body>
-    <div class="newsaccent-bar2"></div>
-    <div class="newsaccent-bar1"></div>
-    <div class="beritacontainer">
-        <div class="beritaheader">
-            <h1>Berita & Artikel</h1>
-            <a href="#" class="beritaview-all">Lihat semua</a>
-        </div>
 
-        <div class="beritaarticles-grid">
-            <article class="beritaarticle-card article-1">
-                <div class="beritaarticle-image">
-                    <!-- Video conference illustration -->
-                </div>
-                <div class="beritaarticle-content">
-                    <div class="beritaarticle-meta">
-                        <span>24 Apr 2025</span>
-                        <span>•</span>
-                        <span>Tips</span>
-                    </div>
-                    <h3 class="beritaarticle-title">Pemberitahuan kepada Kandidat: Hati-hati Modus Penipuan Rekrutmen!</h3>
-                    <p class="beritaarticle-excerpt">Indofood menyatakan bahwa banyak lowongan pekerjaan palsu yang dipasang di situs web</p>
-                </div>
-            </article>
-
-            <article class="beritaarticle-card article-2">
-                <div class="beritaarticle-image">
-                    <div class="beritahiring-badge">WE ARE HIRING</div>
-                    <!-- Search/magnifying glass illustration -->
-                </div>
-                <div class="beritaarticle-content">
-                    <div class="beritaarticle-meta">
-                        <span>24 Apr 2025</span>
-                        <span>•</span>
-                        <span>Tips</span>
-                    </div>
-                    <h3 class="beritaarticle-title">Tutorial Melamar Kerja di Indofood Career</h3>
-                    <p class="beritaarticle-excerpt">Tahukah kamu cara melamar ke Indofood?</p>
-                </div>
-            </article>
-
-            <article class="beritaarticle-card article-3">
-                <div class="beritaarticle-image">
-                    <!-- Online interview illustration -->
-                </div>
-                <div class="beritaarticle-content">
-                    <div class="beritaarticle-meta">
-                        <span>24 Apr 2025</span>
-                        <span>•</span>
-                        <span>Tips</span>
-                    </div>
-                    <h3 class="beritaarticle-title">Tips Wawancara Kerja secara Online</h3>
-                    <p class="beritaarticle-excerpt">Tahap wawancara merupakan salah satu tahapan penting dalam proses seleksi</p>
-                </div>
-            </article>
-        </div>
-    </div>
-
-    <script>
-        // Add click functionality to article cards
-        document.querySelectorAll('.beritaarticle-card').forEach(card => {
-            card.addEventListener('click', function() {
-                console.log('Article clicked:', this.querySelector('.beritaarticle-title').textContent);
-                // Add your navigation logic here
-            });
-        });
-
-        // Add smooth scroll behavior
-        document.querySelector('.beritaview-all').addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log('View all clicked');
-            // Add your view all logic here
-        });
-    </script>
-</body>
 </html>

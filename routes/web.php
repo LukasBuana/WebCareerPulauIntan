@@ -12,6 +12,8 @@ use App\Models\Jobs\JobCategory;
 use App\Models\Jobs\JobType;
 use App\Models\Jobs\Skill;
 use App\Models\News;
+use App\Http\Controllers\JobController;         // Untuk halaman listing lowongan
+use App\Http\Controllers\JobDetailController; // Untuk halaman detail lowongan
 
 
 
@@ -51,6 +53,26 @@ Route::get('/', function () {
         'newsArticles',
     ));
 })->name('home');
+
+
+
+Route::get('/detail_lowongan', function () {
+    return view('beranda.detail_lowongan');
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Rute Dashboard
 // Rute ini tetap ada dan dilindungi oleh middleware 'auth' dan 'verified'.
@@ -104,4 +126,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 Route::get('/tentang', function () {
     return view('/tentang');
 })->name('tentang');
+
+
+// Route::get('/lowongan', [JobController::class, 'index'])->name('jobs.index');
+Route::get('/lowongan/{id}', [JobDetailController::class, 'show'])->name('job.show');
+Route::get('/detail_lowongan/{id}', [JobController::class, 'showDetail'])->name('job.detail');
 
