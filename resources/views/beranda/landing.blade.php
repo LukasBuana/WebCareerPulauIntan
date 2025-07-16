@@ -701,7 +701,7 @@
         </section>
 
          <section id="faq">
-            <h2 style="font-size: 2.5rem; color: #2563eb; text-align: center; margin-bottom: 40px;">Pertanyaan yang Sering Diajukan</h2>
+            <!-- <h2 style="font-size: 2.5rem; color: #2563eb; text-align: center; margin-bottom: 40px;">Pertanyaan yang Sering Diajukan</h2> -->
             @include('beranda.faq')
 
             {{-- Anda bisa menambahkan konten dinamis untuk berita di sini --}}

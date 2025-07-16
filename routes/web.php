@@ -12,6 +12,8 @@ use App\Models\JobCategory;
 use App\Models\JobType;
 use App\Models\Skill;
 use App\Models\News;
+use App\Http\Controllers\JobController;         // Untuk halaman listing lowongan
+use App\Http\Controllers\JobDetailController; // Untuk halaman detail lowongan
 
 
 
@@ -105,3 +107,6 @@ Route::get('/tentang', function () {
     return view('/tentang');
 })->name('tentang');
 
+
+Route::get('/lowongan', [JobController::class, 'index'])->name('jobs.index');
+Route::get('/lowongan/{id}', [JobDetailController::class, 'show'])->name('job.show');

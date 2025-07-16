@@ -5,53 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FAQ - Pertanyaan yang Sering Diajukan</title>
     <style>
-        .faq * {
-            margin: 3px;
-            padding: 1px;
-            box-sizing: border-box;
-            margin-left: 100px;
-            margin-right: 100px;
-            align-items: center;
-        }
-
-        .faq body {
+        /* Base styles for the section, using a unique ID or a highly specific class */
+        .idfd-faq-section {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             line-height: 1.6;
             color: #333;
             background-color: #f8f9fa;
-            margin-left: 100px;
-            margin-right: 100px;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
             align-items: center;
-        }
-
-        .faq .container {
-            max-width: 800px;
-            margin: 0 auto;
             padding: 40px 20px;
-            margin-left: 100px;
-            margin-right: 100px;
-            align-items: center;
+            box-sizing: border-box;
         }
 
-        .faq .faq-container {
+        .idfd-faq-section .idfd-header h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 40px;
+            font-size: 2.5rem;
+        }
+
+        .idfd-faq-section .idfd-faq-container {
+            max-width: 800px;
+            width: 100%;
             background: white;
             border-radius: 12px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             overflow: hidden;
-             margin-left: 100px;
-            margin-right: 100px;
-            align-items: center;
         }
 
-        .faq .faq-item {
+        .idfd-faq-section .idfd-faq-item {
             border-bottom: 1px solid #e9ecef;
         }
 
-        .faq .faq-item:last-child {
+        .idfd-faq-section .idfd-faq-item:last-child {
             border-bottom: none;
         }
 
-        .faq .faq-question {
+        .idfd-faq-section .idfd-faq-question {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -65,131 +57,157 @@
             font-weight: 500;
             color: #2c5aa0;
             transition: background-color 0.3s ease;
-             margin-left: 100px;
-            margin-right: 100px;
-            align-items: center;
         }
 
-        .faq .faq-question:hover {
+        .idfd-faq-section .idfd-faq-question:hover {
             background-color: #f8f9fa;
         }
 
-        .faq .faq-question.active {
+        .idfd-faq-section .idfd-faq-question.active {
             background-color: #f0f4f8;
         }
 
-        .faq .faq-icon {
+        .idfd-faq-section .idfd-faq-icon {
             font-size: 1.2rem;
             font-weight: bold;
             color: #666;
             transition: transform 0.3s ease;
         }
 
-        .faq .faq-question.active .faq-icon {
+        .idfd-faq-section .idfd-faq-question.active .idfd-faq-icon {
             transform: rotate(180deg);
         }
 
-        .faq .faq-answer {
+        .idfd-faq-section .idfd-faq-answer {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.3s ease;
+            transition: max-height 0.3s ease-out;
             background-color: #f8f9fa;
         }
 
-        .faq .faq-answer.active {
-            max-height: 200px; /* You might need to adjust this value based on your content */
+        .idfd-faq-section .idfd-faq-answer.active {
+            max-height: 200px; /* Adjust as needed */
+            transition: max-height 0.3s ease-in;
         }
 
-        .faq .faq-answer-content {
+        .idfd-faq-section .idfd-faq-answer-content {
             padding: 20px 25px;
             color: #555;
             line-height: 1.8;
         }
 
-        .faq .faq-answer-content em {
+        .idfd-faq-section .idfd-faq-answer-content em {
             font-style: italic;
             color: #666;
         }
 
         @media (max-width: 768px) {
-            .faq .container {
+            .idfd-faq-section {
                 padding: 20px 15px;
             }
 
-            .faq .header h1 {
+            .idfd-faq-section .idfd-header h1 {
                 font-size: 2rem;
             }
 
-            .faq .faq-question {
+            .idfd-faq-section .idfd-faq-question {
                 padding: 15px 20px;
                 font-size: 1rem;
             }
 
-            .faq .faq-answer-content {
+            .idfd-faq-section .idfd-faq-answer-content {
                 padding: 15px 20px;
             }
         }
     </style>
 </head>
 <body>
+    <div class="idfd-faq-section">
+        <div class="idfd-header">
+            <h1>Pertanyaan yang Sering Diajukan</h1>
+        </div>
 
-        <div class="faq faq-container">
-            <div class="faq-item">
-                <button class="faq-question" onclick="toggleFaq(this)">
+        <div class="idfd-faq-container">
+            <div class="idfd-faq-item">
+                <button class="idfd-faq-question" onclick="toggleFaq(this)">
                     <span>Apa persyaratan dan tahapan yang harus dilakukan jika ingin melamar posisi di Indofood group?</span>
-                    <span class="faq-icon">▼</span>
+                    <span class="idfd-faq-icon">▼</span>
                 </button>
-                <div class="faq-answer">
-                    <div class="faq-answer-content">
+                <div class="idfd-faq-answer">
+                    <div class="idfd-faq-answer-content">
                         Periksa persyaratan dari jabatan yang dituju dan pastikan Anda memenuhi kualifikasi. Selanjutnya Anda dapat membuat akun dengan meng-klik tombol 'Daftar'. Setelah masuk, Anda diminta mengisi data pribadi, mengunggah foto dan CV terbaru, dan menekan tombol 'Simpan' untuk menyimpan data. Setelah itu, Anda dapat memilih posisi yang akan dilamar dengan menekan tombol 'Lamar Pekerjaan ini'.
                     </div>
                 </div>
             </div>
 
-            <div class="faq-item">
-                <button class="faq-question" onclick="toggleFaq(this)">
+            <div class="idfd-faq-item">
+                <button class="idfd-faq-question" onclick="toggleFaq(this)">
                     <span>Apa yang harus dilakukan jika lupa password?</span>
-                    <span class="faq-icon">▼</span>
+                    <span class="idfd-faq-icon">▼</span>
                 </button>
-                <div class="faq-answer">
-                    <div class="faq-answer-content">
+                <div class="idfd-faq-answer">
+                    <div class="idfd-faq-answer-content">
                         Anda bisa melakukan <em>reset</em> kata sandi melalui menu lupa kata sandi dan membuat kata sandi baru.
                     </div>
                 </div>
             </div>
 
-            <div class="faq-item">
-                <button class="faq-question" onclick="toggleFaq(this)">
+            <div class="idfd-faq-item">
+                <button class="idfd-faq-question" onclick="toggleFaq(this)">
                     <span>Dokumen apa saja yang harus dipersiapkan sebelum membuat akun?</span>
-                    <span class="faq-icon">▼</span>
+                    <span class="idfd-faq-icon">▼</span>
                 </button>
-                <div class="faq-answer">
-                    <div class="faq-answer-content">
+                <div class="idfd-faq-answer">
+                    <div class="idfd-faq-answer-content">
                         Pastikan Anda telah menyiapkan dokumen-dokumen berikut: CV terbaru dalam format PDF, foto profil yang professional, dan dokumen pendukung lainnya sesuai dengan persyaratan posisi yang akan dilamar.
                     </div>
                 </div>
             </div>
 
-            <div class="faq-item">
-                <button class="faq-question" onclick="toggleFaq(this)">
+            <div class="idfd-faq-item">
+                <button class="idfd-faq-question" onclick="toggleFaq(this)">
                     <span>Mengapa saya gagal menyimpan data?</span>
-                    <span class="faq-icon">▼</span>
+                    <span class="idfd-faq-icon">▼</span>
                 </button>
-                <div class="faq-answer">
-                    <div class="faq-answer-content">
+                <div class="idfd-faq-answer">
+                    <div class="idfd-faq-answer-content">
                         Pastikan koneksi internet Anda stabil dan semua field yang wajib diisi sudah terisi dengan benar. Jika masalah berlanjut, coba refresh halaman atau hubungi tim support kami.
                     </div>
                 </div>
             </div>
 
-            <div class="faq-item">
-                <button class="faq-question" onclick="toggleFaq(this)">
+            <div class="idfd-faq-item">
+                <button class="idfd-faq-question" onclick="toggleFaq(this)">
                     <span>Apakah saya bisa melamar lebih dari satu posisi?</span>
-                    <span class="faq-icon">▼</span>
+                    <span class="idfd-faq-icon">▼</span>
                 </button>
-                <div class="faq-answer">
-                    <div class="faq-answer-content">
+                <div class="idfd-faq-answer">
+                    <div class="idfd-faq-answer-content">
                         Ya, Anda dapat melamar untuk beberapa posisi sekaligus asalkan memenuhi kualifikasi yang dipersyaratkan. Namun, pastikan untuk menyesuaikan CV dan surat lamaran sesuai dengan posisi yang dilamar.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="idfd-faq-item">
+                <button class="idfd-faq-question" onclick="toggleFaq(this)">
+                    <span>Setelah selesai melamar posisi yang dituju, apakah tahapan selanjutnya?</span>
+                    <span class="idfd-faq-icon">▼</span>
+                </button>
+                <div class="idfd-faq-answer">
+                    <div class="idfd-faq-answer-content">
+                        Setelah melamar, Anda dapat memantau status aplikasi Anda melalui halaman riwayat lamaran. Tim rekrutmen kami akan meninjau lamaran Anda dan akan menghubungi Anda jika Anda lolos ke tahap selanjutnya.
+                    </div>
+                </div>
+            </div>
+
+            <div class="idfd-faq-item">
+                <button class="idfd-faq-question" onclick="toggleFaq(this)">
+                    <span>Apa saja tahapan proses seleksi yang harus diikuti?</span>
+                    <span class="idfd-faq-icon">▼</span>
+                </button>
+                <div class="idfd-faq-answer">
+                    <div class="idfd-faq-answer-content">
+                        Proses seleksi umumnya meliputi seleksi administrasi, tes psikologi, wawancara HR, wawancara user, dan medical check-up. Tahapan ini dapat bervariasi tergantung pada posisi yang dilamar.
                     </div>
                 </div>
             </div>
@@ -199,11 +217,13 @@
     <script>
         function toggleFaq(element) {
             const answer = element.nextElementSibling;
-            const icon = element.querySelector('.faq-icon');
-            const allQuestions = document.querySelectorAll('.faq-question');
-            const allAnswers = document.querySelectorAll('.faq-answer');
+            const icon = element.querySelector('.idfd-faq-icon');
             
-            // Close all other FAQ items
+            // Get all FAQ questions within the specific section
+            const allQuestions = document.querySelectorAll('.idfd-faq-section .idfd-faq-question');
+            const allAnswers = document.querySelectorAll('.idfd-faq-section .idfd-faq-answer');
+            
+            // Close all other FAQ items within the specific section
             allQuestions.forEach(question => {
                 if (question !== element) {
                     question.classList.remove('active');
