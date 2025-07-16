@@ -714,7 +714,7 @@
                             </div>
                         </div>
                     </div>
-                `;
+                `;  
                 jpCategoriesGrid.insertAdjacentHTML('beforeend', card);
             });
             jpCategoriesGrid.querySelectorAll('.jp-category-card').forEach(card => {

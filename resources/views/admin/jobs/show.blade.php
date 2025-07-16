@@ -132,16 +132,7 @@
                                 <p>{{ \Carbon\Carbon::parse($job->created_at)->format('d M Y H:i:s') }}</p>
                             </div>
 
-                            <h3 class="section-header">Keterampilan Dibutuhkan</h3>
-                            @if($job->skills->isNotEmpty())
-                                <ul class="list-unstyled">
-                                    @foreach($job->skills as $skill)
-                                        <li><span class="badge badge-info">{{ $skill->name }}</span></li>
-                                    @endforeach
-                                </ul>
-                            @else
-                                <p>Tidak ada keterampilan spesifik yang dicantumkan.</p>
-                            @endif
+                            
 
                             <h3 class="section-header">Manfaat Pekerjaan</h3>
                             @if($job->benefits->isNotEmpty())
@@ -163,6 +154,17 @@
                                 </ul>
                             @else
                                 <p>Tidak ada persyaratan pekerjaan yang dicantumkan.</p>
+                            @endif
+
+                            <h3 class="section-header">Keterampilan Dibutuhkan</h3>
+                            @if($job->skills->isNotEmpty())
+                                <ul class="list-unstyled">
+                                    @foreach($job->skills as $skill)
+                                        <li><span class="badge badge-info">{{ $skill->name }}</span></li>
+                                    @endforeach
+                                </ul>
+                            @else
+                                <p>Tidak ada keterampilan spesifik yang dicantumkan.</p>
                             @endif
 
                             <div class="btn-group">

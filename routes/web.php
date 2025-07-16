@@ -6,11 +6,11 @@ use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminJobController; 
 use App\Http\Controllers\Admin\AdminNewsController;
-use App\Models\Job;
-use App\Models\JobLocation;
-use App\Models\JobCategory;
-use App\Models\JobType;
-use App\Models\Skill;
+use App\Models\Jobs\Job;
+use App\Models\Jobs\JobLocation;
+use App\Models\Jobs\JobCategory;
+use App\Models\Jobs\JobType;
+use App\Models\Jobs\Skill;
 use App\Models\News;
 use App\Http\Controllers\JobController;         // Untuk halaman listing lowongan
 use App\Http\Controllers\JobDetailController; // Untuk halaman detail lowongan

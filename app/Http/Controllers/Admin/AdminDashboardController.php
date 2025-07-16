@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 // use App\Models\Kapster;
 // use App\Models\Service;
 use App\Models\User;
-use App\Models\Job;
+use App\Models\Jobs\Job;
 
 // use App\Models\TransactionLog;
 use Carbon\Carbon;

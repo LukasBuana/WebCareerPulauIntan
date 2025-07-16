@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Job; // Import model Job
-use App\Models\JobCategory; // Import model JobCategory
-use App\Models\JobLocation; // Import model JobLocation
-use App\Models\JobType; // Import model JobType
-use App\Models\Skill; // Import model Skill (untuk tags jika diperlukan)
+use App\Models\Jobs\Job; // Import model Job
+use App\Models\Jobs\JobCategory; // Import model JobCategory
+use App\Models\Jobs\JobLocation; // Import model JobLocation
+use App\Models\Jobs\JobType; // Import model JobType
+use App\Models\Jobs\Skill; // Import model Skill (untuk tags jika diperlukan)
 use Illuminate\Http\Request;
 
 class JobListingController extends Controller

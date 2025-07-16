@@ -1,9 +1,9 @@
 <?php
 
 namespace App\Providers;
-use App\Models\Job; // Import model Job
 use Illuminate\Support\Str; // Import Str Facade
 
+use App\Models\Jobs\Job;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route; // Tambahkan ini jika belum ada
 
