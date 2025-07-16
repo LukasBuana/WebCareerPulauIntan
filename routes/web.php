@@ -12,9 +12,8 @@ use App\Models\Jobs\JobCategory;
 use App\Models\Jobs\JobType;
 use App\Models\Jobs\Skill;
 use App\Models\News;
-use App\Http\Controllers\JobController;         // Untuk halaman listing lowongan
-use App\Http\Controllers\JobDetailController; // Untuk halaman detail lowongan
-
+use App\Http\Controllers\Job\JobDetailController;
+use App\Http\Controllers\Job\JobListingController; 
 
 
 use Illuminate\Support\Facades\Auth;
@@ -26,6 +25,7 @@ Route::get('/', function () {
     $user = null; // Inisialisasi variabel user dengan null
     if (Auth::check()) {
         $user = Auth::user(); // Jika sudah login, ambil objek user
+        
     }
 
     // --- BAGIAN BARU: Ambil data untuk jobs ---
@@ -59,7 +59,9 @@ Route::get('/', function () {
 Route::get('/detail_lowongan', function () {
     return view('beranda.detail_lowongan');
 });
+Route::get('/detail_lowongan/{job}', [JobDetailController::class, 'show'])->name('jobs.show_detail');
 
+Route::get('/jobs', [JobListingController::class, 'index'])->name('jobs.index'); // <<< TAMBAHKAN INI
 
 
 
@@ -128,7 +130,4 @@ Route::get('/tentang', function () {
 })->name('tentang');
 
 
-// Route::get('/lowongan', [JobController::class, 'index'])->name('jobs.index');
-Route::get('/lowongan/{id}', [JobDetailController::class, 'show'])->name('job.show');
-Route::get('/detail_lowongan/{id}', [JobController::class, 'showDetail'])->name('job.detail');
 

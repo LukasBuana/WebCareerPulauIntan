@@ -1,6 +1,7 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Job;
+use App\Http\Controllers\Controller;
 
 use App\Models\Jobs\Job; // Import model Job
 use App\Models\Jobs\JobCategory; // Import model JobCategory
@@ -13,30 +14,17 @@ class JobListingController extends Controller
 {
     public function index(Request $request)
     {
-        // Mengambil semua lowongan pekerjaan dengan relasi yang diperlukan
-        // Jika Anda ingin filter, Anda bisa tambahkan logika where() di sini
-        $jobs = Job::with(['category', 'location', 'type', 'skills']) // Load relasi
-                    ->where('status', 'Published') // Hanya tampilkan yang statusnya 'Published'
-                    ->latest() // Urutkan berdasarkan yang terbaru
+        $jobs = Job::with(['category', 'location', 'type', 'skills'])
+                    ->where('status', 'Published')
+                    ->latest()
                     ->get();
 
-        // Mengambil semua kategori untuk filter dropdown
         $categories = JobCategory::orderBy('name')->get();
-
-        // Mengambil semua lokasi untuk filter dropdown
         $locations = JobLocation::orderBy('name')->get();
-
-        // Mengambil semua tipe pekerjaan (Full-time, Part-time, Remote, WFO, WFH)
         $jobTypes = JobType::orderBy('name')->get();
-
-        // Mengambil semua tags/skills unik dari semua pekerjaan
-        // Ini mungkin lebih kompleks karena tags di frontend adalah string array
-        // Anda bisa mengambilnya dari model Skill atau mengumpulkannya dari pekerjaan
         $allUniqueTags = Skill::orderBy('name')->pluck('name')->toArray();
-        // Atau jika tags di job adalah bagian dari deskripsi, Anda perlu mengekstraknya di frontend JS
 
-        // Mengirim data ke view
-        return view('job_listings', compact(
+        return view('beranda.detail_lowongan', compact(
             'jobs',
             'categories',
             'locations',

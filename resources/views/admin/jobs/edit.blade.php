@@ -191,133 +191,176 @@
     </div>
             @include('admin.js')
 <script>
-        // Fungsi untuk menambahkan input baru (dengan nilai opsional)
-        function addDynamicInput(containerId, inputName, placeholder, value = '') {
-            const container = document.getElementById(containerId);
-            const div = document.createElement('div');
-            div.classList.add('dynamic-input-group');
-            div.innerHTML = `
-                <input type="text" class="form-control" name="${inputName}[]" value="${value}" placeholder="${placeholder}">
-                <button type="button" class="btn btn-danger btn-remove">Hapus</button>
-            `;
-            container.appendChild(div);
+    // Fungsi untuk menambahkan input baru (dengan nilai opsional)
+    function addDynamicInput(containerId, inputName, placeholder, value = '') {
+        const container = document.getElementById(containerId);
+        const div = document.createElement('div');
+        div.classList.add('dynamic-input-group');
+        div.innerHTML = `
+            <input type="text" class="form-control" name="${inputName}[]" value="${value}" placeholder="${placeholder}" required>
+            <button type="button" class="btn btn-danger btn-remove">Hapus</button>
+        `;
+        container.appendChild(div);
 
-            const inputField = div.querySelector('input');
-            const removeButton = div.querySelector('.btn-remove');
+        const inputField = div.querySelector('input');
+        const removeButton = div.querySelector('.btn-remove');
 
-            // Atur visibilitas tombol hapus dan tambahkan event listener untuk memantau perubahan input
-            toggleRemoveButtonVisibility(inputField, removeButton);
-            inputField.addEventListener('input', () => toggleRemoveButtonVisibility(inputField, removeButton));
-            inputField.addEventListener('change', () => toggleRemoveButtonVisibility(inputField, removeButton));
+        toggleRemoveButtonVisibility(inputField, removeButton);
+        inputField.addEventListener('input', () => toggleRemoveButtonVisibility(inputField, removeButton));
+        inputField.addEventListener('change', () => toggleRemoveButtonVisibility(inputField, removeButton));
+        
+        if (value === '') {
+            inputField.focus();
         }
+    }
 
-        // Fungsi untuk mengontrol visibilitas tombol hapus untuk SATU input group
-        function toggleRemoveButtonVisibility(inputField, removeButton) {
-            if (inputField.value.trim() !== '') {
-                removeButton.style.display = 'inline-block'; // Tampilkan jika ada nilai
+    // Fungsi untuk mengontrol visibilitas tombol hapus untuk SATU input group
+    function toggleRemoveButtonVisibility(inputField, removeButton) {
+        if (inputField.value.trim() !== '') {
+            removeButton.style.display = 'inline-block';
+        } else {
+            removeButton.style.display = 'none';
+        }
+    }
+
+    // Fungsi untuk validasi semua input dalam container (sebelum menambah baru)
+    function validateContainerInputs(containerId) {
+        const container = document.getElementById(containerId);
+        const inputs = container.querySelectorAll('input[type="text"]');
+        let allValid = true;
+        inputs.forEach(input => {
+            if (input.value.trim() === '') {
+                input.classList.add('is-invalid');
+                allValid = false;
             } else {
-                removeButton.style.display = 'none'; // Sembunyikan jika kosong
+                input.classList.remove('is-invalid');
             }
+        });
+        return allValid;
+    }
+
+    // Fungsi untuk validasi semua input yang dibutuhkan
+    function validateAllRequiredInputs() {
+        let allValid = true;
+        const form = document.getElementById('jobForm');
+        const requiredInputs = form.querySelectorAll('input[required], select[required], textarea[required]'); 
+
+        requiredInputs.forEach(input => {
+            let isValid = true;
+            if (input.type === 'checkbox' || input.type === 'radio') {
+                isValid = input.checked;
+            } else if (input.tagName === 'SELECT') {
+                isValid = input.value.trim() !== '';
+            } else {
+                isValid = input.value.trim() !== '';
+            }
+
+            if (!isValid) {
+                input.classList.add('is-invalid');
+                allValid = false;
+            } else {
+                input.classList.remove('is-invalid');
+            }
+        });
+
+        const requirementsValid = validateContainerInputs('requirements-container');
+        const benefitsValid = validateContainerInputs('benefits-container');
+
+        if (!requirementsValid || !benefitsValid) {
+            allValid = false;
         }
 
-        // Fungsi untuk validasi semua input dalam container (sebelum menambah baru)
-        function validateContainerInputs(containerId) {
-            const container = document.getElementById(containerId);
-            const inputs = container.querySelectorAll('input[type="text"]');
-            let allValid = true;
-            inputs.forEach(input => {
-                if (input.value.trim() === '') {
-                    input.classList.add('is-invalid'); // Tandai input kosong
-                    allValid = false;
+        return allValid;
+    }
+
+    // Event listener untuk tombol "Tambah Persyaratan"
+    document.getElementById('add-requirement').addEventListener('click', function() {
+        const requirementsContainer = document.getElementById('requirements-container');
+        const lastRequirementInput = requirementsContainer.querySelector('.dynamic-input-group:last-child input');
+        
+        if (lastRequirementInput && lastRequirementInput.value.trim() === '') {
+            lastRequirementInput.classList.add('is-invalid');
+            alert('Harap isi persyaratan yang sudah ada terlebih dahulu.');
+        } else {
+            addDynamicInput('requirements-container', 'requirements', 'Contoh: Gelar S1 di bidang terkait');
+            const newAddedInput = requirementsContainer.querySelector('.dynamic-input-group:last-child input');
+            newAddedInput.classList.remove('is-invalid');
+        }
+    });
+
+    // Event listener untuk tombol "Tambah Manfaat"
+    document.getElementById('add-benefit').addEventListener('click', function() {
+        const benefitsContainer = document.getElementById('benefits-container');
+        const lastBenefitInput = benefitsContainer.querySelector('.dynamic-input-group:last-child input');
+
+        if (lastBenefitInput && lastBenefitInput.value.trim() === '') {
+            lastBenefitInput.classList.add('is-invalid');
+            alert('Harap isi manfaat yang sudah ada terlebih dahulu.');
+        } else {
+            addDynamicInput('benefits-container', 'benefits', 'Contoh: Asuransi Kesehatan');
+            const newAddedInput = benefitsContainer.querySelector('.dynamic-input-group:last-child input');
+            newAddedInput.classList.remove('is-invalid');
+        }
+    });
+
+    // Event listener untuk menghapus input dinamis (menggunakan event delegation)
+    document.addEventListener('click', function(event) {
+        if (event.target.classList.contains('btn-remove')) {
+            const group = event.target.closest('.dynamic-input-group');
+            if (group) {
+                const inputField = group.querySelector('input');
+                const container = group.parentElement;
+                const containerId = container.id;
+                const totalInputGroups = container.querySelectorAll('.dynamic-input-group').length;
+
+                if (totalInputGroups === 1) {
+                    inputField.value = '';
+                    toggleRemoveButtonVisibility(inputField, event.target);
+                    inputField.focus();
+                    inputField.classList.remove('is-invalid');
                 } else {
-                    input.classList.remove('is-invalid');
+                    group.remove();
                 }
+                
+                validateAllRequiredInputs(); 
+            }
+        }
+    });
+
+    // Pada saat DOMContentLoaded, render data yang sudah ada atau 'old'
+    document.addEventListener('DOMContentLoaded', function() {
+        // Ambil data yang sudah ada dari database (jika ada) atau dari old() setelah validasi gagal
+        const jobRequirements = @json($jobRequirements ?? old('requirements', []));
+        const jobBenefits = @json($jobBenefits ?? old('benefits', []));
+
+        // Render data persyaratan
+        if (jobRequirements.length > 0) {
+            jobRequirements.forEach(req => {
+                addDynamicInput('requirements-container', 'requirements', 'Contoh: Gelar S1 di bidang terkait', req);
             });
-            return allValid;
+        } else {
+            addDynamicInput('requirements-container', 'requirements', 'Contoh: Gelar S1 di bidang terkait');
         }
 
-        // Event listener untuk tombol "Tambah Persyaratan"
-        document.getElementById('add-requirement').addEventListener('click', function() {
-            if (validateContainerInputs('requirements-container')) {
-                addDynamicInput('requirements-container', 'requirements', 'Contoh: Gelar S1 di bidang terkait');
-                // Focus on the newly added input
-                const newInputs = document.querySelectorAll('#requirements-container .dynamic-input-group input');
-                if (newInputs.length > 0) {
-                    newInputs[newInputs.length - 1].focus();
-                }
-            } else {
-                alert('Harap isi persyaratan yang sudah ada terlebih dahulu.');
-            }
+        // Render data manfaat
+        if (jobBenefits.length > 0) {
+            jobBenefits.forEach(benefit => {
+                addDynamicInput('benefits-container', 'benefits', 'Contoh: Asuransi Kesehatan', benefit);
+            });
+        } else {
+            addDynamicInput('benefits-container', 'benefits', 'Contoh: Asuransi Kesehatan');
+        }
+
+        // Jalankan validasi awal untuk menampilkan/menyembunyikan border merah
+        validateAllRequiredInputs(); 
+
+        // Tambahkan event listener 'input' dan 'change' ke SEMUA input yang required untuk validasi real-time
+        const form = document.getElementById('jobForm');
+        form.querySelectorAll('input[required], select[required], textarea[required]').forEach(input => {
+            input.addEventListener('input', validateAllRequiredInputs);
+            input.addEventListener('change', validateAllRequiredInputs);
         });
-
-        // Event listener untuk tombol "Tambah Manfaat"
-        document.getElementById('add-benefit').addEventListener('click', function() {
-            if (validateContainerInputs('benefits-container')) {
-                addDynamicInput('benefits-container', 'benefits', 'Contoh: Asuransi Kesehatan');
-                // Focus on the newly added input
-                const newInputs = document.querySelectorAll('#benefits-container .dynamic-input-group input');
-                if (newInputs.length > 0) {
-                    newInputs[newInputs.length - 1].focus();
-                }
-            } else {
-                alert('Harap isi manfaat yang sudah ada terlebih dahulu.');
-            }
-        });
-
-        // Event listener untuk menghapus input dinamis (menggunakan event delegation)
-        document.addEventListener('click', function(event) {
-            if (event.target.classList.contains('btn-remove')) {
-                const group = event.target.closest('.dynamic-input-group');
-                if (group) {
-                    const inputField = group.querySelector('input');
-                    const container = group.parentElement;
-                    const containerId = container.id;
-                    const totalInputGroups = container.querySelectorAll('.dynamic-input-group').length;
-
-                    // Logika: Jika ini adalah input TERAKHIR, bersihkan saja, jangan hapus.
-                    if (totalInputGroups === 1) {
-                        inputField.value = ''; // Kosongkan field
-                        toggleRemoveButtonVisibility(inputField, event.target); // Sembunyikan tombol hapus
-                        inputField.focus(); // Beri fokus kembali ke field yang dikosongkan
-                        inputField.classList.remove('is-invalid'); // Hapus tanda invalid jika ada
-                    } else {
-                        // Jika bukan input terakhir, hapus barisnya
-                        group.remove();
-                    }
-                    
-                    // After action, revalidate all remaining inputs (to remove invalid flags)
-                    // No need to re-validate on removal unless you want to clean up existing marks
-                    // validateContainerInputs(containerId); // Optional: if you want to clean up marks on other fields
-                }
-            }
-        });
-
-        // Pada saat DOMContentLoaded, render data 'old' dan atur visibilitas awal
-        document.addEventListener('DOMContentLoaded', function() {
-            const oldRequirements = @json(old('requirements', []));
-            const oldBenefits = @json(old('benefits', []));
-
-            // Render old data for requirements
-            if (oldRequirements.length > 0) {
-                oldRequirements.forEach(req => {
-                    addDynamicInput('requirements-container', 'requirements', 'Contoh: Gelar S1 di bidang terkait', req);
-                });
-            } else {
-                addDynamicInput('requirements-container', 'requirements', 'Contoh: Gelar S1 di bidang terkait');
-            }
-
-            // Render old data for benefits
-            if (oldBenefits.length > 0) {
-                oldBenefits.forEach(benefit => {
-                    addDynamicInput('benefits-container', 'benefits', 'Contoh: Asuransi Kesehatan', benefit);
-                });
-            } else {
-                addDynamicInput('benefits-container', 'benefits', 'Contoh: Asuransi Kesehatan');
-            }
-
-            // No initial validation or focus on load for dynamic inputs to prevent red borders on first load
-            // The validation and focus now only occur when the "Tambah" button is clicked.
-        });
-    </script>
+    });
+</script>
 </body>
 </html>

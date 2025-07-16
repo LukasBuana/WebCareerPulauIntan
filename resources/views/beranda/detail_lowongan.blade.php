@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detail Pekerjaan - Production Section Head</title>
+    <title>Detail Pekerjaan - {{ $job->title }}</title>
     <style>
         * {
             margin: 0;
@@ -261,38 +261,39 @@
 </head>
 <body>
     <div class="container">
-        <!-- Header Section -->
         <div class="header">
             <div class="breadcrumb">
-                <a href="#">Lowongan</a> > Production Section Head
+                <a href="{{ route('home') }}">Beranda</a> >
+                <a href="{{ route('jobs.index') }}">Lowongan</a> >
+                {{ $job->title }}
             </div>
             
-            <h1 class="job-title">Production Section Head</h1>
+            <h1 class="job-title">{{ $job->title }}</h1>
             
             <div class="job-meta">
                 <div class="meta-item">
                     <svg class="meta-icon" viewBox="0 0 24 24">
                         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                     </svg>
-                    ICBP - Nutrition and Special Food
+                    <span>{{"PT. PULAUINTAN BAJAPERKASA KONSTRUKSI" }}</span> {{-- Nama perusahaan/user poster --}}
                 </div>
                 <div class="meta-item">
                     <svg class="meta-icon" viewBox="0 0 24 24">
                         <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
                     </svg>
-                    Padalarang - Bandung Barat
+                    <span>{{ $job->location->name ?? 'N/A' }}</span> {{-- Lokasi --}}
                 </div>
                 <div class="meta-item">
                     <svg class="meta-icon" viewBox="0 0 24 24">
                         <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                     </svg>
-                    S1
+                    <span>{{ $job->education_level ?? 'Tidak disebutkan' }}</span> {{-- Tingkat Pendidikan --}}
                 </div>
                 <div class="meta-item">
                     <svg class="meta-icon" viewBox="0 0 24 24">
                         <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
                     </svg>
-                    Lulusan Baru - Tetap
+                    <span>{{ $job->experience_level ?? 'Tidak disebutkan' }} - {{ $job->type->name ?? 'N/A' }}</span> {{-- Level & Tipe Pekerjaan --}}
                 </div>
             </div>
             
@@ -304,42 +305,72 @@
             </a>
         </div>
 
-        <!-- Content Grid -->
         <div class="content-grid">
-            <!-- Main Content -->
             <div class="main-content">
-                <h2 class="section-title">Persyaratan Pekerjaan</h2>
-                <ul class="requirements-list">
-                    <li>Sarjana (S1) Minimal IPK 3.00</li>
-                    <li>Jurusan Teknologi Pangan atau Teknik Industri</li>
-                    <li>Baik dalam analisa</li>
-                    <li>Baik dalam kemampuan komunikasi</li>
-                    <li>Memiliki kemampuan presentasi</li>
-                    <li>Memiliki kepemimpinan yang baik dan kerjasama tim</li>
-                    <li>Bersedia ditempatkan di Padalarang, Kabupaten Bandung Barat</li>
-                </ul>
-
                 <h2 class="section-title">Deskripsi Pekerjaan</h2>
                 <p style="line-height: 1.6; margin-bottom: 20px;">
-                    Sebagai Production Section Head, Anda akan bertanggung jawab untuk memimpin dan mengawasi operasional produksi di departemen Nutrition and Special Food. Posisi ini membutuhkan kemampuan analisis yang kuat, leadership yang baik, dan kemampuan untuk bekerja dalam tim yang dinamis.
+                    {{ $job->description }}
                 </p>
                 
-                <p style="line-height: 1.6; margin-bottom: 20px;">
-                    Kandidat yang ideal adalah lulusan baru dengan latar belakang pendidikan Teknologi Pangan atau Teknik Industri yang memiliki motivasi tinggi untuk berkembang dalam industri makanan dan nutrisi. Kami mencari individu yang dapat berkomunikasi dengan baik dan mampu melakukan presentasi dengan efektif.
-                </p>
-
+                @if($job->responsibilities)
                 <h2 class="section-title">Tanggung Jawab</h2>
                 <ul class="requirements-list">
-                    <li>Memimpin dan mengawasi tim produksi</li>
-                    <li>Menganalisis proses produksi untuk optimalisasi</li>
-                    <li>Melakukan presentasi laporan kepada manajemen</li>
-                    <li>Memastikan standar kualitas produk terpenuhi</li>
-                    <li>Koordinasi dengan departemen lain</li>
-                    <li>Mengembangkan dan mengimplementasikan SOP</li>
+                    @php
+                        // Memisahkan teks tanggung jawab menjadi poin-poin jika disimpan sebagai paragraf
+                        // Atau jika disimpan sebagai daftar di DB, Anda bisa loop langsung $job->responsibilities_list
+                        $responsibilities = preg_split("/\r\n|\n|\r/", $job->responsibilities);
+                    @endphp
+                    @foreach($responsibilities as $res)
+                        @if(trim($res) !== '')
+                            <li>{{ trim($res) }}</li>
+                        @endif
+                    @endforeach
                 </ul>
+                @endif
+
+                @if($job->qualifications)
+                <h2 class="section-title">Kualifikasi</h2>
+                <ul class="requirements-list">
+                     @php
+                        // Memisahkan teks kualifikasi menjadi poin-poin
+                        $qualifications = preg_split("/\r\n|\n|\r/", $job->qualifications);
+                    @endphp
+                    @foreach($qualifications as $qual)
+                        @if(trim($qual) !== '')
+                            <li>{{ trim($qual) }}</li>
+                        @endif
+                    @endforeach
+                </ul>
+                @endif
+
+                @if($job->requirements->isNotEmpty())
+                <h2 class="section-title">Persyaratan Pekerjaan</h2>
+                <ul class="requirements-list">
+                    @foreach($job->requirements as $requirement)
+                        <li>{{ $requirement->description }}</li>
+                    @endforeach
+                </ul>
+                @endif
+
+                @if($job->benefits->isNotEmpty())
+                <h2 class="section-title">Manfaat Pekerjaan</h2>
+                <ul class="requirements-list">
+                    @foreach($job->benefits as $benefit)
+                        <li>{{ $benefit->description }}</li>
+                    @endforeach
+                </ul>
+                @endif
+
+                @if($job->skills->isNotEmpty())
+                <h2 class="section-title">Keterampilan yang Dibutuhkan</h2>
+                <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;">
+                    @foreach($job->skills as $skill)
+                        <span style="background: #e0f2f7; color: #0288d1; padding: 5px 10px; border-radius: 15px; font-size: 0.85rem;">{{ $skill->name }}</span>
+                    @endforeach
+                </div>
+                @endif
             </div>
 
-            <!-- Sidebar -->
             <div class="sidebar">
                 <div class="job-info-card">
                     <div class="job-icon">
@@ -347,35 +378,44 @@
                             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                         </svg>
                     </div>
-                    <div class="job-function">Fungsi</div>
-                    <div class="job-category">Manufacturing</div>
+                    <div class="job-function">Category</div>
+                    <div class="job-category">{{ $job->category->name ?? 'N/A' }}</div>
                     
                     <div class="job-details">
                         <div class="detail-item">
                             <span class="detail-label">Berlaku Hingga</span>
-                            <span class="detail-value">13 Sep 2025</span>
+                            <span class="detail-value">{{ $job->application_deadline ? Carbon\Carbon::parse($job->application_deadline)->format('d M Y') : 'Tidak ada' }}</span>
                         </div>
                         <div class="detail-item">
                             <span class="detail-label">Jenis Pekerjaan</span>
-                            <span class="detail-value">Full Time</span>
+                            <span class="detail-value">{{ $job->type->name ?? 'N/A' }}</span>
                         </div>
                         <div class="detail-item">
                             <span class="detail-label">Level</span>
-                            <span class="detail-value">Fresh Graduate</span>
+                            <span class="detail-value">{{ $job->experience_level ?? 'Tidak disebutkan' }}</span>
                         </div>
                         <div class="detail-item">
-                            <span class="detail-label">Pengalaman</span>
-                            <span class="detail-value">0-1 Tahun</span>
+                            <span class="detail-label">Gaji</span>
+                            <span class="detail-value">
+                                {{ ($job->min_salary ? number_format($job->min_salary, 0, ',', '.') : 'Negotiable') }}
+                                -
+                                {{ ($job->max_salary ? number_format($job->max_salary, 0, ',', '.') : 'Negotiable') }}
+                                {{ $job->salary_currency }}
+                            </span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Dilihat</span>
+                            <span class="detail-value">{{ $job->views_count }} Kali</span>
                         </div>
                     </div>
                 </div>
 
-                <button class="apply-button">
+                <a href="#" class="apply-button">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 8px;">
                         <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
                     </svg>
                     Lamar pekerjaan ini
-                </button>
+                </a>
 
                 <div style="margin-top: 25px; padding: 20px; background: #f8f9fa; border-radius: 15px;">
                     <h3 style="font-size: 16px; margin-bottom: 15px; color: #333;">Tips Melamar</h3>
