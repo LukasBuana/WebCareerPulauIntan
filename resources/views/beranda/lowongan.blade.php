@@ -80,7 +80,7 @@
         }
 
         .jp-search-btn {
-            background: #4a90e2;
+            background: black;
             color: white;
             border: none;
             padding: 12px 24px;
@@ -92,7 +92,7 @@
         }
 
         .jp-search-btn:hover {
-            background: #2c5aa0;
+            background: #E54155;
         }
 
         /* Filter Dropdown */
@@ -156,7 +156,7 @@
         }
 
         .jp-view-all {
-            color: #4a90e2;
+            color:black;
             text-decoration: none;
             font-weight: 500;
             display: flex;
@@ -191,7 +191,7 @@
         }
 
         .jp-category-card.jp-active-category {
-            border: 2px solid #4a90e2;
+            border: 2px solid #E54155;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
         }
 
@@ -218,7 +218,7 @@
         .jp-category-title {
             font-size: 1.0rem;
             font-weight: 600;
-            color: #4a90e2;
+            color: #E54155;
         }
 
         .jp-category-count {
