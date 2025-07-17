@@ -153,3 +153,15 @@ Route::get('/tentang', function () {
 
 
 
+
+
+
+Route::get('/sidebar_user', function () {
+    return view('applicant.sidebar_user');
+});
+
+
+Route::get('/index', function () {
+    return view('applicant.profile.index');
+});
+

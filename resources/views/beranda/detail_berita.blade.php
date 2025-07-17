@@ -26,6 +26,7 @@
             justify-content: center;
             position: relative;
             overflow: hidden;
+            margin-top: 85px;
         }
 
         .hero-content {
@@ -36,6 +37,7 @@
             gap: 60px;
             align-items: center;
             padding: 0 40px;
+           
         }
 
          .hero-illustration img {
@@ -234,6 +236,7 @@
 </head>
 <body>
     <div class="hero-section">
+          @include('beranda.header_user')
         <div class="hero-content">
             <div class="hero-illustration">
                 @if($news->image)
