@@ -36,8 +36,9 @@ class AdminJobController extends Controller
         $locations = JobLocation::orderBy('name')->get();
         $jobTypes = JobType::orderBy('name')->get();
         $skills = Skill::orderBy('name')->get(); // Untuk daftar skill yang bisa dipilih
+        $educationLevels = Job::where('status', 'Published')->distinct()->pluck('education_level')->filter()->sort()->toArray();
 
-        return view('admin.jobs.create', compact('categories', 'locations', 'jobTypes', 'skills'));
+        return view('admin.jobs.create', compact('categories', 'locations', 'jobTypes', 'skills','educationLevels'));
     }
 
     /**
@@ -153,8 +154,9 @@ class AdminJobController extends Controller
         $jobRequirements = $job->requirements()->orderBy('order')->pluck('description')->toArray();
         $jobBenefits = $job->benefits()->orderBy('order')->pluck('description')->toArray();
 
+    $educationLevels = Job::where('status', 'Published')->distinct()->pluck('education_level')->filter()->sort()->toArray();
 
-        return view('admin.jobs.edit', compact('job', 'categories', 'locations', 'jobTypes', 'skills', 'jobSkills','jobRequirements','jobBenefits'));
+        return view('admin.jobs.edit', compact('job', 'categories', 'locations', 'jobTypes', 'skills', 'jobSkills','jobRequirements','jobBenefits','educationLevels'));
     }
 
     /**

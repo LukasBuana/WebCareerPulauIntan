@@ -222,22 +222,46 @@
                 <nav>
                     <ul class="nav-menu" id="navMenu">
                         <li class="nav-item">
-                            <a href="#beranda" class="nav-link active">Beranda</a>
-                        </li>
+                        @if(Request::is('/')) {{-- Jika rute saat ini adalah halaman landing (home) --}}
+                                <a href="#beranda" class="nav-link {{ Request::is('/') ? 'active' : '' }}">Beranda</a>
+                            @else {{-- Jika rute saat ini BUKAN halaman landing --}}
+                                <a href="{{ route('home') }}" class="nav-link">Beranda</a>
+                            @endif                        </li>
                         <li class="nav-item">
+                            @if(Request::is('/'))
                             <a href="#tentang" class="nav-link">Tentang</a>
+                             @else {{-- Jika rute saat ini BUKAN halaman landing --}}
+                                <a href="{{ route('home') }}" class="nav-link">Tentang</a>
+                            @endif  
                         </li>
                         <li class="nav-item">
+                            @if(Request::is('/'))
                             <a href="#berita" class="nav-link">Berita</a>
+                             @else {{-- Jika rute saat ini BUKAN halaman landing --}}
+                                <a href="{{ route('home') }}" class="nav-link">Berita</a>
+                            @endif  
                         </li>
                         <li class="nav-item">
+                         @if(Request::is('/'))
                             <a href="#lowongan" class="nav-link">Lowongan</a>
+                             @else {{-- Jika rute saat ini BUKAN halaman landing --}}
+                                <a href="{{ route('home') }}" class="nav-link">Lowongan</a>
+                            @endif  
                         </li>
                         <li class="nav-item">
+                            @if(Request::is('/'))
+
                             <a href="#bursa-kerja" class="nav-link">Bursa Kerja</a>
+                             @else {{-- Jika rute saat ini BUKAN halaman landing --}}
+                                <a href="{{ route('home') }}" class="nav-link">Bursa Kerja</a>
+                            @endif  
                         </li>
                         <li class="nav-item">
+                             @if(Request::is('/'))
                             <a href="#faq" class="nav-link">Tanya Jawab</a>
+                             @else {{-- Jika rute saat ini BUKAN halaman landing --}}
+                                <a href="{{ route('home') }}" class="nav-link">Tanya Jawab</a>
+                            @endif  
                         </li>
                     </ul>
                 </nav>

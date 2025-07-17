@@ -15,6 +15,7 @@ use App\Models\News;
 use App\Http\Controllers\Job\JobDetailController;
 use App\Http\Controllers\Job\JobListingController; 
 use App\Http\Controllers\News\NewsDetailController;
+use App\Http\Controllers\News\NewsListingController;
 
 use Illuminate\Support\Facades\Auth;
 
@@ -39,7 +40,21 @@ Route::get('/', function () {
     $jobTypes = JobType::orderBy('name')->get();
     $allUniqueTags = Skill::orderBy('name')->pluck('name')->toArray();
     $newsArticles = News::latest()->limit(3)->get(); // Ambil 3 berita terbaru
+    $educationLevels = Job::where('status', 'Published') // Hanya dari job yang Published
+                           ->distinct() // Ambil nilai yang unik saja
+                           ->pluck('education_level') // Ambil nilai dari kolom 'education_level'
+                           ->filter() // Hapus nilai null atau kosong
+                           ->sort() // Urutkan secara alfabetis
+                           ->toArray(); // Konversi ke array PHP
+    // --- AKHIR PENGAMBILAN EDUCATION_LEVEL ---
 
+    // --- CARA MENGAMBIL EXPERIENCE_LEVEL ---
+    $experienceLevels = Job::where('status', 'Published') // Hanya dari job yang Published
+                            ->distinct() // Ambil nilai yang unik saja
+                            ->pluck('experience_level') // Ambil nilai dari kolom 'experience_level'
+                            ->filter() // Hapus nilai null atau kosong
+                            ->sort() // Urutkan secara alfabetis
+                            ->toArray(); // Konversi ke array PHP
     // --- AKHIR BAGIAN BARU ---
 
     // Kirim semua variabel ke view landing
@@ -49,6 +64,8 @@ Route::get('/', function () {
         'categories',
         'locations',
         'jobTypes',
+        'educationLevels', // <<< TAMBAHKAN VARIABEL INI
+        'experienceLevels', // <<< TAMBAHKAN VARIABEL INI
         'allUniqueTags',
         'newsArticles',
     ));
@@ -61,7 +78,10 @@ Route::get('/detail_lowongan', function () {
 });
 Route::get('/detail_lowongan/{job}', [JobDetailController::class, 'show'])->name('jobs.show_detail');
 
-Route::get('/berita/{news}', [NewsDetailController::class, 'show'])->name('news.show_detail');
+Route::get('/berita/{news}', action: [NewsDetailController::class, 'show'])->name('news.show_detail');
+
+Route::get('/berita', action: [NewsListingController::class, 'index'])->name('news.index');
+
 
 Route::get('/jobs', [JobListingController::class, 'index'])->name('jobs.index'); // <<< TAMBAHKAN INI
 

@@ -597,34 +597,41 @@
                 </div>
                 <button class="jp-nav-button" id="jpNextBtn">›</button>
             </div>
-            <a href="#" class="jp-view-all-btn">Lihat Semua</a>
+            <a href="{{route('jobs.index')}}" class="jp-view-all-btn">Lihat Semua</a>
         </div>
     </div>
 
     <script>
         // --- DEFINISI VARIABEL JAVASCRIPT DARI BACKEND ---
-        // Pastikan variabel ini ada dan terisi dari PHP
-        const allJobsFromBackend = @json($jobs);
+       const allJobsFromBackend = @json($jobs);
         const categoriesFromBackend = @json($categories);
         const locationsFromBackend = @json($locations);
-        const jobTypesFromBackend = @json($jobTypes); // Assuming this is still used for type filtering
+        const educationLevelsFromBackend = @json($educationLevels);
+        const experienceLevelsFromBackend = @json($experienceLevels);
         const allUniqueTagsFromBackend = @json($allUniqueTags);
 
         // --- DEFINISI VARIABEL FILTER ---
         const currentFilters = {
             keyword: '',
-            category: '',
+            education: '',
+            experience: '',
             location: '',
-            tag: ''
-        };
+            category: '',
+            tag: '' // Jika ada filter tag di landing page juga
+    };
 
         // --- UI Elements (cached after DOMContentLoaded) ---
-        let jpFilterBtn;
+         let jpSearchInput;
+        let jpApplyFiltersBtnTop;
+        let jpFilterBtn; // Tombol "Pilih Filter"
         let jpFilterDropdown;
-        let jpApplyFiltersBtn;
-        let jpSearchInput;
         let jpCategoryFilterSelect;
         let jpLocationFilterSelect;
+        let jpEducationFilterSelect; // Jika ada di landing page
+        let jpExperienceFilterSelect; // Jika ada di landing page
+        let jpClearFiltersBtn; // Jika ada di landing page
+        let jpApplyFiltersBtnBottom; // Jika ada di landing page
+
         let jpCategoriesGrid;
         let jpJobTagsContainer;
         let jpCarouselContainer;
@@ -632,9 +639,9 @@
         let jpPrevBtn;
         let jpNextBtn;
 
-        // Carousel variables
-        let currentIndex = 0; // Start at the first card for the carousel
-        let totalCards = 0; // Will be set after rendering jobs
+        // Carousel variables (jika carousel masih aktif di landing page)
+        let currentIndex = 0;
+        let totalCards = 0;
 
         // --- Core Functions ---
 
@@ -772,7 +779,7 @@
             }
 
             jobsToDisplay.forEach((job, index) => {
-                const companyName = job.poster ? job.poster.name : 'N/A';
+                const companyName = "PT. PULAUINTAN";
                 const locationName = job.location ? job.location.name : 'N/A';
                 const categoryName = job.category ? job.category.name : 'N/A';
 
@@ -825,61 +832,79 @@
 
 
         function applyFilters() {
-            const searchKeyword = jpSearchInput.value.toLowerCase().trim();
-            const selectedCategory = jpCategoryFilterSelect.value;
-            const selectedLocation = jpLocationFilterSelect.value;
+        // Dapatkan nilai filter dari UI landing page
+        const keyword = jpSearchInput ? jpSearchInput.value.toLowerCase().trim() : '';
+        const category = jpCategoryFilterSelect ? jpCategoryFilterSelect.value : '';
+        const location = jpLocationFilterSelect ? jpLocationFilterSelect.value : '';
+        const education = jpEducationFilterSelect ? jpEducationFilterSelect.value : '';
+        const experience = jpExperienceFilterSelect ? jpExperienceFilterSelect.value : '';
+        
+        // Buat URLSearchParams baru
+        const params = new URLSearchParams();
+        if (keyword) params.append('keyword', keyword);
+        if (category) params.append('category', category);
+        if (location) params.append('location', location);
+        if (education) params.append('education', education);
+        if (experience) params.append('experience', experience);
+        // Jika ada filter tag di landing page, tambahkan juga
+        if (currentFilters.tag) params.append('tag', currentFilters.tag); 
 
-            let filteredJobs = allJobsFromBackend;
+        // Redirect ke halaman /jobs dengan filter baru
+        window.location.href = "{{ route('jobs.index') }}" + (params.toString() ? '?' + params.toString() : '');
+    }
 
-            if (searchKeyword) {
-                filteredJobs = filteredJobs.filter(job =>
-                    job.title.toLowerCase().includes(searchKeyword) ||
-                    (job.description && job.description.toLowerCase().includes(searchKeyword)) ||
-                    (job.responsibilities && job.responsibilities.toLowerCase().includes(searchKeyword)) ||
-                    (job.qualifications && job.qualifications.toLowerCase().includes(searchKeyword)) ||
-                    (job.skills && job.skills.some(skill => skill.name.toLowerCase().includes(searchKeyword)))
-                );
-            }
+    // --- clearFilters: Mereset semua filter dan mengarahkan ke /jobs tanpa filter ---
+    function clearFilters() {
+        // Reset nilai UI di landing page
+        if (jpSearchInput) jpSearchInput.value = '';
+        if (jpCategoryFilterSelect) jpCategoryFilterSelect.value = '';
+        if (jpLocationFilterSelect) jpLocationFilterSelect.value = '';
+        if (jpEducationFilterSelect) jpEducationFilterSelect.value = '';
+        if (jpExperienceFilterSelect) jpExperienceFilterSelect.value = '';
+        
+        // Reset currentFilters state
+        currentFilters.keyword = '';
+        currentFilters.education = '';
+        currentFilters.experience = '';
+        currentFilters.location = '';
+        currentFilters.category = '';
+        currentFilters.tag = ''; 
 
-            if (selectedCategory) {
-                filteredJobs = filteredJobs.filter(job => job.category && job.category.name === selectedCategory);
-            }
+        // Redirect ke halaman /jobs tanpa parameter filter
+        window.location.href = "{{ route('jobs.index') }}"; 
 
-            if (selectedLocation) {
-                filteredJobs = filteredJobs.filter(job => job.location && job.location.name === selectedLocation);
-            }
+        // Close filter dropdowns (jika ada)
+        document.querySelectorAll('.jp-filter-options.show').forEach(openDropdown => {
+            openDropdown.classList.remove('show');
+            const headerSpan = openDropdown.previousElementSibling.querySelector('span:last-child');
+            if (headerSpan) headerSpan.textContent = '▼';
+        });
+    }
 
-            if (currentFilters.tag) {
-                filteredJobs = filteredJobs.filter(job => job.skills && job.skills.some(skill => skill.name === currentFilters.tag));
-            }
-
-            console.log('Applying Filters:', currentFilters);
-            renderCarouselJobs(filteredJobs); // Render jobs into the carousel
-            updateCategoryCardHighlight();
-            updateJobTagHighlight();
-            syncDropdownsWithFilters();
+         function filterByTag(tag) {
+        if (currentFilters.tag === tag) {
+            currentFilters.tag = ''; 
+        } else {
+            currentFilters.tag = tag; 
+            // Kosongkan filter lain karena ini adalah pencarian spesifik tag
+            currentFilters.keyword = '';
+            currentFilters.education = '';
+            currentFilters.experience = '';
+            currentFilters.location = '';
+            currentFilters.category = '';
         }
+        applyFilters(); // Memicu redirect
+    }
 
-        function filterByTag(tag) {
-            if (currentFilters.tag === tag) {
-                currentFilters.tag = '';
-            } else {
-                currentFilters.tag = tag;
-            }
-            applyFilters();
-            console.log('Tag selected:', currentFilters);
-        }
-
-        function selectCategory(category) {
-            if (currentFilters.category === category) {
-                currentFilters.category = '';
-            } else {
-                currentFilters.category = category;
-            }
-            currentFilters.tag = ''; // Clear tag filter when category changes
-            applyFilters();
-            console.log('Category selected via card click:', currentFilters);
-        }
+    // --- selectCategory (dari landing page) ---
+    // Ini akan memicu redirect ke /jobs dengan filter kategori
+     function selectCategory(categoryName) {
+        const params = new URLSearchParams();
+        if (categoryName) params.append('category', categoryName);
+        
+        // Redirect ke halaman /jobs dengan filter kategori
+        window.location.href = "{{ route('jobs.index') }}" + (params.toString() ? '?' + params.toString() : '');
+    }
 
         function updateCategoryCardHighlight() {
             const cards = document.querySelectorAll('.jp-category-card');
@@ -909,107 +934,91 @@
         }
 
         // --- Event Listeners and Initial Load ---
-        document.addEventListener('DOMContentLoaded', () => {
-            // Cache UI elements
-            jpFilterBtn = document.getElementById('jpFilterBtn');
-            jpFilterDropdown = document.getElementById('jpFilterDropdown');
-            jpApplyFiltersBtn = document.getElementById('jpApplyFiltersBtn');
-            jpSearchInput = document.getElementById('jpSearchInput');
-            jpCategoryFilterSelect = document.getElementById('jpCategoryFilter');
-            jpLocationFilterSelect = document.getElementById('jpLocationFilter');
-            jpCategoriesGrid = document.getElementById('jpCategoriesGrid');
-            jpJobTagsContainer = document.getElementById('jpJobTags');
-            jpCarouselContainer = document.querySelector('.jp-carousel-container');
-            jpCarousel = document.getElementById('jpCarousel');
-            jpPrevBtn = document.getElementById('jpPrevBtn');
-            jpNextBtn = document.getElementById('jpNextBtn');
+          document.addEventListener('DOMContentLoaded', () => {
+        // Cache UI elements
+        jpSearchInput = document.getElementById('jpSearchInput');
+        jpApplyFiltersBtn = document.getElementById('jpApplyFiltersBtn'); // Tombol "Cari Pekerjaan" di header
+        jpFilterBtn = document.getElementById('jpFilterBtn');
+        jpFilterDropdown = document.getElementById('jpFilterDropdown');
+        jpCategoryFilterSelect = document.getElementById('jpCategoryFilter');
+        jpLocationFilterSelect = document.getElementById('jpLocationFilter');
+        // Pastikan Anda juga menginisialisasi Pendidikan dan Pengalaman jika dropdownnya ada di landing page
+        jpEducationFilterSelect = document.getElementById('jpEducationFilterSelect'); // Tambahkan ini jika ada
+        jpExperienceFilterSelect = document.getElementById('jpExperienceFilterSelect'); // Tambahkan ini jika ada
+
+        jlClearFiltersBtn = document.getElementById('jlClearFiltersBtn'); // Tombol Hapus filter di dropdown
+        jpApplyFiltersBtnBottom = document.getElementById('jpApplyFiltersBtnBottom'); // Tombol "Lihat Hasil" di dropdown
+
+        jpCategoriesGrid = document.getElementById('jpCategoriesGrid');
+        jpJobTagsContainer = document.getElementById('jpJobTags'); // Make sure this element exists in HTML if used
+        jpCarousel = document.getElementById('jpCarousel'); // If carousel is present
+        jpPrevBtn = document.getElementById('jpPrevBtn');
+        jpNextBtn = document.getElementById('jpNextBtn');
 
 
-            // Filter dropdown toggle
-            if (jpFilterBtn) {
-                jpFilterBtn.addEventListener('click', function(event) {
-                    jpFilterDropdown.classList.toggle('show');
-                    event.stopPropagation();
-                });
-            }
+        // --- Attach Event Listeners ---
+        if (jpApplyFiltersBtn) jpApplyFiltersBtn.addEventListener('click', applyFilters);
+        if (jpApplyFiltersBtnBottom) jpApplyFiltersBtnBottom.addEventListener('click', applyFilters); // Tombol "Lihat Hasil" di dropdown
 
-            if (jpFilterDropdown) {
-                jpFilterDropdown.addEventListener('click', function(event) {
-                    event.stopPropagation();
-                });
-            }
-
-            // Apply filters button
-            if (jpApplyFiltersBtn) {
-                jpApplyFiltersBtn.addEventListener('click', function() {
-                    currentFilters.keyword = jpSearchInput.value.trim();
-                    currentFilters.category = jpCategoryFilterSelect.value;
-                    currentFilters.location = jpLocationFilterSelect.value;
-                    currentFilters.tag = ''; // Reset tag filter on main search
+        if (jpSearchInput) {
+            jpSearchInput.addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') {
                     applyFilters();
-                });
-            }
-
-            // Search input keyup for Enter key
-            if (jpSearchInput) {
-                jpSearchInput.addEventListener('keyup', (e) => {
-                    if (e.key === 'Enter') {
-                        currentFilters.keyword = jpSearchInput.value.trim();
-                        applyFilters();
-                    }
-                });
-            }
-
-            // Category filter dropdown change
-            if (jpCategoryFilterSelect) {
-                jpCategoryFilterSelect.addEventListener('change', function() {
-                    currentFilters.category = this.value;
-                    currentFilters.tag = '';
-                    applyFilters();
-                });
-            }
-
-            // Location filter dropdown change
-            if (jpLocationFilterSelect) {
-                jpLocationFilterSelect.addEventListener('change', function() {
-                    currentFilters.location = this.value;
-                    currentFilters.tag = '';
-                    applyFilters();
-                });
-            }
-
-            // Close filter dropdown when clicking outside
-            document.addEventListener('click', function(event) {
-                if (jpFilterDropdown && !jpFilterDropdown.contains(event.target) && !jpFilterBtn.contains(event.target)) {
-                    jpFilterDropdown.classList.remove('show');
                 }
             });
+        }
 
-            // Carousel Navigation
-            if (jpNextBtn) jpNextBtn.addEventListener('click', goToNext);
-            if (jpPrevBtn) jpPrevBtn.addEventListener('click', goToPrev);
-
-            // Auto-play functionality (optional)
-            // setInterval(goToNext, 5000); // Uncomment to enable auto-play
-
-            // Keyboard navigation for carousel
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'ArrowLeft') {
-                    goToPrev();
-                } else if (e.key === 'ArrowRight') {
-                    goToNext();
-                }
+        if (jpCategoriesGrid) {
+            jpCategoriesGrid.querySelectorAll('.jp-category-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const categoryName = card.dataset.category; // Ambil nama kategori dari data-attribute
+                    selectCategory(categoryName);
+                });
             });
-
-            // Initial rendering
-            renderCategoryCardsDynamic();
-            renderJobTagsDynamic(); // This will still render the tags, but they'll filter the carousel now
-            applyFilters(); // Initial display of all jobs in the carousel
-
-            const jpAccentBar1 = document.querySelector('.jp-accent-bar1');
-            const jpAccentBar2 = document.querySelector('.jp-accent-bar2');
-           
+        }
+        if (jpFilterBtn) {
+            jpFilterBtn.addEventListener('click', function(event) {
+                jpFilterDropdown.classList.toggle('show');
+                event.stopPropagation();
+            });
+        }
+        if (jpFilterDropdown) {
+            jpFilterDropdown.addEventListener('click', function(event) {
+                event.stopPropagation();
+            });
+        }
+        document.addEventListener('click', function(event) {
+            if (jpFilterDropdown && !jpFilterDropdown.contains(event.target) && !jpFilterBtn.contains(event.target)) {
+                jpFilterDropdown.classList.remove('show');
+            }
         });
+
+        // Dropdown filter change listeners (will trigger redirection to /jobs)
+        if (jpCategoryFilterSelect) jpCategoryFilterSelect.addEventListener('change', applyFilters);
+        if (jpLocationFilterSelect) jpLocationFilterSelect.addEventListener('change', applyFilters);
+        if (jpEducationFilterSelect) jpEducationFilterSelect.addEventListener('change', applyFilters);
+        if (jpExperienceFilterSelect) jpExperienceFilterSelect.addEventListener('change', applyFilters);
+
+        // Clear Filters button
+        if (jlClearFiltersBtn) jlClearFiltersBtn.addEventListener('click', clearFilters);
+
+        // Carousel Navigation (jika ada carousel di landing page)
+        if (jpNextBtn) jpNextBtn.addEventListener('click', goToNext);
+        if (jpPrevBtn) jpPrevBtn.addEventListener('click', goToPrev);
+
+        // --- Initial Rendering for Landing Page ---
+        // Render Category Cards (for the grid)
+        renderCategoryCardsDynamic();
+        // Render Job Tags (if you have this section in landing page)
+        renderJobTagsDynamic();
+        // Render the carousel on landing page
+        renderCarouselJobs(allJobsFromBackend); // This uses allJobsFromBackend (from backend, possibly limited to 3)
+
+        // Sync dropdowns and search input on landing page load (if user comes back from /jobs)
+        // Ini akan mengisi kembali input pencarian dan dropdown filter di landing page
+        // jika user kembali dari halaman /jobs yang memiliki filter di URL.
+        syncDropdownsWithFilters();
+    });
     </script>
 </body>
 </html>

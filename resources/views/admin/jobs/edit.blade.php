@@ -73,8 +73,8 @@
 
                             <div class="form-group">
                                 <label for="job_type_id">Tipe Pekerjaan</label>
-                                <select class="form-control" id="job_type_id" name="job_type_id">
-                                    <option value="">Pilih Tipe (Opsional)</option>
+                                <select class="form-control" id="job_type_id" name="job_type_id" required >
+                                    <option value="">Pilih Tipe</option>
                                     @foreach($jobTypes as $type)
                                         <option value="{{ $type->id }}" {{ old('job_type_id', $job->job_type_id) == $type->id ? 'selected' : '' }}>{{ $type->name }}</option>
                                     @endforeach
@@ -114,8 +114,8 @@
 
                             <div class="form-group">
                                 <label for="experience_level">Level Pengalaman</label>
-                                <select class="form-control" id="experience_level" name="experience_level">
-                                    <option value="">Pilih Level (Opsional)</option>
+                                <select class="form-control" id="experience_level" name="experience_level" required>
+                                    <option value="">Pilih Level</option>
                                     <option value="Entry Level" {{ old('experience_level', $job->experience_level) == 'Entry Level' ? 'selected' : '' }}>Entry Level</option>
                                     <option value="Junior" {{ old('experience_level', $job->experience_level) == 'Junior' ? 'selected' : '' }}>Junior</option>
                                     <option value="Mid" {{ old('experience_level', $job->experience_level) == 'Mid' ? 'selected' : '' }}>Mid</option>
@@ -127,7 +127,18 @@
 
                             <div class="form-group">
                                 <label for="education_level">Tingkat Pendidikan</label>
-                                <input type="text" class="form-control" id="education_level" name="education_level" value="{{ old('education_level', $job->education_level) }}" maxlength="100">
+                                <select class="form-control" id="education_level" name="education_level" required>
+                                    <option value="">Pilih Tingkat Pendidikan</option>
+                                    {{-- Jika Anda ingin menambahkan opsi hardcode yang mungkin belum ada di DB --}}
+                                    <option value="SMA/SMK" {{ old('education_level',$job->education_level) == 'SMA/SMK' ? 'selected' : '' }}>SMA/SMK</option>
+                                    <option value="D1" {{ old('education_level',$job->education_level) == 'D1' ? 'selected' : '' }}>D1</option>
+                                    <option value="D2" {{ old('education_level',$job->education_level) == 'D2' ? 'selected' : '' }}>D2</option>
+                                    <option value="D3" {{ old('education_level',$job->education_level) == 'D3' ? 'selected' : '' }}>D3</option>
+                                    <option value="D4" {{ old('education_level',$job->education_level) == 'D4' ? 'selected' : '' }}>D4</option>
+                                    <option value="S1" {{ old('education_level',$job->education_level) == 'S1' ? 'selected' : '' }}>S1</option>
+                                    <option value="S2" {{ old('education_level',$job->education_level) == 'S2' ? 'selected' : '' }}>S2</option>
+                                    <option value="S3" {{ old('education_level',$job->education_level) == 'S3' ? 'selected' : '' }}>S3</option>
+                                </select>
                             </div>
 
                             <div class="form-group">
@@ -197,7 +208,7 @@
         const div = document.createElement('div');
         div.classList.add('dynamic-input-group');
         div.innerHTML = `
-            <input type="text" class="form-control" name="${inputName}[]" value="${value}" placeholder="${placeholder}" required>
+            <input type="text" class="form-control" name="${inputName}[]" value="${value}" placeholder="${placeholder}" >
             <button type="button" class="btn btn-danger btn-remove">Hapus</button>
         `;
         container.appendChild(div);
@@ -208,10 +219,7 @@
         toggleRemoveButtonVisibility(inputField, removeButton);
         inputField.addEventListener('input', () => toggleRemoveButtonVisibility(inputField, removeButton));
         inputField.addEventListener('change', () => toggleRemoveButtonVisibility(inputField, removeButton));
-        
-        if (value === '') {
-            inputField.focus();
-        }
+       
     }
 
     // Fungsi untuk mengontrol visibilitas tombol hapus untuk SATU input group
@@ -316,7 +324,6 @@
                 if (totalInputGroups === 1) {
                     inputField.value = '';
                     toggleRemoveButtonVisibility(inputField, event.target);
-                    inputField.focus();
                     inputField.classList.remove('is-invalid');
                 } else {
                     group.remove();
