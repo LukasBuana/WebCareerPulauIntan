@@ -510,12 +510,42 @@
                                             <div class="error-message">Silakan masukkan tanggal duda/janda</div>
                                         </div>
                                     </div>
-                                </div> <div class="row mt-4">
+                                    
+                                </div>
+                                <div class="row mb-4">
+                                    <div class="col-md-12">
+                                        <h6 class="text-muted mb-3">Sumber Informasi Lowongan</h6>
+                                    </div>
+                                    <div class="mb-3">
+                                            <label for="sumber_lowongan" class="form-label">
+                                                Sumber Informasi <span class="required">*</span>
+                                            </label>
+                                            <select class="form-select"
+                                                     id="sumber_lowongan"
+                                                     name="sumber_lowongan"
+                                                     required>
+                                                <option value="">Pilih Sumber Lowongan</option>
+                                                <option value="Youtube">Youtube</option>
+                                                <option value="Twitter/X">Twitter/X</option>
+                                                <option value="LinkedIn">LinkedIn</option>
+                                                <option value="Facebook">Facebook</option>
+                                                <option value="Lainnya">Lainnya</option>
+                                            </select>
+                                            <div class="error-message">Lowongan harus diisi</div>
+                                        </div>
+                                
+
+                                </div> 
+                                        
+
+                                <div class="row mt-4">
                                     <div class="col-md-12 text-end">
                                         <button type="submit" class="btn btn-primary px-4">
                                             <i class="fas fa-save me-2"></i>Simpan
                                         </button>
                                     </div>
+
+                                    
                                 </div>
                             </form>
                         </div>
