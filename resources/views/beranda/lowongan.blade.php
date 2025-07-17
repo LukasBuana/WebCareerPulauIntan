@@ -549,25 +549,18 @@
                     <div class="jp-filter-dropdown" id="jpFilterDropdown">
                         <label for="jpCategoryFilter">Kategori:</label>
                         <select id="jpCategoryFilter">
-                            <option value="">Semua Kategori</option>
-                            <option value="Sales">Sales</option>
-                            <option value="Manufacturing">Manufacturing</option>
-                            <option value="Human Resources">Human Resources</option>
-                            <option value="Engineering">Engineering</option>
-                            <option value="Finance">Finance</option>
-                            <option value="IT & Technology">IT & Technology</option>
-                            <option value="Marketing">Marketing</option>
-                            <option value="Logistics">Logistics</option>
+                            <option value="">Pilih Fungsi</option>
+                            @foreach($categories as $category)
+                                <option value="{{ $category->name }}">{{ $category->name }}</option>
+                            @endforeach
                         </select>
 
                         <label for="jpLocationFilter">Lokasi:</label>
                         <select id="jpLocationFilter">
-                            <option value="">Semua Lokasi</option>
-                            <option value="Jakarta">Jakarta</option>
-                            <option value="Surabaya">Surabaya</option>
-                            <option value="Bandung">Bandung</option>
-                            <option value="Medan">Medan</option>
-                            <option value="Semarang">Semarang</option>
+                            <option value="">Pilih Lokasi</option>
+                            @foreach($locations as $location)
+                                <option value="{{ $location->name }}">{{ $location->name }}</option>
+                            @endforeach
                         </select>
                     </div>
                 </button>
@@ -580,7 +573,6 @@
         <div class="jp-categories-section">
             <div class="jp-section-header">
                 <h2 class="jp-lowongansection-title">Kategori Pekerjaan Berdasarkan Fungsi</h2>
-                <a href="#" class="jp-view-all">Lainnya ></a>
             </div>
 
             <div class="jp-categories-grid" id="jpCategoriesGrid">

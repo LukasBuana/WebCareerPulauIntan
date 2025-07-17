@@ -212,12 +212,21 @@
     <header class="header">
         <div class="container">
             <div class="header-content">
-                <a href="#" class="logo">
+ @if(Request::is('/')) 
+                <a href="" class="logo">
                     <div>
                         <div class="logo-text">Pulau</div>
                         <div class="logo-subtitle">INTAN</div>
                     </div>
                 </a>
+                @else {{-- Jika rute saat ini BUKAN halaman landing --}}
+                               <a href="{{route("home")}}" class="logo">
+                    <div>
+                        <div class="logo-text">Pulau</div>
+                        <div class="logo-subtitle">INTAN</div>
+                    </div>
+                </a>
+                            @endif  
 
                 <nav>
                     <ul class="nav-menu" id="navMenu">
@@ -228,7 +237,7 @@
                                 <a href="{{ route('home') }}" class="nav-link">Beranda</a>
                             @endif                        </li>
                         <li class="nav-item">
-                            @if(Request::is('/'))
+                            @if(Request::is(patterns: '/'))
                             <a href="#tentang" class="nav-link">Tentang</a>
                              @else {{-- Jika rute saat ini BUKAN halaman landing --}}
                                 <a href="{{ route('home') }}" class="nav-link">Tentang</a>
