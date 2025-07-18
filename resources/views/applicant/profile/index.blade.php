@@ -8,7 +8,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f0f2f5; /* Light grey background */
+            background-color: #f0f2f5;
             margin: 0;
             padding: 20px;
             color: #333;
@@ -23,11 +23,12 @@
             margin-top: 60px;
         }
 
-
         .section-card {
             background-color: transparent;
             margin-bottom: 20px;
-            overflow: hidden; /* Ensures content respects border-radius */
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .section-header {
@@ -38,6 +39,7 @@
             cursor: pointer;
             background-color: #fcfcfc;
             transition: background-color 0.2s ease;
+            border-bottom: 1px solid #eee;
         }
 
         .section-header:hover {
@@ -62,17 +64,18 @@
 
         .section-content {
             padding: 20px;
-            display: none; /* Hidden by default */
+            display: none;
             line-height: 1.6;
             color: #666;
+            background-color: #fff;
         }
 
         .section-card.expanded .section-content {
-            display: block; /* Shown when expanded */
+            display: block;
         }
 
         .required-star {
-            color: #dc3545; /* Red color for asterisk */
+            color: #dc3545;
             margin-left: 5px;
         }
 
@@ -83,8 +86,8 @@
         }
 
         .submit-button {
-            background-color: #d0d0d0; /* Grey similar to the image */
-            color: black; /* Darker grey text */
+            background-color: #d0d0d0;
+            color: black;
             border: none;
             padding: 12px 30px;
             border-radius: 5px;
@@ -105,31 +108,42 @@
 </head>
 <body>
     @include('beranda.header_user')
-    @include('applicant.sidebar_user') 
-<div>
+    @include('applicant.sidebar_user')
+
     <div class="idxcontainer">
         <p>Profil Saya</p>
-        @include('applicant.profile.data_diri') {{-- INCLUDE FILE DI SINI --}}
-    
-    <div class="submit-button-wrapper">
-        <button type="button" class="submit-button">Print</button>
+        {{-- Pastikan kedua file ini memiliki struktur .section-card yang benar --}}
+        @include('applicant.profile.data_diri')
+        @include('applicant.profile.data_keluarga')
+        @include('applicant.profile.data_pendidikan')
+
+        <div class="submit-button-wrapper">
+            <button type="button" class="submit-button">Print</button>
+        </div>
     </div>
-</div>
-    
-            
-
-
-
-    
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Mengambil semua elemen header section
             const sectionHeaders = document.querySelectorAll('.section-header');
+            // Mengambil semua elemen card section (pembungkus keseluruhan section)
+            const allSectionCards = document.querySelectorAll('.section-card');
 
             sectionHeaders.forEach(header => {
                 header.addEventListener('click', function() {
+                    // Temukan card section terdekat dari header yang diklik
                     const parentCard = this.closest('.section-card');
-                    parentCard.classList.toggle('expanded'); // Toggle 'expanded' class
+
+                    // Tutup semua card section lain yang sedang terbuka
+                    allSectionCards.forEach(card => {
+                        // Jika card saat ini BUKAN card yang diklik, DAN card itu memiliki kelas 'expanded'
+                        if (card !== parentCard && card.classList.contains('expanded')) {
+                            card.classList.remove('expanded'); // Hapus kelas 'expanded' untuk menutupnya
+                        }
+                    });
+
+                    // Toggle (buka/tutup) card yang sedang diklik
+                    parentCard.classList.toggle('expanded');
                 });
             });
         });
