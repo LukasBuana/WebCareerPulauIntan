@@ -115,12 +115,6 @@
         <button type="button" class="submit-button">Print</button>
     </div>
 </div>
-    
-            
-
-
-
-    
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -136,4 +130,4 @@
     </script>
 
 </body>
-</html>
+</html>      

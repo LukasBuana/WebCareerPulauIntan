@@ -1,98 +1,94 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Pribadi</title>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <style>
         /* Card Styles */
         .card {
-            border: none; /* Menghilangkan garis tepi (border) */
-            box-shadow: none; /* Menghilangkan bayangan (shadow) */
-            border-radius: 8px; /* Memberikan sudut membulat pada seluruh card */
+            border: none;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            margin-bottom: 20px;
         }
 
-        /* Card Header Styles - Warna default saat tertutup */
         .card-header {
-            background-color: #fbf5f5ff; /* Warna default saat tertutup (putih/abu-abu sangat terang) */
-            color: #000000; /* Warna teks saat tertutup (hitam agar terbaca) */
-            /* Mengatur border-radius agar hanya sudut atas yang membulat */
+            background-color: #fbf5f5;
+            color: #000000;
+            border-bottom: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease;
             border-top-left-radius: 8px;
             border-top-right-radius: 8px;
-            border-bottom-left-radius: 0;
-            border-bottom-right-radius: 0;
-            border-bottom: none; /* Menghilangkan border bawah dari header agar menyatu dengan body */
-            cursor: pointer; /* Menandakan bahwa elemen ini bisa diklik */
-            transition: background-color 0.3s ease, color 0.3s ease; /* Transisi halus untuk perubahan warna */
+            padding: 1rem 1.25rem;
         }
 
-        /* Card Header Active State - Warna saat konten terbuka */
         .card-header.active {
-            background-color: #DA251C; /* Warna merah saat aktif/terbuka */
-            color: white; /* Warna teks saat aktif/terbuka (putih) */
+            background-color: #DA251C;
+            color: white;
         }
 
-        /* Card Body Styles */
-        .card-body {
-            border-top: none; /* Menghilangkan border atas dari body agar menyatu dengan header */
-        }
-
-        /* Collapse Icon Animation */
         .collapse-icon {
             transition: transform 0.3s ease;
         }
 
-        /* Collapse Icon when collapsed (default Bootstrap behavior adds .collapsed) */
-        .collapsed .collapse-icon {
+        .card-header.collapsed .collapse-icon {
             transform: rotate(180deg);
         }
 
-        /* Form Control Focus State */
-        .form-control:focus {
-            border-color: #4a6cf7;
-            box-shadow: 0 0 0 0.2rem rgba(74, 108, 247, 0.25);
+        .form-control:focus,
+        .form-select:focus,
+        textarea:focus {
+            border-color: #DA251C;
+            box-shadow: 0 0 0 0.2rem rgba(218, 37, 28, 0.25);
         }
 
-        /* Primary Button Styles */
         .btn-primary {
-            background-color: #4a6cf7;
-            border-color: #4a6cf7;
+            background-color: #DA251C;
+            border-color: #DA251C;
         }
 
         .btn-primary:hover {
-            background-color: #3b5ce6;
-            border-color: #3b5ce6;
+            background-color: #B11E18;
+            border-color: #B11E18;
         }
 
         /* Upload Area Styles */
         .upload-area {
             border: 2px dashed #dee2e6;
-            border-radius: 50%; /* Keep it circular */
+            border-radius: 50%;
             padding: 20px;
             text-align: center;
             background-color: #f8f9fa;
             cursor: pointer;
             transition: border-color 0.3s ease;
-            display: flex; /* Make it a flex container */
-            flex-direction: column; /* Stack items vertically */
-            justify-content: center; /* Center vertically */
-            align-items: center; /* Center horizontally */
-            width: 80px; /* Match profile image width */
-            height: 80px; /* Match profile image height */
-            flex-shrink: 0; /* Prevent shrinking when content is long */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 80px;
+            height: 80px;
+            flex-shrink: 0;
+            overflow: hidden;
         }
 
         .upload-area:hover {
-            border-color: #4a6cf7;
+            border-color: #DA251C;
         }
 
         .upload-area i {
             font-size: 2rem;
             color: #6c757d;
-            margin-bottom: 5px; /* Reduced margin */
+            margin-bottom: 5px;
         }
+
         .upload-area .text-overlay {
             font-size: 0.8em;
             color: #6c757d;
@@ -108,7 +104,7 @@
             color: #dc3545;
             font-size: 0.875rem;
             margin-top: 0.25rem;
-            display: none; /* Hidden by default, shown by JS */
+            display: none;
         }
 
         /* Profile Image Styles */
@@ -118,14 +114,14 @@
             border-radius: 50%;
             object-fit: cover;
             border: 3px solid #dee2e6;
-            display: none; /* Hidden by default, shown by JS when image is uploaded */
+            display: none;
         }
 
-        /* Container for image/upload area to manage their display */
+        /* Container for image/upload area */
         .image-display-container {
-            width: 80px; /* Same as image/upload area */
-            height: 80px; /* Same as image/upload area */
-            position: relative; /* If you still want overlay behavior for fancier effects */
+            width: 80px;
+            height: 80px;
+            position: relative;
             flex-shrink: 0;
         }
 
@@ -137,20 +133,72 @@
         }
 
         /* Style for inputs with errors (red border) */
-        .form-control.is-invalid {
+        .form-control.is-invalid,
+        .form-select.is-invalid,
+        textarea.is-invalid {
             border-color: #dc3545;
+        }
+
+        /* Dynamic input group styles - These styles are for dynamic lists, which are mostly removed */
+        .dynamic-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .dynamic-input-group input,
+        .dynamic-input-group select,
+        .dynamic-input-group textarea {
+            flex-grow: 1;
+        }
+
+        .dynamic-input-group .btn-remove {
+            flex-shrink: 0;
+            padding: 6px 10px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: none;
+        }
+
+        .dynamic-input-group .btn-remove:hover {
+            background-color: #c82333;
+        }
+
+        .btn-info {
+            background-color: #17a2b8;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-info:hover {
+            background-color: #138496;
+        }
+
+        h3 {
+            margin-top: 30px;
+            margin-bottom: 20px;
+            color: #DA251C;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
         }
     </style>
 </head>
+
 <body>
-    <div class="container-fluid">
+    <div class="container-fluid py-4">
         <div class="row">
             <div class="col-md-12">
                 <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#dataPribadiCollapse"
-                        aria-expanded="true"
+                    <div class="card-header d-flex justify-content-between align-items-center active"
+                        data-bs-toggle="collapse" data-bs-target="#dataPribadiCollapse" aria-expanded="true"
                         style="cursor: pointer;">
                         <h5 class="mb-0">
                             <i class="fas fa-user me-2"></i>Data Pribadi<span class="required">*</span>
@@ -160,121 +208,149 @@
 
                     <div class="collapse show" id="dataPribadiCollapse">
                         <div class="card-body">
-                            <form id="dataPribadiForm" method="POST" enctype="multipart/form-data">
+                            {{-- Form action dan method dinamis --}}
+                            <form id="biodataForm"
+                                action="{{ $applicant->exists ? route('my_biodata.update_final') : route('my_biodata.store_final') }}"
+                                method="POST" enctype="multipart/form-data">
+                                @csrf
+                                @if ($applicant->exists)
+                                    @method('PUT') {{-- Gunakan PUT untuk update --}}
+                                @endif
+
+                                {{-- Pesan sukses/error dari session --}}
+                                @if (session('success'))
+                                    <div class="alert alert-success">
+                                        {{ session('success') }}
+                                    </div>
+                                @endif
+                                @if (session('error'))
+                                    <div class="alert alert-danger">
+                                        {{ session('error') }}
+                                    </div>
+                                @endif
+                                @if ($errors->any())
+                                    <div class="alert alert-danger">
+                                        <ul>
+                                            @foreach ($errors->all() as $error)
+                                                <li>{{ $error }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                @endif
+
+                                {{-- --- I. DATA DIRI KANDIDAT KARYAWAN (PERSONAL DATA) --- --}}
+
                                 <div class="accordion" id="accordionInformasiUtama">
                                     <div class="accordion-item">
                                         <h2 class="accordion-header" id="headingInformasiUtama">
-                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseInformasiUtama" aria-expanded="true" aria-controls="collapseInformasiUtama">
+                                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                                data-bs-target="#collapseInformasiUtama" aria-expanded="true"
+                                                aria-controls="collapseInformasiUtama">
                                                 Informasi Utama
                                             </button>
                                         </h2>
-                                        <div id="collapseInformasiUtama" class="accordion-collapse collapse show" aria-labelledby="headingInformasiUtama" data-bs-parent="#accordionInformasiUtama">
+                                        <div id="collapseInformasiUtama" class="accordion-collapse collapse show"
+                                            aria-labelledby="headingInformasiUtama"
+                                            data-bs-parent="#accordionInformasiUtama">
                                             <div class="accordion-body">
                                                 <div class="row mb-4">
                                                     <div class="col-md-6">
                                                         <div class="mb-3 d-flex align-items-start">
                                                             <div class="image-display-container me-3">
-                                                                <div class="upload-area" id="uploadAreaContainer" onclick="document.getElementById('profileImage').click();">
+                                                                <div class="upload-area" id="uploadAreaContainer"
+                                                                    onclick="document.getElementById('profileImage').click();">
                                                                     <i class="fas fa-upload"></i>
                                                                     <div class="text-overlay">.jpg</div>
                                                                 </div>
                                                                 <img id="profilePreview"
-                                                                    src="https://via.placeholder.com/80x80?text=?"
-                                                                    alt="Profile"
-                                                                    class="profile-image">
+                                                                    src="{{ old('profile_image', $applicant->profile_image) ? old('profile_image', $applicant->profile_image) : 'https://via.placeholder.com/80x80?text=?' }}"
+                                                                    alt="Profile" class="profile-image"
+                                                                    onclick="document.getElementById('profileImage').click();">
                                                             </div>
-                                                            <input type="file"
-                                                                class="form-control d-none"
-                                                                id="profileImage"
-                                                                name="profile_image"
+                                                            <input type="file" class="form-control d-none"
+                                                                id="profileImage" name="profile_image"
                                                                 accept="image/jpeg, image/png"
                                                                 onchange="previewImage(this)">
                                                             <div>
                                                                 <label class="form-label">Foto Profil</label>
                                                                 <div class="file-info">
-                                                                    Syarat: format jpg / png maks. 1 MB<br>
-                                                                    Jika Anda ingin mengganti dokumen yg telah diunggah, silakan hapus dokumen yg telah diunggah sebelumnya
+                                                                    Syarat: format jpg / png maks. 2 MB<br>
+                                                                    Jika Anda ingin mengganti dokumen yg telah diunggah,
+                                                                    silakan hapus dokumen yg telah diunggah sebelumnya
                                                                 </div>
                                                             </div>
                                                         </div>
-
                                                         <div class="mb-3">
-                                                            <label for="namaLengkap" class="form-label">
+                                                            <label for="full_name" class="form-label">
                                                                 Nama Lengkap <span class="required">*</span>
                                                             </label>
-                                                            <input type="text"
-                                                                class="form-control"
-                                                                id="namaLengkap"
-                                                                name="nama_lengkap"
-                                                                value="Haikal Gibran"
+                                                            <input type="text" class="form-control" id="full_name"
+                                                                name="full_name"
+                                                                value="{{ old('full_name', $applicant->full_name) }}"
                                                                 required>
                                                             <div class="error-message"></div>
                                                         </div>
-
                                                         <div class="mb-3">
-                                                            <label for="alamatEmail" class="form-label">
+                                                            <label for="email_address" class="form-label">
                                                                 Alamat Email <span class="required">*</span>
                                                             </label>
-                                                            <input type="email"
-                                                                class="form-control"
-                                                                id="alamatEmail"
-                                                                name="alamat_email"
-                                                                value="haikal.gibran.gunawan@gmail.com"
-                                                                required>
+                                                            <input type="email" class="form-control"
+                                                                id="email_address" name="email_address"
+                                                                value="{{ old('email_address', $applicant->email_address) }}"
+                                                                required readonly>
                                                             <div class="error-message"></div>
                                                         </div>
                                                     </div>
                                                     <div class="col-md-6">
                                                         <div class="mb-3">
-                                                            <label for="noTelepon" class="form-label">
+                                                            <label for="mobile_phone_number" class="form-label">
                                                                 No. Telepon <span class="required">*</span>
                                                             </label>
-                                                            <input type="tel"
-                                                                class="form-control"
-                                                                id="noTelepon"
-                                                                name="no_telepon"
-                                                                placeholder="Contoh: 628123924843"
-                                                                required>
+                                                            <input type="tel" class="form-control"
+                                                                id="mobile_phone_number" name="mobile_phone_number"
+                                                                value="{{ old('mobile_phone_number', $applicant->mobile_phone_number) }}"
+                                                                placeholder="Contoh: 628123924843" required>
                                                             <div class="error-message"></div>
                                                         </div>
                                                         <div class="mb-3">
-                                                            <label for="tempatLahir" class="form-label">
+                                                            <label for="place_of_birth" class="form-label">
                                                                 Tempat Lahir <span class="required">*</span>
                                                             </label>
-                                                            <input type="text"
-                                                                class="form-control"
-                                                                id="tempatLahir"
-                                                                name="tempat_lahir"
-                                                                placeholder="Masukkan Tempat lahir"
-                                                                required>
+                                                            <input type="text" class="form-control"
+                                                                id="place_of_birth" name="place_of_birth"
+                                                                value="{{ old('place_of_birth', $applicant->place_of_birth) }}"
+                                                                placeholder="Masukkan Tempat lahir" required>
                                                             <div class="error-message"></div>
                                                         </div>
-
                                                         <div class="mb-3">
-                                                            <label for="tanggalLahir" class="form-label">
+                                                            <label for="date_of_birth" class="form-label">
                                                                 Tanggal Lahir <span class="required">*</span>
                                                             </label>
-                                                            <input type="date"
-                                                                class="form-control"
-                                                                id="tanggalLahir"
-                                                                name="tanggal_lahir"
+                                                            <input type="date" class="form-control"
+                                                                id="date_of_birth" name="date_of_birth"
+                                                                value="{{ old('date_of_birth', $applicant->date_of_birth ? $applicant->date_of_birth->format('Y-m-d') : '') }}"
                                                                 required>
                                                             <div class="error-message"></div>
                                                         </div>
-
                                                         <div class="mb-3">
-                                                            <label for="goldar" class="form-label">
+                                                            <label for="blood_type" class="form-label">
                                                                 Golongan Darah <span class="required">*</span>
                                                             </label>
-                                                            <select class="form-select"
-                                                                id="goldar"
-                                                                name="goldar"
-                                                                required>
+                                                            <select class="form-select" id="blood_type"
+                                                                name="blood_type" required>
                                                                 <option value="">Pilih Golongan Darah</option>
-                                                                <option value="O">O</option>
-                                                                <option value="A">A</option>
-                                                                <option value="B">B</option>
-                                                                <option value="AB">AB</option>
+                                                                <option value="O"
+                                                                    {{ old('blood_type', $applicant->blood_type) == 'O' ? 'selected' : '' }}>
+                                                                    O</option>
+                                                                <option value="A"
+                                                                    {{ old('blood_type', $applicant->blood_type) == 'A' ? 'selected' : '' }}>
+                                                                    A</option>
+                                                                <option value="B"
+                                                                    {{ old('blood_type', $applicant->blood_type) == 'B' ? 'selected' : '' }}>
+                                                                    B</option>
+                                                                <option value="AB"
+                                                                    {{ old('blood_type', $applicant->blood_type) == 'AB' ? 'selected' : '' }}>
+                                                                    AB</option>
                                                             </select>
                                                             <div class="error-message"></div>
                                                         </div>
@@ -282,7 +358,9 @@
                                                 </div>
                                                 <div class="row mt-4">
                                                     <div class="col-md-12 text-end">
-                                                        <button type="button" class="btn btn-primary px-4 save-section-btn" data-section="informasiUtama">
+                                                        <button type="button"
+                                                            class="btn btn-primary px-4 save-section-btn"
+                                                            data-section="informasiUtama">
                                                             <i class="fas fa-save me-2"></i>Simpan Informasi Utama
                                                         </button>
                                                     </div>
@@ -292,89 +370,80 @@
                                     </div>
                                 </div>
 
+                                {{-- SECTION 2: INFORMASI ALAMAT --}}
                                 <div class="accordion mt-3" id="accordionInformasiAlamat">
                                     <div class="accordion-item">
                                         <h2 class="accordion-header" id="headingInformasiAlamat">
-                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseInformasiAlamat" aria-expanded="false" aria-controls="collapseInformasiAlamat">
+                                            <button class="accordion-button collapsed" type="button"
+                                                data-bs-toggle="collapse" data-bs-target="#collapseInformasiAlamat"
+                                                aria-expanded="false" aria-controls="collapseInformasiAlamat">
                                                 Informasi Alamat
                                             </button>
                                         </h2>
-                                        <div id="collapseInformasiAlamat" class="accordion-collapse collapse" aria-labelledby="headingInformasiAlamat" data-bs-parent="#accordionInformasiAlamat">
+                                        <div id="collapseInformasiAlamat" class="accordion-collapse collapse"
+                                            aria-labelledby="headingInformasiAlamat"
+                                            data-bs-parent="#accordionInformasiAlamat">
                                             <div class="accordion-body">
                                                 <div class="row mb-4">
                                                     <div class="col-md-6">
                                                         <div class="mb-3">
-                                                            <label for="alamatktp" class="form-label">
+                                                            <label for="permanent_address_ktp" class="form-label">
                                                                 Alamat KTP <span class="required">*</span>
                                                             </label>
-                                                            <textarea class="form-control"
-                                                                id="alamatktp"
-                                                                name="alamatktp"
-                                                                rows="4"
-                                                                placeholder="Masukkan Alamat sesuai dengan KTP"
-                                                                required></textarea>
+                                                            <textarea class="form-control" id="permanent_address_ktp" name="permanent_address_ktp" rows="4"
+                                                                placeholder="Masukkan Alamat sesuai dengan KTP" required>{{ old('permanent_address_ktp', $applicant->permanent_address_ktp) }}</textarea>
                                                             <div class="error-message"></div>
                                                         </div>
                                                         <div class="mb-3">
-                                                            <label for="alamatnow" class="form-label">
+                                                            <label for="current_address" class="form-label">
                                                                 Alamat Sekarang <span class="required">*</span>
                                                             </label>
-                                                            <textarea class="form-control"
-                                                                id="alamatnow"
-                                                                name="alamatnow"
-                                                                rows="4"
-                                                                placeholder="Masukkan Alamat sesuai dengan tempat tinggal sekarang"
-                                                                required></textarea>
+                                                            <textarea class="form-control" id="current_address" name="current_address" rows="4"
+                                                                placeholder="Masukkan Alamat sesuai dengan tempat tinggal sekarang" required>{{ old('current_address', $applicant->current_address) }}</textarea>
                                                             <div class="error-message"></div>
                                                         </div>
                                                         <div class="mb-3">
-                                                            <label for="alamatortu" class="form-label">
+                                                            <label for="parents_address" class="form-label">
                                                                 Alamat Orangtua <span class="required">*</span>
                                                             </label>
-                                                            <textarea class="form-control"
-                                                                id="alamatortu"
-                                                                name="alamatortu"
-                                                                rows="4"
-                                                                placeholder="Masukkan Alamat orangtua"
-                                                                required></textarea>
+                                                            <textarea class="form-control" id="parents_address" name="parents_address" rows="4"
+                                                                placeholder="Masukkan Alamat orangtua" required>{{ old('parents_address', $applicant->parents_address) }}</textarea>
                                                             <div class="error-message"></div>
                                                         </div>
                                                     </div>
                                                     <div class="col-md-6">
                                                         <div class="mb-3">
-                                                            <label for="kodePosKTP" class="form-label">
-                                                                Kode Pos sesuai Alamat KTP <span class="required">*</span>
+                                                            <label for="permanent_postal_code_ktp" class="form-label">
+                                                                Kode Pos sesuai Alamat KTP <span
+                                                                    class="required">*</span>
                                                             </label>
-                                                            <input type="text"
-                                                                class="form-control"
-                                                                id="kodePosKTP"
-                                                                name="kode_pos_KTP"
+                                                            <input type="text" class="form-control"
+                                                                id="permanent_postal_code_ktp"
+                                                                name="permanent_postal_code_ktp"
+                                                                value="{{ old('permanent_postal_code_ktp', $applicant->permanent_postal_code_ktp) }}"
                                                                 placeholder="Masukkan Kode Pos sesuai Alamat KTP"
                                                                 required>
                                                             <div class="error-message"></div>
                                                         </div>
-
                                                         <div class="mb-3">
-                                                            <label for="kodePos_now" class="form-label">
+                                                            <label for="current_postal_code" class="form-label">
                                                                 Kode Pos Alamat Sekarang<span class="required">*</span>
                                                             </label>
-                                                            <input type="text"
-                                                                class="form-control"
-                                                                id="kodePos_now"
-                                                                name="kode_pos_now"
+                                                            <input type="text" class="form-control"
+                                                                id="current_postal_code" name="current_postal_code"
+                                                                value="{{ old('current_postal_code', $applicant->current_postal_code) }}"
                                                                 placeholder="Masukkan Kode Pos sesuai Alamat Sekarang"
                                                                 required>
                                                             <div class="error-message"></div>
                                                         </div>
-
                                                         <div class="mb-3">
-                                                            <label for="kodePos_ortu" class="form-label">
-                                                                Kode Pos sesuai Alamat Orangtua <span class="required">*</span>
+                                                            <label for="parents_postal_code" class="form-label">
+                                                                Kode Pos sesuai Alamat Orangtua <span
+                                                                    class="required">*</span>
                                                             </label>
-                                                            <input type="text"
-                                                                class="form-control"
-                                                                id="kodePos_ortu"
-                                                                name="kode_pos_ortu"
+                                                            <input type="text" class="form-control"
+                                                                id="parents_postal_code" name="parents_postal_code"
+                                                                value="{{ old('parents_postal_code', $applicant->parents_postal_code) }}"
                                                                 placeholder="Masukkan Kode Pos sesuai Alamat Orangtua"
                                                                 required>
                                                             <div class="error-message"></div>
@@ -383,7 +452,9 @@
                                                 </div>
                                                 <div class="row mt-4">
                                                     <div class="col-md-12 text-end">
-                                                        <button type="button" class="btn btn-primary px-4 save-section-btn" data-section="informasiAlamat">
+                                                        <button type="button"
+                                                            class="btn btn-primary px-4 save-section-btn"
+                                                            data-section="informasiAlamat">
                                                             <i class="fas fa-save me-2"></i>Simpan Informasi Alamat
                                                         </button>
                                                     </div>
@@ -393,88 +464,84 @@
                                     </div>
                                 </div>
 
+                                {{-- SECTION 3: NOMOR IDENTITAS --}}
                                 <div class="accordion mt-3" id="accordionNomorIdentitas">
                                     <div class="accordion-item">
                                         <h2 class="accordion-header" id="headingNomorIdentitas">
-                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNomorIdentitas" aria-expanded="false" aria-controls="collapseNomorIdentitas">
+                                            <button class="accordion-button collapsed" type="button"
+                                                data-bs-toggle="collapse" data-bs-target="#collapseNomorIdentitas"
+                                                aria-expanded="false" aria-controls="collapseNomorIdentitas">
                                                 Nomor Identitas
                                             </button>
                                         </h2>
-                                        <div id="collapseNomorIdentitas" class="accordion-collapse collapse" aria-labelledby="headingNomorIdentitas" data-bs-parent="#accordionNomorIdentitas">
+                                        <div id="collapseNomorIdentitas" class="accordion-collapse collapse"
+                                            aria-labelledby="headingNomorIdentitas"
+                                            data-bs-parent="#accordionNomorIdentitas">
                                             <div class="accordion-body">
                                                 <div class="row mb-4">
                                                     <div class="col-md-6">
                                                         <div class="mb-3">
-                                                            <label for="noKTP" class="form-label">
-                                                                No. KTP <span class="required">*</span>
+                                                            <label for="id_passport_number" class="form-label">
+                                                                No. KTP/Passport <span class="required">*</span>
                                                             </label>
-                                                            <input type="text"
-                                                                class="form-control"
-                                                                id="noKTP"
-                                                                name="no_ktp"
-                                                                placeholder="Masukkan No. KTP"
-                                                                required>
+                                                            <input type="text" class="form-control"
+                                                                id="id_passport_number" name="id_passport_number"
+                                                                value="{{ old('id_passport_number', $applicant->id_passport_number) }}"
+                                                                placeholder="Masukkan No. KTP/Passport" required>
                                                             <div class="error-message"></div>
                                                         </div>
                                                         <div class="mb-3">
-                                                            <label for="noNPWP" class="form-label">
+                                                            <label for="npwp_number" class="form-label">
                                                                 No. NPWP <span class="required">*</span>
                                                             </label>
-                                                            <input type="text"
-                                                                class="form-control"
-                                                                id="noNPWP"
-                                                                name="no_NPWP"
-                                                                placeholder="Masukkan No. NPWP"
-                                                                required>
+                                                            <input type="text" class="form-control"
+                                                                id="npwp_number" name="npwp_number"
+                                                                value="{{ old('npwp_number', $applicant->npwp_number) }}"
+                                                                placeholder="Masukkan No. NPWP" required>
                                                             <div class="error-message"></div>
                                                         </div>
                                                         <div class="mb-3">
-                                                            <label for="noBPJSsehat" class="form-label">
+                                                            <label for="bpjs_health_number" class="form-label">
                                                                 No. BPJS Kesehatan <span class="required">*</span>
                                                             </label>
-                                                            <input type="tel"
-                                                                class="form-control"
-                                                                id="noBPJSsehat"
-                                                                name="no_BPJSsehat"
-                                                                placeholder="Contoh: 628123924843"
-                                                                required>
+                                                            <input type="tel" class="form-control"
+                                                                id="bpjs_health_number" name="bpjs_health_number"
+                                                                value="{{ old('bpjs_health_number', $applicant->bpjs_health_number) }}"
+                                                                placeholder="Masukkan No. BPJS Kesehatan" required>
                                                             <div class="error-message"></div>
                                                         </div>
                                                     </div>
                                                     <div class="col-md-6">
                                                         <div class="mb-3">
-                                                            <label for="noSIM" class="form-label">
+                                                            <label for="license_number" class="form-label">
                                                                 No. SIM <span class="required">*</span>
                                                             </label>
-                                                            <input type="text"
-                                                                class="form-control"
-                                                                id="noSIM"
-                                                                name="no_SIM"
-                                                                placeholder="Masukkan No. SIM"
-                                                                required>
+                                                            <input type="text" class="form-control"
+                                                                id="license_number" name="license_number"
+                                                                value="{{ old('license_number', $applicant->license_number) }}"
+                                                                placeholder="Masukkan No. SIM" required>
                                                             <div class="error-message"></div>
                                                         </div>
                                                         <div class="mb-3">
-                                                            <label for="exp_date_SIM" class="form-label">
+                                                            <label for="license_expiry_date" class="form-label">
                                                                 Tanggal Kadaluarsa SIM <span class="required">*</span>
                                                             </label>
-                                                            <input type="date"
-                                                                class="form-control"
-                                                                id="exp_date_SIM"
-                                                                name="exp_date_SIM"
+                                                            <input type="date" class="form-control"
+                                                                id="license_expiry_date" name="license_expiry_date"
+                                                                value="{{ old('license_expiry_date', $applicant->license_expiry_date ? $applicant->license_expiry_date->format('Y-m-d') : '') }}"
                                                                 required>
                                                             <div class="error-message"></div>
                                                         </div>
-                                                        
                                                         <div class="mb-3">
-                                                            <label for="noBPJSkerja" class="form-label">
-                                                                No. BPJS Ketenagakerjaan <span class="required">*</span>
+                                                            <label for="bpjs_employment_number" class="form-label">
+                                                                No. BPJS Ketenagakerjaan <span
+                                                                    class="required">*</span>
                                                             </label>
-                                                            <input type="tel"
-                                                                class="form-control"
-                                                                id="noBPJSkerja"
-                                                                name="no_BPJSkerja"
-                                                                placeholder="Contoh: 628123924843"
+                                                            <input type="tel" class="form-control"
+                                                                id="bpjs_employment_number"
+                                                                name="bpjs_employment_number"
+                                                                value="{{ old('bpjs_employment_number', $applicant->bpjs_employment_number) }}"
+                                                                placeholder="Masukkan No. BPJS Ketenagakerjaan"
                                                                 required>
                                                             <div class="error-message"></div>
                                                         </div>
@@ -482,7 +549,9 @@
                                                 </div>
                                                 <div class="row mt-4">
                                                     <div class="col-md-12 text-end">
-                                                        <button type="button" class="btn btn-primary px-4 save-section-btn" data-section="nomorIdentitas">
+                                                        <button type="button"
+                                                            class="btn btn-primary px-4 save-section-btn"
+                                                            data-section="nomorIdentitas">
                                                             <i class="fas fa-save me-2"></i>Simpan Nomor Identitas
                                                         </button>
                                                     </div>
@@ -492,84 +561,107 @@
                                     </div>
                                 </div>
 
+                                {{-- SECTION 4: DETAIL PRIBADI LAINNYA --}}
                                 <div class="accordion mt-3" id="accordionDetailPribadiLainnya">
                                     <div class="accordion-item">
                                         <h2 class="accordion-header" id="headingDetailPribadiLainnya">
-                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDetailPribadiLainnya" aria-expanded="false" aria-controls="collapseDetailPribadiLainnya">
+                                            <button class="accordion-button collapsed" type="button"
+                                                data-bs-toggle="collapse"
+                                                data-bs-target="#collapseDetailPribadiLainnya" aria-expanded="false"
+                                                aria-controls="collapseDetailPribadiLainnya">
                                                 Detail Pribadi Lainnya
                                             </button>
                                         </h2>
-                                        <div id="collapseDetailPribadiLainnya" class="accordion-collapse collapse" aria-labelledby="headingDetailPribadiLainnya" data-bs-parent="#accordionDetailPribadiLainnya">
+                                        <div id="collapseDetailPribadiLainnya" class="accordion-collapse collapse"
+                                            aria-labelledby="headingDetailPribadiLainnya"
+                                            data-bs-parent="#accordionDetailPribadiLainnya">
                                             <div class="accordion-body">
                                                 <div class="row mb-4">
                                                     <div class="col-md-6">
                                                         <div class="mb-3">
-                                                            <label for="jenisKelamin" class="form-label">
+                                                            <label for="gender_select" class="form-label">
                                                                 Jenis Kelamin <span class="required">*</span>
                                                             </label>
-                                                            <select class="form-select"
-                                                                id="jenisKelamin"
-                                                                name="jenis_kelamin"
-                                                                required>
+                                                            <select class="form-select" id="gender_select"
+                                                                name="gender" required>
                                                                 <option value="">Pilih Jenis Kelamin</option>
-                                                                <option value="L">Laki-laki</option>
-                                                                <option value="P">Perempuan</option>
+                                                                <option value="L"
+                                                                    {{ old('gender', $applicant->gender) == 'L' ? 'selected' : '' }}>
+                                                                    Laki-laki</option>
+                                                                <option value="P"
+                                                                    {{ old('gender', $applicant->gender) == 'P' ? 'selected' : '' }}>
+                                                                    Perempuan</option>
                                                             </select>
                                                             <div class="error-message"></div>
                                                         </div>
                                                         <div class="mb-3">
-                                                            <label for="agama" class="form-label">
+                                                            <label for="religion_select" class="form-label">
                                                                 Agama <span class="required">*</span>
                                                             </label>
-                                                            <select class="form-select"
-                                                                id="agama"
-                                                                name="agama"
-                                                                required>
+                                                            <select class="form-select" id="religion_select"
+                                                                name="religion" required>
                                                                 <option value="">Pilih Agama</option>
-                                                                <option value="Islam">Islam</option>
-                                                                <option value="Protestan">Kristen</option>
-                                                                <option value="Katolik">Katolik</option>
-                                                                <option value="Konghucu">Konghucu</option>
-                                                                <option value="Hindu">Hindu</option>
-                                                                <option value="Buddha">Buddha</option>
+                                                                @foreach (['Islam', 'Protestan', 'Katolik', 'Konghucu', 'Hindu', 'Buddha'] as $religionOpt)
+                                                                    <option value="{{ $religionOpt }}"
+                                                                        {{ old('religion', $applicant->religion) == $religionOpt ? 'selected' : '' }}>
+                                                                        {{ $religionOpt }}</option>
+                                                                @endforeach
                                                             </select>
                                                             <div class="error-message"></div>
                                                         </div>
-                                                        
                                                     </div>
                                                     <div class="col-md-6">
                                                         <div class="mb-3">
-                                                            <label for="statusnikah" class="form-label">
+                                                            <label for="marital_status" class="form-label">
                                                                 Status Pernikahan <span class="required">*</span>
                                                             </label>
-                                                            <select class="form-select"
-                                                                id="statusnikah"
-                                                                name="statusnikah"
-                                                                required>
+                                                            <select class="form-select" id="marital_status"
+                                                                name="marital_status" required>
                                                                 <option value="">Pilih Status Pernikahan</option>
-                                                                <option value="Single">Belum Menikah (Single)</option>
-                                                                <option value="Married">Menikah (Married)</option>
-                                                                <option value="Widower/Widow">Duda/Janda (Widower/Widow)</option>
+                                                                {{-- Opsi Status Pernikahan (Hardcode) --}}
+                                                                <option value="Belum menikah"
+                                                                    {{ old('marital_status', $applicant->marital_status) == 'Belum menikah' ? 'selected' : '' }}>
+                                                                    Belum Menikah</option>
+                                                                <option value="Menikah"
+                                                                    {{ old('marital_status', $applicant->marital_status) == 'Menikah' ? 'selected' : '' }}>
+                                                                    Menikah</option>
+                                                                <option value="Janda-Duda"
+                                                                    {{ old('marital_status', $applicant->marital_status) == 'Janda-Duda' ? 'selected' : '' }}>
+                                                                    Janda-Duda</option>
+                                                                {{-- Akhir Opsi Status Pernikahan --}}
                                                             </select>
                                                             <div class="error-message"></div>
                                                         </div>
-
-                                                        <div class="mb-3" id="dudaJandaDateGroup" style="display: none;">
-                                                            <label for="dudaJandaDate" class="form-label">
-                                                                Dari Kapan Duda/Janda <span class="required">*</span>
+                                                        <div class="mb-3" id="marriedDateGroup"
+                                                            style="display: none;">
+                                                            <label for="married_since_date" class="form-label">
+                                                                Menikah Sejak Tanggal <span class="required">*</span>
                                                             </label>
-                                                            <input type="date"
-                                                                class="form-control"
-                                                                id="dudaJandaDate"
-                                                                name="duda_janda_date">
+                                                            <input type="date" class="form-control"
+                                                                id="married_since_date" name="married_since_date"
+                                                                value="{{ old('married_since_date', $applicant->married_since_date ? $applicant->married_since_date->format('Y-m-d') : '') }}">
+                                                            <div class="error-message"></div>
+                                                        </div>
+                                                        <div class="mb-3" id="widowedDateGroup"
+                                                            style="display: none;">
+                                                            <label for="widowed_since_date" class="form-label">
+                                                                Duda/Janda Sejak Tanggal <span
+                                                                    class="required">*</span>
+                                                            </label>
+                                                            <input type="date" class="form-control"
+                                                                id="widowed_since_date" name="widowed_since_date"
+                                                                value="{{ old('widowed_since_date', $applicant->widowed_since_date ? $applicant->widowed_since_date->format('Y-m-d') : '') }}">
                                                             <div class="error-message"></div>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="row mt-4">
                                                     <div class="col-md-12 text-end">
-                                                        <button type="button" class="btn btn-primary px-4 save-section-btn" data-section="detailPribadiLainnya">
-                                                            <i class="fas fa-save me-2"></i>Simpan Detail Pribadi Lainnya
+                                                        <button type="button"
+                                                            class="btn btn-primary px-4 save-section-btn"
+                                                            data-section="detailPribadiLainnya">
+                                                            <i class="fas fa-save me-2"></i>Simpan Detail Pribadi
+                                                            Lainnya
                                                         </button>
                                                     </div>
                                                 </div>
@@ -578,31 +670,44 @@
                                     </div>
                                 </div>
 
+                                {{-- SECTION 5: SUMBER INFORMASI LOWONGAN --}}
                                 <div class="accordion mt-3" id="accordionSumberLowongan">
                                     <div class="accordion-item">
                                         <h2 class="accordion-header" id="headingSumberLowongan">
-                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSumberLowongan" aria-expanded="false" aria-controls="collapseSumberLowongan">
+                                            <button class="accordion-button collapsed" type="button"
+                                                data-bs-toggle="collapse" data-bs-target="#collapseSumberLowongan"
+                                                aria-expanded="false" aria-controls="collapseSumberLowongan">
                                                 Sumber Informasi Lowongan
                                             </button>
                                         </h2>
-                                        <div id="collapseSumberLowongan" class="accordion-collapse collapse" aria-labelledby="headingSumberLowongan" data-bs-parent="#accordionSumberLowongan">
+                                        <div id="collapseSumberLowongan" class="accordion-collapse collapse"
+                                            aria-labelledby="headingSumberLowongan"
+                                            data-bs-parent="#accordionSumberLowongan">
                                             <div class="accordion-body">
                                                 <div class="row mb-4">
                                                     <div class="col-md-12">
                                                         <div class="mb-3">
-                                                            <label for="sumber_lowongan" class="form-label">
+                                                            <label for="job_vacancy_source" class="form-label">
                                                                 Sumber Informasi <span class="required">*</span>
                                                             </label>
-                                                            <select class="form-select"
-                                                                id="sumber_lowongan"
-                                                                name="sumber_lowongan"
-                                                                required>
+                                                            <select class="form-select" id="job_vacancy_source"
+                                                                name="job_vacancy_source" required>
                                                                 <option value="">Pilih Sumber Lowongan</option>
-                                                                <option value="Youtube">Youtube</option>
-                                                                <option value="Twitter/X">Twitter/X</option>
-                                                                <option value="LinkedIn">LinkedIn</option>
-                                                                <option value="Facebook">Facebook</option>
-                                                                <option value="Lainnya">Lainnya</option>
+                                                                <option value="Youtube"
+                                                                    {{ old('job_vacancy_source', $applicant->job_vacancy_source) == 'Youtube' ? 'selected' : '' }}>
+                                                                    Youtube</option>
+                                                                <option value="Twitter/X"
+                                                                    {{ old('job_vacancy_source', $applicant->job_vacancy_source) == 'Twitter/X' ? 'selected' : '' }}>
+                                                                    Twitter/X</option>
+                                                                <option value="LinkedIn"
+                                                                    {{ old('job_vacancy_source', $applicant->job_vacancy_source) == 'LinkedIn' ? 'selected' : '' }}>
+                                                                    LinkedIn</option>
+                                                                <option value="Facebook"
+                                                                    {{ old('job_vacancy_source', $applicant->job_vacancy_source) == 'Facebook' ? 'selected' : '' }}>
+                                                                    Facebook</option>
+                                                                <option value="Lainnya"
+                                                                    {{ old('job_vacancy_source', $applicant->job_vacancy_source) == 'Lainnya' ? 'selected' : '' }}>
+                                                                    Lainnya</option>
                                                             </select>
                                                             <div class="error-message"></div>
                                                         </div>
@@ -610,7 +715,9 @@
                                                 </div>
                                                 <div class="row mt-4">
                                                     <div class="col-md-12 text-end">
-                                                        <button type="button" class="btn btn-primary px-4 save-section-btn" data-section="sumberLowongan">
+                                                        <button type="button"
+                                                            class="btn btn-primary px-4 save-section-btn"
+                                                            data-section="sumberLowongan">
                                                             <i class="fas fa-save me-2"></i>Simpan Sumber Lowongan
                                                         </button>
                                                     </div>
@@ -619,6 +726,7 @@
                                         </div>
                                     </div>
                                 </div>
+
                             </form>
                         </div>
                     </div>
@@ -629,311 +737,1420 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Preview gambar profile
+        // Fungsi untuk mengelola pratinjau gambar profil
         function previewImage(input) {
             const profilePreview = document.getElementById('profilePreview');
-            const uploadArea = document.getElementById('uploadAreaContainer');
-            const fileInfo = document.querySelector('#accordionInformasiUtama .file-info'); // Target within the specific section
+            const uploadAreaContainer = document.getElementById('uploadAreaContainer');
+            const fileInfo = document.querySelector('#accordionInformasiUtama .file-info');
 
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     profilePreview.src = e.target.result;
-                    profilePreview.style.display = 'block'; // Show the image
-                    uploadArea.style.display = 'none'; // Hide the circular upload area
+                    profilePreview.style.display = 'block';
+                    uploadAreaContainer.style.display = 'none';
 
                     const fileName = input.files[0].name;
                     const fileSize = (input.files[0].size / 1024 / 1024).toFixed(2); // MB
                     fileInfo.innerHTML = `
-                        Syarat: format jpg / png maks. 1 MB<br>
-                        File: <strong>${fileName}</strong> (Ukuran: ${fileSize} MB)<br>
-                        Jika Anda ingin mengganti dokumen yg telah diunggah, silakan hapus dokumen yg telah diunggah sebelumnya
-                    `;
-                }
+                    Syarat: format jpg / png maks. 2 MB<br>
+                `;
+                };
                 reader.readAsDataURL(input.files[0]);
             } else {
-                // If no file is selected (e.g., user cancels the file dialog or clears the input)
-                profilePreview.src = "https://via.placeholder.com/80x80?text=?"; // Reset to placeholder
-                profilePreview.style.display = 'none'; // Hide the image
-                uploadArea.style.display = 'flex'; // Show the circular upload area (placeholder)
-
-                fileInfo.innerHTML = `
-                    Syarat: format jpg / png maks. 1 MB<br>
+                // Ensure the correct default image is shown if no file is selected and there's no old image
+                const existingProfileImage = "{{ old('profile_image', $applicant->profile_image) }}";
+                if (existingProfileImage) {
+                    profilePreview.src = existingProfileImage;
+                    profilePreview.style.display = 'block';
+                    uploadAreaContainer.style.display = 'none';
+                    // Update file info for existing image
+                    const oldFileName = existingProfileImage.substring(existingProfileImage.lastIndexOf('/') +
+                    1); // Simple extraction
+                    fileInfo.innerHTML = `
+                    Syarat: format jpg / png maks. 2 MB<br>
+                    File: <strong>${oldFileName}</strong> (Ukuran: N/A - existing file)<br>
                     Jika Anda ingin mengganti dokumen yg telah diunggah, silakan hapus dokumen yg telah diunggah sebelumnya
                 `;
+                } else {
+                    profilePreview.src = "https://via.placeholder.com/80x80?text=?";
+                    profilePreview.style.display = 'none'; // Hide if no image
+                    uploadAreaContainer.style.display = 'flex'; // Show upload area
+                    fileInfo.innerHTML = `
+                    Syarat: format jpg / png maks. 2 MB<br>
+                    Jika Anda ingin mengganti dokumen yg telah diunggah, silakan hapap dokumen yg telah diunggah sebelumnya
+                `;
+                }
             }
         }
 
-        // --- Form Validation Logic for Individual Sections ---
-        document.querySelectorAll('.save-section-btn').forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
+        // Call on page load to set the initial state of the profile image display
+        function updateProfileImageDisplay() {
+            const profilePreview = document.getElementById('profilePreview');
+            const uploadAreaContainer = document.getElementById('uploadAreaContainer');
+            const profileImageInput = document.getElementById('profileImage');
+            const fileInfo = document.querySelector('#accordionInformasiUtama .file-info');
 
-                const sectionId = this.dataset.section;
-                const sectionElement = document.getElementById(`collapse${sectionId.charAt(0).toUpperCase() + sectionId.slice(1)}`);
-                let isValid = true;
+            const existingProfileImage = "{{ old('profile_image', $applicant->profile_image) }}";
+            if (existingProfileImage && existingProfileImage !== 'https://via.placeholder.com/80x80?text=?') {
+                profilePreview.src = existingProfileImage;
+                profilePreview.style.display = 'block';
+                uploadAreaContainer.style.display = 'none';
 
-                // Reset error messages and invalid class for the specific section
-                sectionElement.querySelectorAll('.error-message').forEach(msg => {
-                    msg.style.display = 'none';
-                });
-                sectionElement.querySelectorAll('.form-control').forEach(input => {
-                    input.classList.remove('is-invalid');
-                });
+                // Extract file name if possible, or just indicate existing
+                const oldFileName = existingProfileImage.substring(existingProfileImage.lastIndexOf('/') + 1);
+                fileInfo.innerHTML = `
+                Syarat: format jpg / png maks. 2 MB<br>
+            `;
+            } else {
+                profilePreview.style.display = 'none';
+                uploadAreaContainer.style.display = 'flex';
+                fileInfo.innerHTML = `
+                Syarat: format jpg / png maks. 2 MB<br>
+            `;
+            }
+        }
 
-                // Define required fields per section
-                const sectionRequiredFields = {
-                    informasiUtama: {
-                        'namaLengkap': 'Silakan masukkan Nama Lengkap Anda',
-                        'alamatEmail': 'Silakan masukkan Alamat Email Anda',
-                        'noTelepon': 'Silakan masukkan no. telp',
-                        'tempatLahir': 'Silakan masukkan tempat lahir',
-                        'tanggalLahir': 'Silakan masukkan tanggal lahir',
-                        'goldar': 'Golongan Darah harus diisi'
-                    },
-                    informasiAlamat: {
-                        'alamatktp': 'Silakan masukkan alamat',
-                        'alamatnow': 'Silakan masukkan alamat sekarang',
-                        'alamatortu': 'Silakan masukkan alamat orangtua',
-                        'kodePosKTP': 'Silakan masukkan kode pos sesuai Alamat KTP',
-                        'kodePos_now': 'Silakan masukkan kode pos sesuai Alamat Sekarang',
-                        'kodePos_ortu': 'Silakan masukkan kode pos sesuai Alamat Orangtua'
-                    },
-                    nomorIdentitas: {
-                        'noKTP': 'Silakan masukkan no. KTP',
-                        'noNPWP': 'Silakan masukkan no. NPWP',
-                        'noBPJSsehat': 'Silakan masukkan Nomor BPJS Kesehatan',
-                        'noSIM': 'Silakan masukkan no. SIM',
-                        'exp_date_SIM': 'Silakan masukkan tanggal kadaluarsa SIM',
-                        'noBPJSkerja': 'Silakan masukkan Nomor BPJS Ketenagakerjaan'
-                    },
-                    detailPribadiLainnya: {
-                        'jenisKelamin': 'Silakan pilih jenis kelamin',
-                        'agama': 'Agama harus diisi',
-                        'statusnikah': 'Silakan pilih Status Pernikahan'
-                    },
-                    sumberLowongan: {
-                        'sumber_lowongan': 'Lowongan harus diisi'
-                    }
-                };
 
-                const requiredFields = sectionRequiredFields[sectionId];
+        // Fungsi untuk validasi satu field (menambah/menghapus kelas is-invalid)
+        function validateField(inputElement) {
+            let isValid = true;
+            const errorMessageElement = inputElement.parentElement.querySelector('.error-message');
 
-                for (const fieldId in requiredFields) {
-                    const field = sectionElement.querySelector(`#${fieldId}`); // Select within the current section
-                    if (field && (field.type === 'select-one' ? !field.value : !field.value.trim())) {
-                        field.classList.add('is-invalid');
-                        const errorMsg = field.parentElement.querySelector('.error-message');
-                        if (errorMsg) {
-                            errorMsg.textContent = requiredFields[fieldId];
-                            errorMsg.style.display = 'block';
-                        }
-                        isValid = false;
-                    }
-                }
-
-                // Specific validation for 'Dari Kapan Duda/Janda' if visible in 'detailPribadiLainnya'
-                if (sectionId === 'detailPribadiLainnya') {
-                    const statusNikahField = sectionElement.querySelector('#statusnikah');
-                    const dudaJandaDateField = sectionElement.querySelector('#dudaJandaDate');
-
-                    if (statusNikahField && statusNikahField.value === 'Widower/Widow') {
-                        if (!dudaJandaDateField.value.trim()) {
-                            dudaJandaDateField.classList.add('is-invalid');
-                            const errorMsg = dudaJandaDateField.parentElement.querySelector('.error-message');
-                            if (errorMsg) {
-                                errorMsg.textContent = 'Silakan masukkan tanggal duda/janda';
-                                errorMsg.style.display = 'block';
-                            }
-                            isValid = false;
-                        }
-                    }
-                }
-
-                // Validate email format (only if it's in the current section)
-                if (sectionId === 'informasiUtama') {
-                    const emailField = sectionElement.querySelector('#alamatEmail');
-                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                    if (emailField.value && !emailRegex.test(emailField.value)) {
-                        emailField.classList.add('is-invalid');
-                        const errorMsg = emailField.parentElement.querySelector('.error-message');
-                        if (errorMsg) {
-                            errorMsg.textContent = 'Format email tidak valid';
-                            errorMsg.style.display = 'block';
-                        }
-                        isValid = false;
-                    }
-                }
-                
-                // Validate phone number format (for BPJS Kesehatan, BPJS Ketenagakerjaan, and No. Telepon)
-                if (sectionId === 'informasiUtama' || sectionId === 'nomorIdentitas') {
-                    const phoneFields = (sectionId === 'informasiUtama') ? ['noTelepon'] : ['noBPJSsehat', 'noBPJSkerja', 'noSIM'];
-                    const phoneRegex = /^[0-9]{10,15}$/; // Assuming 10 to 15 digits for phone numbers
-
-                    phoneFields.forEach(fieldId => {
-                        const field = sectionElement.querySelector(`#${fieldId}`);
-                        if (field && field.value && !phoneRegex.test(field.value.replace(/\D/g, ''))) {
-                            field.classList.add('is-invalid');
-                            const errorMsg = field.parentElement.querySelector('.error-message');
-                            if (errorMsg) {
-                                errorMsg.textContent = `Format ${field.previousElementSibling.textContent.replace(' *', '')} tidak valid. Harap masukkan 10-15 digit angka.`;
-                                errorMsg.style.display = 'block';
-                            }
-                            isValid = false;
-                        }
-                    });
-                }
-                
-                // Validate Kode Pos format (assuming 5 digits) for all kode pos fields
-                if (sectionId === 'informasiAlamat') {
-                    const kodePosFields = ['kodePosKTP', 'kodePos_now', 'kodePos_ortu'];
-                    const kodePosRegex = /^[0-9]{5}$/;
-                    kodePosFields.forEach(fieldId => {
-                        const field = sectionElement.querySelector(`#${fieldId}`);
-                        if (field.value && !kodePosRegex.test(field.value)) {
-                            field.classList.add('is-invalid');
-                            const errorMsg = field.parentElement.querySelector('.error-message');
-                            if (errorMsg) {
-                                errorMsg.textContent = 'Format Kode Pos tidak valid. Harap masukkan 5 digit angka.';
-                                errorMsg.style.display = 'block';
-                            }
-                            isValid = false;
-                        }
-                    });
-                }
-
-                if (isValid) {
-                    alert(`Data di bagian "${this.textContent.replace('Simpan ', '').trim()}" berhasil disimpan!`);
-                    // In a real application, you would send specific data for this section
-                    // For example, using fetch API to send data to a backend endpoint:
-                    /*
-                    const formData = new FormData();
-                    sectionElement.querySelectorAll('input, select, textarea').forEach(input => {
-                        if (input.name) { // Only append if input has a name
-                            formData.append(input.name, input.value);
-                        }
-                    });
-                    fetch('/api/save-personal-data-section', { // Replace with your actual endpoint
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log('Success:', data);
-                        alert(`Data di bagian "${this.textContent.replace('Simpan ', '').trim()}" berhasil disimpan!`);
-                    })
-                    .catch((error) => {
-                        console.error('Error:', error);
-                        alert('Terjadi kesalahan saat menyimpan data.');
-                    });
-                    */
+            if (inputElement.hasAttribute('required')) {
+                if (inputElement.type === 'checkbox' || inputElement.type === 'radio') {
+                    const radioGroupName = inputElement.name;
+                    isValid = document.querySelector(`input[name="${radioGroupName}"]:checked`) !== null;
+                } else if (inputElement.tagName === 'SELECT') {
+                    isValid = inputElement.value.trim() !== '';
                 } else {
-                    // Find the first invalid element in the current section and scroll to it
-                    const firstInvalidField = sectionElement.querySelector('.is-invalid');
-                    if (firstInvalidField) {
-                        firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    isValid = inputElement.value.trim() !== '';
+                }
+            }
+
+            if (!isValid) {
+                inputElement.classList.add('is-invalid');
+                if (errorMessageElement) {
+                    errorMessageElement.textContent = inputElement.validationMessage || 'Field ini wajib diisi.';
+                    errorMessageElement.style.display = 'block';
+                }
+            } else {
+                inputElement.classList.remove('is-invalid');
+                if (errorMessageElement) {
+                    errorMessageElement.style.display = 'none';
+                }
+            }
+            return isValid;
+        }
+
+        // Fungsi untuk validasi semua input dalam accordion body spesifik
+        function validateSectionInputs(sectionElement) {
+            let allSectionValid = true;
+            // Pilih semua input yang required di dalam sectionElement ini
+            const inputs = sectionElement.querySelectorAll('input[required], select[required], textarea[required]');
+
+            inputs.forEach(input => {
+                if (!validateField(input)) {
+                    allSectionValid = false;
+                }
+            });
+            return allSectionValid;
+        }
+
+        // Fungsi untuk validasi semua input yang dibutuhkan di seluruh form (dipanggil saat submit final)
+        function validateAllRequiredInputs() {
+            let allFormValid = true;
+            const form = document.getElementById('biodataForm');
+            const requiredFormInputs = form.querySelectorAll('input[required], select[required], textarea[required]');
+
+            requiredFormInputs.forEach(input => {
+                if (!validateField(input)) {
+                    allFormValid = false;
+                }
+            });
+            // Tambahan validasi untuk radio groups yang mungkin tidak terdeteksi oleh input[required]
+            const radioGroups = [
+                'gender', 'applied_before', 'applying_other_company', 'under_contract', 'has_part_time_job',
+                'object_previous_employer_contact', 'has_acquaintance_in_company', 'undergone_psych_exam',
+                'involved_police_case', 'willing_to_be_located_as_needed', 'accept_company_salary_standard',
+                'comply_company_rules', 'willing_to_take_psych_exam', 'willing_to_take_medical_checkup',
+                'willing_to_work_out_of_town', 'willing_to_transfer', 'willing_to_be_demoted',
+                'declaration_agreement', 'has_medical_condition', 'resigned_due_to_health',
+                'failed_pre_employment_exam', 'undergoing_treatment_or_surgery', 'under_medical_supervision',
+                'on_regular_medication', 'has_allergies', 'absent_due_to_health_12_months', 'had_accident',
+                'is_pregnant'
+            ];
+            radioGroups.forEach(groupName => {
+                const radioElements = form.querySelectorAll(`input[name="${groupName}"]`);
+                if (radioElements.length > 0 && !form.querySelector(`input[name="${groupName}"]:checked`)) {
+                    // Find the parent div of the radio group (e.g., .form-group or similar)
+                    const parentDiv = radioElements[0].closest('.mb-3');
+                    const errorDiv = parentDiv ? parentDiv.querySelector('.error-message') : null;
+
+                    if (errorDiv) {
+                        errorDiv.textContent = 'Field ini wajib dipilih.';
+                        errorDiv.style.display = 'block';
+                    }
+                    radioElements.forEach(radio => radio.classList.add('is-invalid')); // Mark all radios in group
+                    allFormValid = false;
+                } else if (radioElements.length > 0) {
+                    radioElements.forEach(radio => radio.classList.remove('is-invalid')); // Clear if valid
+                    const parentDiv = radioElements[0].closest('.mb-3');
+                    const errorDiv = parentDiv ? parentDiv.querySelector('.error-message') : null;
+                    if (errorDiv) {
+                        errorDiv.style.display = 'none';
                     }
                 }
             });
+
+            // Validasi khusus untuk tanggal terkait status pernikahan
+            const maritalStatusSelect = document.getElementById('marital_status');
+            if (maritalStatusSelect) {
+                if (maritalStatusSelect.value === 'Menikah') {
+                    const marriedSinceDate = document.getElementById('married_since_date');
+                    if (marriedSinceDate && marriedSinceDate.value.trim() === '') {
+                        marriedSinceDate.classList.add('is-invalid');
+                        const errorMsg = marriedSinceDate.parentElement.querySelector('.error-message');
+                        if (errorMsg) {
+                            errorMsg.textContent = 'Tanggal ini wajib diisi.';
+                            errorMsg.style.display = 'block';
+                        }
+                        allFormValid = false;
+                    } else if (marriedSinceDate) {
+                        marriedSinceDate.classList.remove('is-invalid');
+                        const errorMsg = marriedSinceDate.parentElement.querySelector('.error-message');
+                        if (errorMsg) errorMsg.style.display = 'none';
+                    }
+                } else if (maritalStatusSelect.value === 'Janda-Duda') {
+                    const widowedSinceDate = document.getElementById('widowed_since_date');
+                    if (widowedSinceDate && widowedSinceDate.value.trim() === '') {
+                        widowedSinceDate.classList.add('is-invalid');
+                        const errorMsg = widowedSinceDate.parentElement.querySelector('.error-message');
+                        if (errorMsg) {
+                            errorMsg.textContent = 'Tanggal ini wajib diisi.';
+                            errorMsg.style.display = 'block';
+                        }
+                        allFormValid = false;
+                    } else if (widowedSinceDate) {
+                        widowedSinceDate.classList.remove('is-invalid');
+                        const errorMsg = widowedSinceDate.parentElement.querySelector('.error-message');
+                        if (errorMsg) errorMsg.style.display = 'none';
+                    }
+                }
+            }
+
+            return allFormValid;
+        }
+
+        // Fungsi untuk mengelola state collapse header
+        function setupAccordionHeaderToggle(headerId, collapseId) {
+            const header = document.getElementById(headerId);
+            const collapseElement = document.getElementById(collapseId);
+            const collapseIcon = header.querySelector('.collapse-icon');
+
+            if (header && collapseElement && collapseIcon) {
+                // Initial state
+                if (collapseElement.classList.contains('show')) {
+                    header.classList.add('active');
+                    collapseIcon.classList.remove('collapsed');
+                } else {
+                    header.classList.remove('active');
+                    collapseIcon.classList.add('collapsed');
+                }
+
+                // Event listeners for Bootstrap collapse events
+                collapseElement.addEventListener('show.bs.collapse', function() {
+                    header.classList.add('active');
+                    collapseIcon.classList.remove('collapsed');
+                });
+                collapseElement.addEventListener('hide.bs.collapse', function() {
+                    header.classList.remove('active');
+                    collapseIcon.classList.add('collapsed');
+                });
+            }
+        }
+
+        // --- Event Listeners untuk Tombol "Simpan Section" (AJAX Save) ---
+        function setupSectionSaveButtons() {
+            document.querySelectorAll('.save-section-btn').forEach(button => {
+                button.addEventListener('click', async function(event) {
+                    console.log('Tombol Simpan Section diklik!', this.dataset.section); // Tambahkan ini
+
+                    event.preventDefault(); // Mencegah submit form utama
+                    const sectionName = this.dataset.section;
+                    const sectionAccordionBody = this.closest(
+                    '.accordion-body'); // Dapatkan body accordion section ini
+                    const form = document.getElementById('biodataForm');
+                    const formData = new FormData();
+
+                    // Kumpulkan data hanya dari field dalam section ini
+                    let sectionValid = true;
+                    const inputsInThisSection = sectionAccordionBody.querySelectorAll(
+                        'input, select, textarea');
+
+                    inputsInThisSection.forEach(input => {
+                        // Validate individual field (client-side)
+                        if (input.hasAttribute('required') && !validateField(input)) {
+                            sectionValid = false;
+                        }
+
+                        // Append to FormData
+                        if (input.name) { // Pastikan input punya nama
+                            if (input.type === 'file') {
+                                if (input.files.length > 0) {
+                                    formData.append(input.name, input.files[0]);
+                                } else if (input.id === 'profileImage' && !document
+                                    .getElementById('profilePreview').src.includes(
+                                        'placeholder.com')) {
+                                    // If no new file and an old image exists, don't send the file input
+                                    // or send a flag if clearing is intended. For now, rely on backend
+                                    // to keep old image if no new file is provided.
+                                } else if (input.id === 'profileImage' && document
+                                    .getElementById('profilePreview').src.includes(
+                                        'placeholder.com') && !input.files.length) {
+                                    // If placeholder image is shown and no new file, it means the image was potentially cleared
+                                    formData.append('profile_image_cleared',
+                                    '1'); // Send a flag to backend to clear image
+                                }
+                            } else if (input.type === 'radio') {
+                                if (input.checked) {
+                                    formData.append(input.name, input.value);
+                                }
+                            } else if (input.type === 'checkbox') {
+                                if (input.checked) {
+                                    formData.append(input.name, input.value);
+                                } else {
+                                    // For unchecked checkboxes that are part of the section,
+                                    // explicitly send 0 or false if the backend expects it.
+                                    // This assumes your backend can handle missing checkbox values as false.
+                                    // If Laravel validation needs it, you might need to send a hidden input with value 0.
+                                }
+                            } else {
+                                formData.append(input.name, input.value);
+                            }
+                        }
+                    });
+
+                    // Add CSRF token for AJAX requests
+                    formData.append('_token', document.querySelector('meta[name="csrf-token"]')
+                        .getAttribute('content'));
+
+                    // Determine method for saving section
+                    // For a typical "save section", POST is fine for create/update on the backend via updateOrCreate.
+                    // If you explicitly want PUT for updates, you'd need to adjust.
+                    formData.append('_method',
+                    'POST'); // Explicitly set _method to POST for Laravel route to work
+
+                    // Kirim melalui AJAX hanya jika validasi client-side sukses
+                    if (sectionValid) {
+                        try {
+                            const url =
+                            `{{ url('/dashboard/save-section') }}/${sectionName}`; // Corrected URL
+                            const response = await fetch(url, {
+                                method: 'POST', // Always POST for these section saves
+                                body: formData
+                            });
+
+                            const result = await response.json();
+
+                            if (response.ok) {
+                                alert(result.message);
+                                // Optional: Tutup accordion ini dan buka yang berikutnya
+                                const currentCollapseElement = this.closest('.accordion-collapse');
+                                const nextAccordionItem = this.closest('.accordion-item')
+                                    .nextElementSibling;
+                                if (currentCollapseElement && nextAccordionItem) {
+                                    const nextCollapseButton = nextAccordionItem.querySelector(
+                                        '.accordion-button');
+                                    if (nextCollapseButton) {
+                                        const bsCollapse = new bootstrap.Collapse(
+                                            currentCollapseElement, {
+                                                toggle: false
+                                            });
+                                        bsCollapse.hide();
+                                        nextCollapseButton.click(); // Buka accordion berikutnya
+                                    }
+                                }
+                            } else {
+                                // Tampilkan error dari backend
+                                let errorMessages = 'Terjadi kesalahan saat menyimpan data:\n';
+                                if (result.errors) {
+                                    // Clear previous invalid states in the current section
+                                    sectionAccordionBody.querySelectorAll('.is-invalid').forEach(el =>
+                                        el.classList.remove('is-invalid'));
+                                    sectionAccordionBody.querySelectorAll('.error-message').forEach(
+                                        el => el.style.display = 'none');
+
+                                    for (const field in result.errors) {
+                                        // Handle nested array field names (e.g., dependents.0.name)
+                                        // Adjust selector for dynamic inputs
+                                        let fieldSelector = field;
+                                        if (field.includes('.')) {
+                                            // For "dependents.0.name" it becomes "dependents[0][name]"
+                                            fieldSelector = field.replace(/\.(\d+)\./g, '[$1][')
+                                                .replace(/\./g, ']');
+                                            // For radio buttons, it's a bit trickier, need to target the group name.
+                                            // Simplified for now, might need more specific handling for radios.
+                                        }
+
+                                        let fieldElement = sectionAccordionBody.querySelector(
+                                            `[name="${fieldSelector}"]`);
+
+                                        // Fallback for radio groups if direct name selector doesn't work well
+                                        if (!fieldElement && field.includes('.')) {
+                                            const parts = field.split('.');
+                                            if (parts.length >= 2 && !isNaN(parseInt(parts[
+                                                1]))) { // Likely a dynamic array item
+                                                const baseName = parts[0]; // e.g., dependents
+                                                const index = parseInt(parts[1]); // e.g., 0
+                                                const propName = parts[2]; // e.g., name
+
+                                                const dynamicInputGroups = sectionAccordionBody
+                                                    .querySelectorAll('.dynamic-input-group');
+                                                if (dynamicInputGroups[index]) {
+                                                    fieldElement = dynamicInputGroups[index]
+                                                        .querySelector(
+                                                            `[name="${baseName}[${index}][${propName}]"]`
+                                                            );
+                                                    // For radios, you might need to target any radio within that group
+                                                    if (!fieldElement && propName === 'gender' &&
+                                                        dynamicInputGroups[index].querySelector(
+                                                            `input[name="${baseName}[${index}][${propName}]"]`
+                                                            )) {
+                                                        fieldElement = dynamicInputGroups[index]
+                                                            .querySelector(
+                                                                `input[name="${baseName}[${index}][${propName}]"]`
+                                                                );
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        // General fallback for radio groups not tied to dynamic input groups
+                                        if (!fieldElement && field.includes('has_medical_condition') ||
+                                            field.includes('is_pregnant')) { // Example
+                                            fieldElement = sectionAccordionBody.querySelector(
+                                                `input[name="${field}"]`);
+                                        }
+
+                                        if (fieldElement) {
+                                            fieldElement.classList.add('is-invalid');
+                                            let errorMessageDiv = fieldElement.parentElement
+                                                .querySelector('.error-message');
+                                            // For radio buttons, error message might be at a higher level
+                                            if (!errorMessageDiv && fieldElement.closest(
+                                                    '.form-check-inline')) {
+                                                errorMessageDiv = fieldElement.closest('.mb-3')
+                                                    .querySelector('.error-message');
+                                            }
+                                            if (errorMessageDiv) {
+                                                errorMessageDiv.textContent = result.errors[field][0];
+                                                errorMessageDiv.style.display = 'block';
+                                            }
+                                        }
+                                        errorMessages += `- ${result.errors[field][0]}\n`;
+                                    }
+                                } else {
+                                    errorMessages += result.message || 'Respons tidak diketahui.';
+                                }
+                                alert(errorMessages);
+                                // Scroll to first invalid field in the current section
+                                const firstInvalidField = sectionAccordionBody.querySelector(
+                                    '.is-invalid');
+                                if (firstInvalidField) {
+                                    firstInvalidField.scrollIntoView({
+                                        behavior: 'smooth',
+                                        block: 'center'
+                                    });
+                                }
+                            }
+                        } catch (error) {
+                            console.error('Error saving section:', error);
+                            alert('Terjadi kesalahan jaringan atau server.');
+                        }
+                    } else {
+                        // If client-side validation fails, scroll to the first invalid field
+                        const firstInvalidField = sectionAccordionBody.querySelector('.is-invalid');
+                        if (firstInvalidField) {
+                            firstInvalidField.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'center'
+                            });
+                        }
+                        alert('Harap lengkapi field yang wajib diisi di bagian ini.');
+                    }
+                });
+            });
+        }
+
+        // Fungsi untuk mengontrol visibilitas tombol hapus untuk SATU input group
+        function toggleRemoveButtonVisibility(inputField, removeButton) {
+            // This function needs to consider ALL inputs within the dynamic group, not just the first one.
+            // If any field in the group has a value, show the remove button.
+            const dynamicGroup = inputField.closest('.dynamic-input-group');
+            if (!dynamicGroup || !removeButton) return;
+
+            let hasContent = false;
+            dynamicGroup.querySelectorAll('input, select, textarea').forEach(item => {
+                if (item.type === 'radio' || item.type === 'checkbox') {
+                    if (item.checked) {
+                        hasContent = true;
+                    }
+                } else if (item.value.trim() !== '') {
+                    hasContent = true;
+                }
+            });
+
+            const totalInputGroups = dynamicGroup.parentElement.querySelectorAll('.dynamic-input-group').length;
+
+            if (hasContent || totalInputGroups > 1) { // Show if has content OR if there's more than one group
+                removeButton.style.display = 'inline-block';
+            } else {
+                removeButton.style.display = 'none';
+            }
+        }
+
+        // --- Definisi Data Fields untuk Setiap Tipe Input Dinamis (Tetap sama) ---
+        const dependentFields = [{
+                name: 'name',
+                label: 'Nama',
+                type: 'text',
+                placeholder: 'Nama Tanggungan',
+                required: true
+            },
+            {
+                name: 'relationship',
+                label: 'Hubungan',
+                type: 'text',
+                placeholder: 'Contoh: Anak Kandung',
+                required: true
+            },
+            {
+                name: 'gender',
+                label: 'Jenis Kelamin',
+                type: 'radio',
+                options: ['L', 'P'],
+                required: true
+            },
+            {
+                name: 'place_of_birth',
+                label: 'Tempat Lahir',
+                type: 'text',
+                placeholder: 'Tempat Lahir',
+                required: false
+            },
+            {
+                name: 'date_of_birth',
+                label: 'Tanggal Lahir',
+                type: 'date',
+                required: false
+            },
+            {
+                name: 'education',
+                label: 'Pendidikan',
+                type: 'text',
+                placeholder: 'Pendidikan Terakhir',
+                required: false
+            },
+            {
+                name: 'occupation',
+                label: 'Pekerjaan',
+                type: 'text',
+                placeholder: 'Pekerjaan Saat Ini',
+                required: false
+            }
+        ];
+
+        const familyMemberFields = [{
+                name: 'name',
+                label: 'Nama',
+                type: 'text',
+                placeholder: 'Nama Anggota Keluarga',
+                required: true
+            },
+            {
+                name: 'relationship',
+                label: 'Hubungan',
+                type: 'text',
+                placeholder: 'Contoh: Ayah / Kakak',
+                required: true
+            },
+            {
+                name: 'gender',
+                label: 'Jenis Kelamin',
+                type: 'radio',
+                options: ['L', 'P'],
+                required: true
+            },
+            {
+                name: 'place_of_birth',
+                label: 'Tempat Lahir',
+                type: 'text',
+                placeholder: 'Tempat Lahir',
+                required: false
+            },
+            {
+                name: 'date_of_birth',
+                label: 'Tanggal Lahir',
+                type: 'date',
+                required: false
+            },
+            {
+                name: 'education',
+                label: 'Pendidikan',
+                type: 'text',
+                placeholder: 'Pendidikan Terakhir',
+                required: false
+            },
+            {
+                name: 'occupation',
+                label: 'Pekerjaan',
+                type: 'text',
+                placeholder: 'Pekerjaan Saat Ini',
+                required: false
+            }
+        ];
+
+        const contactPersonFields = [{
+                name: 'type',
+                label: 'Keterangan',
+                type: 'select',
+                placeholder: 'Pilih',
+                required: true,
+                options: ['Keluarga', 'Teman']
+            },
+            {
+                name: 'name',
+                label: 'Nama',
+                type: 'text',
+                placeholder: 'Nama',
+                required: true
+            },
+            {
+                name: 'gender',
+                label: 'Jenis Kelamin',
+                type: 'radio',
+                options: ['L', 'P'],
+                required: true
+            },
+            {
+                name: 'address',
+                label: 'Alamat',
+                type: 'textarea',
+                placeholder: 'Alamat Lengkap',
+                required: false
+            },
+            {
+                name: 'phone_no',
+                label: 'No. Telepon',
+                type: 'text',
+                placeholder: 'No. Telepon',
+                required: false
+            },
+            {
+                name: 'relationship',
+                label: 'Hubungan',
+                type: 'text',
+                placeholder: 'Hubungan',
+                required: false
+            },
+            {
+                name: 'occupation',
+                label: 'Pekerjaan',
+                type: 'text',
+                placeholder: 'Pekerjaan',
+                required: false
+            }
+        ];
+
+        const educationFields = [{
+                name: 'level_of_education',
+                label: 'Jenjang Pendidikan',
+                type: 'select',
+                placeholder: 'Pilih',
+                required: true,
+                options: @json($educationLevels)
+            },
+            {
+                name: 'institution',
+                label: 'Nama Institusi',
+                type: 'text',
+                placeholder: 'Nama Sekolah/Universitas',
+                required: true
+            },
+            {
+                name: 'period_start_year',
+                label: 'Tahun Mulai',
+                type: 'year',
+                placeholder: 'Tahun Mulai',
+                required: true
+            },
+            {
+                name: 'period_end_year',
+                label: 'Tahun Selesai',
+                type: 'year',
+                placeholder: 'Tahun Selesai',
+                required: true
+            },
+            {
+                name: 'major',
+                label: 'Jurusan',
+                type: 'text',
+                placeholder: 'Jurusan',
+                required: false
+            },
+            {
+                name: 'grade',
+                label: 'Peringkat',
+                type: 'text',
+                placeholder: 'IPK/Nilai Akhir',
+                required: false
+            }
+        ];
+
+        const organizationalExperienceFields = [{
+                name: 'organization_name',
+                label: 'Nama Organisasi',
+                type: 'text',
+                placeholder: 'Nama Organisasi',
+                required: true
+            },
+            {
+                name: 'title_in_organization',
+                label: 'Jabatan',
+                type: 'text',
+                placeholder: 'Jabatan di Organisasi',
+                required: false
+            },
+            {
+                name: 'period',
+                label: 'Periode Menjabat',
+                type: 'text',
+                placeholder: 'Contoh: 2020-2022',
+                required: false
+            }
+        ];
+
+        const trainingCoursesFields = [{
+                name: 'training_course_name',
+                label: 'Nama Training',
+                type: 'text',
+                placeholder: 'Nama Kursus/Training',
+                required: true
+            },
+            {
+                name: 'year',
+                label: 'Tahun',
+                type: 'year',
+                placeholder: 'Tahun',
+                required: true
+            },
+            {
+                name: 'held_by',
+                label: 'Penyelenggara',
+                type: 'text',
+                placeholder: 'Penyelenggara',
+                required: false
+            },
+            {
+                name: 'grade',
+                label: 'Peringkat',
+                type: 'text',
+                placeholder: 'Peringkat/Sertifikat',
+                required: false
+            }
+        ];
+
+        const languageProficiencyOptions = ['Baik Sekali', 'Baik', 'Cukup', 'Kurang'];
+        const languageFields = [{
+                name: 'language_name',
+                label: 'Jenis Bahasa',
+                type: 'text',
+                placeholder: 'Contoh: Inggris',
+                required: true
+            },
+            {
+                name: 'listening_proficiency',
+                label: 'Mendengar',
+                type: 'select',
+                placeholder: 'Pilih',
+                required: true,
+                options: languageProficiencyOptions
+            },
+            {
+                name: 'reading_proficiency',
+                label: 'Membaca',
+                type: 'select',
+                placeholder: 'Pilih',
+                required: true,
+                options: languageProficiencyOptions
+            },
+            {
+                name: 'speaking_proficiency',
+                label: 'Berbicara',
+                type: 'select',
+                placeholder: 'Pilih',
+                required: true,
+                options: languageProficiencyOptions
+            },
+            {
+                name: 'written_proficiency',
+                label: 'Menulis',
+                type: 'select',
+                placeholder: 'Pilih',
+                required: true,
+                options: languageProficiencyOptions
+            }
+        ];
+
+        const computerSkillProficiencyOptions = ['Baik Sekali', 'Baik', 'Cukup', 'Kurang'];
+        const computerSkillFields = [{
+                name: 'skill_name',
+                label: 'Nama Keterampilan',
+                type: 'text',
+                placeholder: 'Contoh: Ms. Excel',
+                required: true
+            },
+            {
+                name: 'proficiency',
+                label: 'Tingkat Kuasai',
+                type: 'select',
+                placeholder: 'Pilih',
+                required: true,
+                options: computerSkillProficiencyOptions
+            }
+        ];
+
+        const publicationFields = [{
+                name: 'title',
+                label: 'Judul',
+                type: 'textarea',
+                placeholder: 'Judul Skripsi/Artikel/Buku',
+                required: true
+            },
+            {
+                name: 'type',
+                label: 'Tipe',
+                type: 'text',
+                placeholder: 'Skripsi/Artikel/Buku',
+                required: false
+            }
+        ];
+
+        const workExperienceFields = [{
+                name: 'company_name',
+                label: 'Nama Perusahaan',
+                type: 'text',
+                placeholder: 'Nama Perusahaan',
+                required: true
+            },
+            {
+                name: 'period_start_date',
+                label: 'Periode Dari',
+                type: 'date',
+                required: true
+            },
+            {
+                name: 'period_end_date',
+                label: 'Periode Sampai',
+                type: 'date',
+                required: false
+            },
+            {
+                name: 'company_address',
+                label: 'Alamat Perusahaan',
+                type: 'textarea',
+                placeholder: 'Alamat Lengkap Perusahaan',
+                required: false
+            },
+            {
+                name: 'company_phone_number',
+                label: 'No. Telp Perusahaan',
+                type: 'text',
+                placeholder: 'No. Telp Perusahaan',
+                required: false
+            },
+            {
+                name: 'first_role_title',
+                label: 'Jabatan Awal',
+                type: 'text',
+                placeholder: 'Jabatan Awal',
+                required: true
+            },
+            {
+                name: 'last_role_title',
+                label: 'Jabatan Terakhir',
+                type: 'text',
+                placeholder: 'Jabatan Terakhir',
+                required: true
+            },
+            {
+                name: 'direct_supervisor_name',
+                label: 'Nama Atasan Langsung',
+                type: 'text',
+                placeholder: 'Nama Atasan Langsung',
+                required: false
+            },
+            {
+                name: 'resignation_reason',
+                label: 'Alasan Berhenti',
+                type: 'textarea',
+                placeholder: 'Alasan Berhenti',
+                required: false
+            },
+            {
+                name: 'last_salary',
+                label: 'Gaji Terakhir',
+                type: 'text',
+                placeholder: 'Contoh: Rp 5.000.000',
+                required: false
+            }
+        ];
+
+        const workAchievementFields = [{
+                name: 'achievement_description',
+                label: 'Deskripsi Prestasi',
+                type: 'textarea',
+                placeholder: 'Deskripsi singkat prestasi',
+                required: true
+            },
+            {
+                name: 'year',
+                label: 'Tahun',
+                type: 'year',
+                placeholder: 'Tahun',
+                required: false
+            }
+        ];
+
+        // --- JavaScript untuk Input Dinamis (Fungsi Helper) ---
+        // dataFields adalah array objek: [{name: 'field_name', type: 'text', label: 'Label', placeholder: '...', required: true, options: [...]}]
+        function addDynamicInputGroup(containerId, itemType, dataFields, initialValues = {}, index = null) {
+            const container = document.getElementById(containerId);
+            const div = document.createElement('div');
+            div.classList.add('dynamic-input-group', 'mb-3', 'border', 'p-3', 'rounded', 'bg-light');
+
+            const itemIndex = index !== null ? index : container.children.length;
+            const inputNamePrefix = `${itemType}[${itemIndex}]`;
+
+            let innerHtml = '';
+            dataFields.forEach(field => {
+                let fieldValue = initialValues[field.name] || '';
+                const fieldId = `${itemType}_${field.name}_${itemIndex}`;
+
+                innerHtml += `<div class="mb-3">`;
+                if (field.label) {
+                    innerHtml +=
+                        `<label for="${fieldId}" class="form-label">${field.label} ${field.required ? '<span class="required">*</span>' : ''}</label>`;
+                }
+
+                if (field.type === 'select') {
+                    innerHtml +=
+                        `<select class="form-select" id="${fieldId}" name="${inputNamePrefix}[${field.name}]" ${field.required ? 'required' : ''}>`;
+                    innerHtml += `<option value="">${field.placeholder || 'Pilih...'}</option>`;
+                    field.options.forEach(opt => {
+                        const optValue = (typeof opt === 'object' && opt !== null && opt.value !==
+                            undefined) ? opt.value : opt;
+                        const optText = (typeof opt === 'object' && opt !== null && opt.text !==
+                            undefined) ? opt.text : opt;
+                        innerHtml +=
+                            `<option value="${optValue}" ${fieldValue == optValue ? 'selected' : ''}>${optText}</option>`;
+                    });
+                    innerHtml += `</select>`;
+                } else if (field.type === 'radio') {
+                    innerHtml += `<div class="d-flex flex-wrap gap-3">`;
+                    field.options.forEach(opt => {
+                        let isChecked = (fieldValue == opt) ? 'checked' : '';
+                        const uniqueRadioId = `${fieldId}_${opt.toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+                        innerHtml += `
+                        <div class="form-check form-check-inline">
+                            <input type="radio" class="form-check-input" id="${uniqueRadioId}" name="${inputNamePrefix}[${field.name}]" value="${opt}" ${isChecked} ${field.required ? 'required' : ''}>
+                            <label class="form-check-label" for="${uniqueRadioId}">${opt}</label>
+                        </div>
+                    `;
+                    });
+                    innerHtml += `</div>`;
+                } else if (field.type === 'textarea') {
+                    innerHtml += `
+                        <textarea class="form-control" id="${fieldId}" name="${inputNamePrefix}[${field.name}]" placeholder="${field.placeholder}" ${field.required ? 'required' : ''}>${fieldValue}</textarea>
+                    `;
+                } else if (field.type === 'date') {
+                    fieldValue = fieldValue ? new Date(fieldValue).toISOString().split('T')[0] : '';
+                    innerHtml += `
+                        <input type="date" class="form-control" id="${fieldId}" name="${inputNamePrefix}[${field.name}]" value="${fieldValue}" ${field.required ? 'required' : ''}>
+                    `;
+                } else if (field.type === 'year') {
+                    innerHtml += `
+                        <input type="number" class="form-control" name="${inputNamePrefix}[${field.name}]" value="${fieldValue}" placeholder="${field.placeholder}" min="1900" max="${new Date().getFullYear()}" ${field.required ? 'required' : ''}>
+                    `;
+                } else { // Default to text input
+                    innerHtml += `
+                    <input type="text" class="form-control" id="${fieldId}" name="${inputNamePrefix}[${field.name}]" value="${fieldValue}" placeholder="${field.placeholder}" ${field.required ? 'required' : ''}>
+                `;
+                }
+                innerHtml += `<div class="error-message"></div></div>`;
+            });
+
+            innerHtml += `<button type="button" class="btn btn-danger btn-sm btn-remove">Hapus</button>`;
+            div.innerHTML = innerHtml;
+            container.appendChild(div);
+
+            // Attach event listeners for validation and remove button visibility
+            const newlyAddedInputs = div.querySelectorAll('input, select, textarea');
+            newlyAddedInputs.forEach(input => {
+                input.addEventListener('input', () => validateField(input));
+                input.addEventListener('change', () => validateField(input));
+            });
+
+            const removeButton = div.querySelector('.btn-remove');
+            // Initial check for remove button visibility
+            toggleRemoveButtonVisibility(newlyAddedInputs[0] || null, removeButton); // Pass first input, or null if none
+
+            // Focus the first input of the newly added group if it's not pre-filled
+            const firstInputField = div.querySelector('input, select, textarea');
+            if (firstInputField && Object.keys(initialValues).length === 0) {
+                firstInputField.focus();
+            }
+        }
+
+        // Fungsi handler untuk tombol "Tambah" pada grup input dinamis
+        function handleAddDynamicField(containerId, itemType, fieldsDefinition) {
+            const container = document.getElementById(containerId);
+            // Get all required inputs from the *last* dynamic input group within this container
+            const lastGroup = container.lastElementChild;
+            let allCurrentItemsValid = true;
+
+            if (lastGroup && lastGroup.classList.contains('dynamic-input-group')) {
+                const inputsInLastGroup = lastGroup.querySelectorAll(
+                    'input[required], select[required], textarea[required]');
+                inputsInLastGroup.forEach(input => {
+                    if (!validateField(input)) { // Use validateField for each input
+                        allCurrentItemsValid = false;
+                    }
+                });
+
+                // Special handling for radio groups within dynamic groups
+                fieldsDefinition.filter(field => field.type === 'radio' && field.required).forEach(field => {
+                    const radioGroupName = `${itemType}[${container.children.length - 1}][${field.name}]`;
+                    const radioElements = lastGroup.querySelectorAll(`input[name="${radioGroupName}"]`);
+                    if (radioElements.length > 0 && !lastGroup.querySelector(
+                            `input[name="${radioGroupName}"]:checked`)) {
+                        allCurrentItemsValid = false;
+                        // Trigger validation to show error message for the radio group
+                        validateField(radioElements[0]);
+                    }
+                });
+            }
+
+            // If there are no existing groups OR all existing groups are valid, add a new one
+            if (allCurrentItemsValid) {
+                addDynamicInputGroup(containerId, itemType, fieldsDefinition);
+            } else {
+                // If any required field is empty in the last group, alert the user and scroll to it
+                const firstInvalidField = lastGroup.querySelector('.is-invalid');
+                if (firstInvalidField) {
+                    firstInvalidField.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                }
+                alert('Harap isi semua field yang wajib diisi pada item yang sudah ada terlebih dahulu.');
+            }
+        }
+
+
+        // Event listener for removing dynamic inputs (using event delegation)
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('btn-remove')) {
+                const group = event.target.closest('.dynamic-input-group');
+                if (group) {
+                    const container = group.parentElement;
+                    const totalInputGroups = container.querySelectorAll('.dynamic-input-group').length;
+
+                    if (totalInputGroups === 1) { // If this is the LAST input group
+                        // Clear all fields within this last group instead of removing it
+                        group.querySelectorAll('input, select, textarea').forEach(input => {
+                            if (input.type === 'radio' || input.type === 'checkbox') {
+                                input.checked = false;
+                            } else if (input.tagName === 'SELECT') {
+                                input.selectedIndex =
+                                0; // Reset select to first option (usually "Pilih...")
+                            } else {
+                                input.value = '';
+                            }
+                            input.classList.remove('is-invalid'); // Remove invalid state
+                            const errorMessageDiv = input.parentElement.querySelector('.error-message');
+                            if (errorMessageDiv) {
+                                errorMessageDiv.style.display = 'none';
+                            }
+                        });
+                        // Hide the remove button for the now-empty single group
+                        toggleRemoveButtonVisibility(group.querySelector('input, select, textarea'), event.target);
+                    } else {
+                        group.remove(); // If more than one, remove the group
+                    }
+                    // Re-index dynamic inputs after removal to ensure correct array keys on submit
+                    reindexDynamicInputs(container.id, container.dataset.itemType, dynamicSectionsMapping[container
+                        .id].fields);
+                }
+            }
+        });
+
+        // Function to reindex dynamic inputs after an item is removed
+        function reindexDynamicInputs(containerId, itemType, fieldsDefinition) {
+            const container = document.getElementById(containerId);
+            Array.from(container.children).forEach((group, index) => {
+                fieldsDefinition.forEach(field => {
+                    const oldNamePrefix = `${itemType}\\[\\d+\\]\\[${field.name}\\]`;
+                    const newNamePrefix = `${itemType}[${index}][${field.name}]`;
+
+                    group.querySelectorAll(`[name^="${itemType}["]`).forEach(input => {
+                        const currentName = input.getAttribute('name');
+                        const updatedName = currentName.replace(/\[\d+\]/, `[${index}]`);
+                        input.setAttribute('name', updatedName);
+
+                        // Update IDs as well to maintain uniqueness
+                        const oldId = input.id;
+                        if (oldId) {
+                            const updatedId = `${itemType}_${field.name}_${index}`;
+                            input.id = updatedId;
+                            // Also update associated labels
+                            const label = document.querySelector(`label[for="${oldId}"]`);
+                            if (label) {
+                                label.setAttribute('for', updatedId);
+                            }
+                        }
+                    });
+                });
+            });
+        }
+
+        // Map container IDs to their item types and field definitions for reindexing
+        const dynamicSectionsMapping = {
+            'dependents-container': {
+                type: 'dependents',
+                fields: dependentFields
+            },
+            'family-members-container': {
+                type: 'family_members',
+                fields: familyMemberFields
+            },
+            'contact-persons-container': {
+                type: 'contact_persons',
+                fields: contactPersonFields
+            },
+            'education-history-container': {
+                type: 'education_history',
+                fields: educationFields
+            },
+            'organizational-experience-container': {
+                type: 'organizational_experience',
+                fields: organizationalExperienceFields
+            },
+            'training-courses-container': {
+                type: 'training_courses',
+                fields: trainingCoursesFields
+            },
+            'languages-container': {
+                type: 'languages',
+                fields: languageFields
+            },
+            'computer-skills-container': {
+                type: 'computer_skills',
+                fields: computerSkillFields
+            },
+            'publications-container': {
+                type: 'publications',
+                fields: publicationFields
+            },
+            'work-experience-container': {
+                type: 'work_experience',
+                fields: workExperienceFields
+            },
+            'work-achievements-container': {
+                type: 'work_achievements',
+                fields: workAchievementFields
+            }
+        };
+
+        // Event listener for final form submission
+        document.getElementById('biodataForm').addEventListener('submit', async function(event) {
+            event.preventDefault(); // Prevent default HTML form submission
+
+            // Validate all required fields across the entire form
+            if (!validateAllRequiredInputs()) {
+                alert('Harap isi semua field yang wajib diisi.');
+                const firstInvalidField = document.querySelector('#biodataForm .is-invalid');
+                if (firstInvalidField) {
+                    firstInvalidField.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                }
+                return; // Stop form submission
+            }
+
+            const formData = new FormData(this);
+
+            // Add _method for PUT if it's an update, only for the final submission
+            if (this.method.toLowerCase() === 'post' && this.action.includes('update_final')) {
+                formData.append('_method', 'PUT');
+            }
+
+            try {
+                const url = this.action; // The URL from the form's action attribute
+                const method = 'POST'; // Always use POST as FormData handles _method
+
+                const response = await fetch(url, {
+                    method: method,
+                    body: formData,
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert(result.message || 'Biodata berhasil disimpan!');
+                    if (result.redirect) {
+                        window.location.href = result.redirect;
+                    } else {
+                        location.reload(); // Reload to reflect changes if no redirect
+                    }
+                } else {
+                    let errorMessages = 'Terjadi kesalahan saat menyimpan data:\n';
+                    if (result.errors) {
+                        // Clear all previous invalid states and error messages on the whole form
+                        document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove(
+                            'is-invalid'));
+                        document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
+
+                        for (const field in result.errors) {
+                            let fieldElement;
+                            // Handle nested array field names (e.g., dependents.0.name)
+                            // Convert "dependents.0.name" to "dependents[0][name]" for querySelector
+                            let queryName = field.replace(/\.(\d+)\./g, '[$1][').replace(/\.(\w+)$/, '[$1]');
+
+                            fieldElement = form.querySelector(`[name="${queryName}"]`);
+
+                            // Special handling for radio buttons if direct selection fails
+                            if (!fieldElement && (field.includes('gender') || field.includes(
+                                    'has_medical_condition'))) {
+                                // Try to find any radio button in the group
+                                fieldElement = form.querySelector(`input[name="${queryName}"]`);
+                            }
+
+                            if (fieldElement) {
+                                fieldElement.classList.add('is-invalid');
+                                let errorMessageDiv = fieldElement.parentElement.querySelector(
+                                '.error-message');
+                                // Fallback for radio buttons if error message isn't directly next to input
+                                if (!errorMessageDiv && fieldElement.closest('.form-check-inline')) {
+                                    errorMessageDiv = fieldElement.closest('.mb-3').querySelector(
+                                        '.error-message');
+                                }
+                                if (errorMessageDiv) {
+                                    errorMessageDiv.textContent = result.errors[field][0];
+                                    errorMessageDiv.style.display = 'block';
+                                }
+                            }
+                            errorMessages += `- ${result.errors[field][0]}\n`;
+                        }
+                    } else {
+                        errorMessages += result.message || 'Respons tidak diketahui.';
+                    }
+                    alert(errorMessages);
+                    const firstInvalidField = document.querySelector('#biodataForm .is-invalid');
+                    if (firstInvalidField) {
+                        firstInvalidField.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'
+                        });
+                    }
+                }
+
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                alert('Terjadi kesalahan jaringan atau server. Silakan coba lagi.');
+            }
         });
 
 
-        // === Logika untuk mengubah warna header berdasarkan status collapse dan toggle icon ===
+        // On DOMContentLoaded, render existing data or 'old' data
         document.addEventListener('DOMContentLoaded', function() {
-            const mainCardHeader = document.querySelector('.card-header');
-            const mainCollapseIcon = mainCardHeader.querySelector('.collapse-icon');
-            const dataPribadiCollapse = document.getElementById('dataPribadiCollapse');
-            const profilePreview = document.getElementById('profilePreview');
-            const uploadArea = document.getElementById('uploadAreaContainer');
-            const statusNikahSelect = document.getElementById('statusnikah');
-            const dudaJandaDateGroup = document.getElementById('dudaJandaDateGroup');
-            const dudaJandaDateField = document.getElementById('dudaJandaDate');
+            // Initial call for profile image display
+            updateProfileImageDisplay();
+            setupSectionSaveButtons();
+            // Setup for main card header toggle (the first one)
+            const mainCardHeader = document.querySelector('.card-header[data-bs-toggle="collapse"]');
+            if (mainCardHeader) {
+                const targetCollapseId = mainCardHeader.dataset.bsTarget.substring(1); // Remove '#'
+                setupAccordionHeaderToggle(mainCardHeader.id, targetCollapseId);
+            }
 
+            // Data for dynamic sections (using data from controller)
+            const dynamicSectionsData = {
+                'dependents-container': {
+                    type: 'dependents',
+                    fields: dependentFields,
+                    data: @json($dependentsData ?? old('dependents', []))
+                },
+                'family-members-container': {
+                    type: 'family_members',
+                    fields: familyMemberFields,
+                    data: @json($familyMembersData ?? old('family_members', []))
+                },
+                'contact-persons-container': {
+                    type: 'contact_persons',
+                    fields: contactPersonFields,
+                    data: @json($contactPersonsData ?? old('contact_persons', []))
+                },
+                'education-history-container': {
+                    type: 'education_history',
+                    fields: educationFields,
+                    data: @json($educationHistoryData ?? old('education_history', []))
+                },
+                'organizational-experience-container': {
+                    type: 'organizational_experience',
+                    fields: organizationalExperienceFields,
+                    data: @json($organizationalExperienceData ?? old('organizational_experience', []))
+                },
+                'training-courses-container': {
+                    type: 'training_courses',
+                    fields: trainingCoursesFields,
+                    data: @json($trainingCoursesData ?? old('training_courses', []))
+                },
+                'languages-container': {
+                    type: 'languages',
+                    fields: languageFields,
+                    data: @json($languagesData ?? old('languages', []))
+                },
+                'computer-skills-container': {
+                    type: 'computer_skills',
+                    fields: computerSkillFields,
+                    data: @json($computerSkillsData ?? old('computer_skills', []))
+                },
+                'publications-container': {
+                    type: 'publications',
+                    fields: publicationFields,
+                    data: @json($publicationsData ?? old('publications', []))
+                },
+                'work-experience-container': {
+                    type: 'work_experience',
+                    fields: workExperienceFields,
+                    data: @json($workExperienceData ?? old('work_experience', []))
+                },
+                'work-achievements-container': {
+                    type: 'work_achievements',
+                    fields: workAchievementFields,
+                    data: @json($workAchievementsData ?? old('work_achievements', []))
+                }
+            };
 
-            // Function to update the profile image display based on whether an image is already uploaded
-            function updateProfileImageDisplay() {
-                // Check if profilePreview has a valid image loaded (not just the placeholder src)
-                // The naturalWidth/Height check ensures the image has actually loaded
-                const isImageLoaded = profilePreview.src && profilePreview.src !== window.location.href && !profilePreview.src.includes('placeholder.com');
+            for (const containerId in dynamicSectionsData) {
+                const section = dynamicSectionsData[containerId];
+                const containerElement = document.getElementById(containerId);
+                // Store itemType on the container for reindexing later
+                if (containerElement) {
+                    containerElement.dataset.itemType = section.type;
+                }
 
-                if (isImageLoaded) {
-                    uploadArea.style.display = 'none'; // Hide the circular upload area
-                    profilePreview.style.display = 'block'; // Show the image
+                if (section.data && section.data.length > 0) {
+                    section.data.forEach((itemData, index) => {
+                        addDynamicInputGroup(containerId, section.type, section.fields, itemData, index);
+                    });
                 } else {
-                    // If no valid image is loaded, show the upload area and hide the image
-                    uploadArea.style.display = 'flex';
-                    profilePreview.style.display = 'none';
-                    // Ensure the placeholder image src is set correctly for initial load
-                    profilePreview.src = "https://via.placeholder.com/80x80?text=?";
+                    addDynamicInputGroup(containerId, section.type, section.fields, {}); // Add one empty by default
                 }
             }
 
 
-            // Main Card Header Toggle Logic
-            if (mainCardHeader && dataPribadiCollapse && mainCollapseIcon) {
-                dataPribadiCollapse.addEventListener('show.bs.collapse', function () {
-                    mainCardHeader.classList.add('active');
-                    mainCollapseIcon.classList.remove('collapsed');
-                });
+            // Initial setup for marital status date inputs
+            const maritalStatusSelect = document.getElementById('marital_status');
+            if (maritalStatusSelect) {
+                maritalStatusSelect.addEventListener('change', function() {
+                    const marriedDateGroup = document.getElementById('marriedDateGroup');
+                    const widowedDateGroup = document.getElementById('widowedDateGroup');
 
-                dataPribadiCollapse.addEventListener('hide.bs.collapse', function () {
-                    mainCardHeader.classList.remove('active');
-                    mainCollapseIcon.classList.add('collapsed');
-                });
-
-                // Initial state for main card header
-                if (dataPribadiCollapse.classList.contains('show')) {
-                    mainCardHeader.classList.add('active');
-                    mainCollapseIcon.classList.remove('collapsed');
-                } else {
-                    mainCardHeader.classList.remove('active');
-                    mainCollapseIcon.classList.add('collapsed');
-                }
-            }
-
-            // Logic for 'Status Pernikahan' conditional field
-            if (statusNikahSelect) {
-                statusNikahSelect.addEventListener('change', function() {
-                    if (this.value === 'Widower/Widow') {
-                        dudaJandaDateGroup.style.display = 'block';
-                        dudaJandaDateField.setAttribute('required', 'required'); // Make it required when visible
-                    } else {
-                        dudaJandaDateGroup.style.display = 'none';
-                        dudaJandaDateField.removeAttribute('required'); // Remove required when hidden
-                        dudaJandaDateField.value = ''; // Clear value when hidden
-                        dudaJandaDateField.classList.remove('is-invalid'); // Clear validation state
-                        // Check if error message exists before trying to hide it
-                        const errorMsg = dudaJandaDateField.parentElement.querySelector('.error-message');
-                        if (errorMsg) {
-                            errorMsg.style.display = 'none';
+                    if (this.value === 'Menikah') {
+                        if (marriedDateGroup) {
+                            marriedDateGroup.style.display = 'block';
+                            const marriedInput = marriedDateGroup.querySelector('input');
+                            if (marriedInput) marriedInput.setAttribute('required', 'required');
+                        }
+                        if (widowedDateGroup) {
+                            widowedDateGroup.style.display = 'none';
+                            const widowedInput = widowedDateGroup.querySelector('input');
+                            if (widowedInput) {
+                                widowedInput.removeAttribute('required');
+                                widowedInput.value = '';
+                                validateField(widowedInput);
+                            }
+                        }
+                    } else if (this.value === 'Janda-Duda') {
+                        if (marriedDateGroup) {
+                            marriedDateGroup.style.display = 'none';
+                            const marriedInput = marriedDateGroup.querySelector('input');
+                            if (marriedInput) {
+                                marriedInput.removeAttribute('required');
+                                marriedInput.value = '';
+                                validateField(marriedInput);
+                            }
+                        }
+                        if (widowedDateGroup) {
+                            widowedDateGroup.style.display = 'block';
+                            const widowedInput = widowedDateGroup.querySelector('input');
+                            if (widowedInput) widowedInput.setAttribute('required', 'required');
+                        }
+                    } else { // Belum menikah
+                        if (marriedDateGroup) {
+                            marriedDateGroup.style.display = 'none';
+                            const marriedInput = marriedDateGroup.querySelector('input');
+                            if (marriedInput) {
+                                marriedInput.removeAttribute('required');
+                                marriedInput.value = '';
+                                validateField(marriedInput);
+                            }
+                        }
+                        if (widowedDateGroup) {
+                            widowedDateGroup.style.display = 'none';
+                            const widowedInput = widowedDateGroup.querySelector('input');
+                            if (widowedInput) {
+                                widowedInput.removeAttribute('required');
+                                widowedInput.value = '';
+                                validateField(widowedInput);
+                            }
                         }
                     }
+                    // Trigger validation for marital status select itself
+                    validateField(this);
                 });
-                // Call on page load to set initial state in case form is pre-filled
-                statusNikahSelect.dispatchEvent(new Event('change'));
+                maritalStatusSelect.dispatchEvent(new Event('change')); // Trigger on load
             }
-            
-            // Initial call to set the correct display state for the profile image section
-            updateProfileImageDisplay();
 
-            // Set up event listeners for inner accordion headers
+            // Add event listeners 'input' and 'change' for all required inputs for real-time validation
+            const form = document.getElementById('biodataForm');
+            form.querySelectorAll('input[required], select[required], textarea[required]').forEach(input => {
+                input.addEventListener('input', () => validateField(input));
+                input.addEventListener('change', () => validateField(input));
+            });
+
+            // Add event listeners for all radio buttons to trigger validation on change
+            form.querySelectorAll('input[type="radio"]').forEach(radio => {
+                radio.addEventListener('change', () => validateField(radio));
+            });
+
+            // Set up event listeners for all accordion headers
             document.querySelectorAll('.accordion-button').forEach(button => {
                 const targetCollapseId = button.dataset.bsTarget;
-                const targetCollapseElement = document.querySelector(targetCollapseId);
-
-                if (targetCollapseElement) {
-                    targetCollapseElement.addEventListener('show.bs.collapse', function () {
-                        button.classList.remove('collapsed'); // Ensure icon points up
-                        button.setAttribute('aria-expanded', 'true');
-                    });
-
-                    targetCollapseElement.addEventListener('hide.bs.collapse', function () {
-                        button.classList.add('collapsed'); // Ensure icon points down
-                        button.setAttribute('aria-expanded', 'false');
-                    });
-                }
+                setupAccordionHeaderToggle(button.id, targetCollapseId.substring(
+                1)); // Pass button ID and collapse ID
             });
+
+            // Initial call for full form validation to mark empty required fields
+            validateAllRequiredInputs();
+
+            // Setup section save buttons
+            setupSectionSaveButtons();
         });
     </script>
 </body>
+
 </html>

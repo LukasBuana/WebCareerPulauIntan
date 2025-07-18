@@ -33,9 +33,9 @@
                 <i class="fa fa-scissors"></i>Service
             </a>
         </li>
-        <li class="{{ Request::is('admin/hairartist') ? 'active' : '' }}">
-            <a href="{{ url('/admin/hairartist')}}">
-                <i class="fa fa-user-tie"></i>HairArtist
+        <li class="{{ Request::is('admin/applicants*') ? 'active' : '' }}">
+            <a href="{{route('admin.applicants.index')}}">
+                <i class="fa fa-user-tie"></i>Applicants
             </a>
         </li>
         <li class="{{ Request::is('admin/user') ? 'active' : '' }}">

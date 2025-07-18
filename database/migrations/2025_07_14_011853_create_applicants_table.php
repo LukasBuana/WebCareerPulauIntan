@@ -18,6 +18,7 @@ return new class extends Migration
             $table->enum('gender', ['L', 'P'])->nullable(false); // NOT NULL di SQL
             $table->string('place_of_birth', 100)->nullable();
             $table->date('date_of_birth')->nullable();
+            $table->longText("profile_image")->nullable();
             $table->text('permanent_address_ktp')->nullable();
             $table->string('permanent_postal_code_ktp', 10)->nullable();
             $table->text('current_address')->nullable();
@@ -35,7 +36,8 @@ return new class extends Migration
             $table->date('widowed_since_date')->nullable();
             $table->string('license_number', 50)->nullable();
             $table->date('license_expiry_date')->nullable();
-            $table->string('bpjs_number', 50)->nullable();
+            $table->string('bpjs_health_number', 50)->nullable();
+            $table->string('bpjs_employment_number', 50)->nullable();
             $table->string('npwp_number', 50)->nullable();
             $table->string('job_vacancy_source', 100)->nullable();
 
