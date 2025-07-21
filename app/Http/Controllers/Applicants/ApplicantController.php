@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Applicants;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Applicants\Applicant;
-use App\Models\User;
 // Import semua model terkait yang diperlukan untuk form dinamis (Dependent, FamilyMember, dll)
 use App\Models\Applicants\Dependent;
 use App\Models\Applicants\FamilyMember;
@@ -19,6 +18,7 @@ use App\Models\Applicants\Publication;
 use App\Models\Applicants\WorkExperience;
 use App\Models\Applicants\WorkAchievement;
 use App\Models\Applicants\HealthDeclaration;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon; // Import Carbon for date formatting
 
@@ -199,7 +199,7 @@ class ApplicantController extends Controller
      */
     public function storeMyBiodata(Request $request)
     {
-        $user = Auth::User();
+        $user = Auth::user();
         if ($user->applicant) {
             // If applicant data exists, delegate to update method
             return $this->updateMyBiodata($request);
@@ -378,9 +378,16 @@ class ApplicantController extends Controller
      */
     public function saveSectionData(Request $request, $sectionName)
     {
+        if (!Auth::check()) {
+            // This response will be JSON, preventing the frontend SyntaxError
+            return response()->json(['message' => 'Unauthorized. Please log in again.'], 401);
+        }
         $user = Auth::user();
         $applicant = $user->applicant;
-
+        if (!Auth::check()) {
+            // This response will be JSON, preventing the frontend SyntaxError
+            return response()->json(['message' => 'Unauthorized. Please log in again.'], 401);
+        }
         // Create applicant if not exists
         if (!$applicant) {
             $applicant = Applicant::create([
@@ -497,7 +504,8 @@ class ApplicantController extends Controller
                     ]);
                     break;
                 case 'contact_persons':
-                    $this->syncFixedContactPersons($applicant, $request->input('fixed_contact_persons'));
+                        $this->syncFixedContactPersons($applicant, $request->input('fixed_contact_persons'));
+
                     break;
                 case 'education_history':
                     $this->syncSectionHasMany($applicant, 'educationHistory', $request->input('education_history'), [
@@ -727,14 +735,14 @@ class ApplicantController extends Controller
                 break;
             case 'contact_persons':
                 $sectionRules = [
-                    'contact_persons' => $allRules['contact_persons'],
-                    'contact_persons.*.type' => 'required|in:Keluarga,Teman', // Changed to required
-                    'contact_persons.*.name' => 'required|string|max:255', // Changed to required
-                    'contact_persons.*.gender' => 'required|in:L,P', // Changed to required
-                    'contact_persons.*.address' => 'required|string', // Changed to required
-                    'contact_persons.*.phone_no' => 'required|string|max:20', // Changed to required
-                    'contact_persons.*.relationship' => 'required|string|max:100', // Changed to required
-                    'contact_persons.*.occupation' => 'required|string|max:100', // Changed to required
+                    'fixed_contact_persons' => 'nullable|array', // This array can be empty if all fields are cleared
+                    'fixed_contact_persons.*.type' => 'required|in:Keluarga,Teman',
+                    'fixed_contact_persons.*.name' => 'required|string|max:255',
+                    'fixed_contact_persons.*.gender' => 'required|in:L,P',
+                    'fixed_contact_persons.*.address' => 'required|string',
+                    'fixed_contact_persons.*.phone_no' => 'required|string|max:20',
+                    'fixed_contact_persons.*.relationship' => 'required|string|max:100',
+                    'fixed_contact_persons.*.occupation' => 'required|string|max:100',
                 ];
                 break;
             case 'education_history':
@@ -866,7 +874,7 @@ class ApplicantController extends Controller
                     // Special handling for date and year fields
                     foreach ($createData as $key => $val) {
                         if (Str::endsWith($key, '_date') && $val) {
-                            $createData[$key] = \Carbon\Carbon::parse($val)->format('Y-m-d');
+                            $createData[$key] = Carbon::parse($val)->format('Y-m-d');
                         }
                         if (Str::endsWith($key, '_year') && $val) {
                             $createData[$key] = intval($val);
@@ -1229,6 +1237,7 @@ class ApplicantController extends Controller
             $this->syncSectionHasMany($applicant, $relationName, $request->input($requestKey), $fieldsToCreate);
         }
         $this->syncFixedContactPersons($applicant, $request->input('fixed_contact_persons'));
+
         $healthData = $request->only([
             'weight_kg',
             'height_cm',

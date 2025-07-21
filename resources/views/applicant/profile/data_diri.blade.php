@@ -214,28 +214,28 @@
                                 method="POST" enctype="multipart/form-data">
                                 @csrf
                                 @if ($applicant->exists)
-                                @method('PUT') {{-- Gunakan PUT untuk update --}}
+                                    @method('PUT') {{-- Gunakan PUT untuk update --}}
                                 @endif
 
                                 {{-- Pesan sukses/error dari session --}}
                                 @if (session('success'))
-                                <div class="alert alert-success">
-                                    {{ session('success') }}
-                                </div>
+                                    <div class="alert alert-success">
+                                        {{ session('success') }}
+                                    </div>
                                 @endif
                                 @if (session('error'))
-                                <div class="alert alert-danger">
-                                    {{ session('error') }}
-                                </div>
+                                    <div class="alert alert-danger">
+                                        {{ session('error') }}
+                                    </div>
                                 @endif
                                 @if ($errors->any())
-                                <div class="alert alert-danger">
-                                    <ul>
-                                        @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                        @endforeach
-                                    </ul>
-                                </div>
+                                    <div class="alert alert-danger">
+                                        <ul>
+                                            @foreach ($errors->all() as $error)
+                                                <li>{{ $error }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
                                 @endif
 
                                 {{-- --- I. DATA DIRI KANDIDAT KARYAWAN (PERSONAL DATA) --- --}}
@@ -243,10 +243,9 @@
                                 <div class="accordion" id="accordionInformasiUtama">
                                     <div class="accordion-item">
                                         <h2 class="accordion-header" id="headingInformasiUtama">
-                                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                                data-bs-target="#collapseInformasiUtama" aria-expanded="true"
-                                                aria-controls="collapseInformasiUtama">
-                                                Informasi Utama
+                                            <button type="button" class="btn btn-primary px-4 save-section-btn"
+                                                data-section="informasiUtama" data-prefix="{{ $section_prefix ?? '' }}">
+                                                <i class="fas fa-save me-2"></i>Simpan Informasi Utama
                                             </button>
                                         </h2>
                                         <div id="collapseInformasiUtama" class="accordion-collapse collapse show"
@@ -602,9 +601,9 @@
                                                                 name="religion" required>
                                                                 <option value="">Pilih Agama</option>
                                                                 @foreach (['Islam', 'Protestan', 'Katolik', 'Konghucu', 'Hindu', 'Buddha'] as $religionOpt)
-                                                                <option value="{{ $religionOpt }}"
-                                                                    {{ old('religion', $applicant->religion) == $religionOpt ? 'selected' : '' }}>
-                                                                    {{ $religionOpt }}</option>
+                                                                    <option value="{{ $religionOpt }}"
+                                                                        {{ old('religion', $applicant->religion) == $religionOpt ? 'selected' : '' }}>
+                                                                        {{ $religionOpt }}</option>
                                                                 @endforeach
                                                             </select>
                                                             <div class="error-message"></div>
@@ -841,7 +840,8 @@
                 if (errorMessageElement) {
                     errorMessageElement.textContent = inputElement.validationMessage || 'Field ini wajib diisi.';
                     errorMessageElement.style.display = 'block';
-                    console.log(`Error for ${inputElement.id || inputElement.name}: ${errorMessageElement.textContent}`); // Log the error message
+                    console.log(
+                    `Error for ${inputElement.id || inputElement.name}: ${errorMessageElement.textContent}`); // Log the error message
                 }
             } else {
                 inputElement.classList.remove('is-invalid');
@@ -920,7 +920,8 @@
 
                 if (maritalStatusSelect.value === 'Menikah') {
                     const marriedSinceDate = document.getElementById('married_since_date');
-                    if (marriedSinceDate && marriedSinceDate.hasAttribute('required') && marriedSinceDate.value.trim() === '') {
+                    if (marriedSinceDate && marriedSinceDate.hasAttribute('required') && marriedSinceDate.value.trim() ===
+                        '') {
                         marriedSinceDate.classList.add('is-invalid');
                         const errorMsg = marriedSinceDate.parentElement.querySelector('.error-message');
                         if (errorMsg) {
@@ -935,7 +936,8 @@
                     }
                 } else if (maritalStatusSelect.value === 'Janda-Duda') {
                     const widowedSinceDate = document.getElementById('widowed_since_date');
-                    if (widowedSinceDate && widowedSinceDate.hasAttribute('required') && widowedSinceDate.value.trim() === '') {
+                    if (widowedSinceDate && widowedSinceDate.hasAttribute('required') && widowedSinceDate.value.trim() ===
+                        '') {
                         widowedSinceDate.classList.add('is-invalid');
                         const errorMsg = widowedSinceDate.parentElement.querySelector('.error-message');
                         if (errorMsg) {
@@ -1003,7 +1005,8 @@
                     inputsInThisSection.forEach(input => {
                         // Validate individual field (client-side)
                         // Only validate if the input is visible and required
-                        if (input.hasAttribute('required') && input.offsetParent !== null && !validateField(input)) {
+                        if (input.hasAttribute('required') && input.offsetParent !== null && !
+                            validateField(input)) {
                             sectionValid = false;
                         }
 
@@ -1045,16 +1048,21 @@
                     });
 
                     // Handle radio groups that are conditionally required but might not be caught by individual input validation
-                    const radioGroupsInThisSection = ['gender', 'marital_status', 'job_vacancy_source']; // Add more as needed
+                    const radioGroupsInThisSection = ['gender', 'marital_status',
+                    'job_vacancy_source']; // Add more as needed
                     radioGroupsInThisSection.forEach(groupName => {
-                        const radioElements = sectionAccordionBody.querySelectorAll(`input[name="${groupName}"]`);
+                        const radioElements = sectionAccordionBody.querySelectorAll(
+                            `input[name="${groupName}"]`);
                         if (radioElements.length > 0) {
-                            const isChecked = sectionAccordionBody.querySelector(`input[name="${groupName}"]:checked`);
+                            const isChecked = sectionAccordionBody.querySelector(
+                                `input[name="${groupName}"]:checked`);
                             if (radioElements[0].hasAttribute('required') && !isChecked) {
                                 // If required and not checked, mark as invalid
-                                radioElements.forEach(radio => radio.classList.add('is-invalid'));
+                                radioElements.forEach(radio => radio.classList.add(
+                                    'is-invalid'));
                                 const parentDiv = radioElements[0].closest('.mb-3');
-                                const errorDiv = parentDiv ? parentDiv.querySelector('.error-message') : null;
+                                const errorDiv = parentDiv ? parentDiv.querySelector(
+                                    '.error-message') : null;
                                 if (errorDiv) {
                                     errorDiv.textContent = 'Field ini wajib dipilih.';
                                     errorDiv.style.display = 'block';
@@ -1062,9 +1070,11 @@
                                 sectionValid = false;
                             } else if (isChecked) {
                                 // If checked, remove invalid state
-                                radioElements.forEach(radio => radio.classList.remove('is-invalid'));
+                                radioElements.forEach(radio => radio.classList.remove(
+                                    'is-invalid'));
                                 const parentDiv = radioElements[0].closest('.mb-3');
-                                const errorDiv = parentDiv ? parentDiv.querySelector('.error-message') : null;
+                                const errorDiv = parentDiv ? parentDiv.querySelector(
+                                    '.error-message') : null;
                                 if (errorDiv) {
                                     errorDiv.style.display = 'none';
                                 }
@@ -1139,10 +1149,12 @@
                                             `[name="${fieldSelector}"]`);
 
                                         // Fallback for radio groups if direct name selector doesn't work well
-                                        if (!fieldElement && (field.includes('gender') || field.includes(
-                                                'has_medical_condition') || field.includes('is_pregnant')
-                                            // Add other radio group names here if needed
-                                        )) {
+                                        if (!fieldElement && (field.includes('gender') || field
+                                                .includes(
+                                                    'has_medical_condition') || field.includes(
+                                                    'is_pregnant')
+                                                // Add other radio group names here if needed
+                                            )) {
                                             fieldElement = sectionAccordionBody.querySelector(
                                                 `input[name="${field}"]`);
                                         }
@@ -2001,7 +2013,7 @@
                 setupAccordionHeaderToggle(mainCardHeader.id, targetCollapseId);
             }
 
-          
+
 
             // Initial setup for marital status date inputs
             const maritalStatusSelect = document.getElementById('marital_status');
@@ -2078,7 +2090,8 @@
             // Set up event listeners for all accordion headers
             document.querySelectorAll('.accordion-button').forEach(button => {
                 const targetCollapseId = button.dataset.bsTarget;
-                setupAccordionHeaderToggle(button.id, targetCollapseId.substring(1)); // Pass button ID and collapse ID
+                setupAccordionHeaderToggle(button.id, targetCollapseId.substring(
+                1)); // Pass button ID and collapse ID
             });
 
             // Initial call for full form validation to mark empty required fields

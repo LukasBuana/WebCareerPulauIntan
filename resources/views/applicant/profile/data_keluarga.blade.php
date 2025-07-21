@@ -864,216 +864,237 @@
             return isValid;
         }
 
-        // --- Validation Logic for Individual Sections ---
         document.querySelectorAll('.save-section-btn').forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
+    button.addEventListener('click', function(e) {
+        e.preventDefault();
 
-                const sectionId = this.dataset.section;
-                const prefix = this.dataset.prefix;
-                // Adjust sectionCollapseId to correctly target the accordion-collapse div
-                let sectionCollapseId;
-                if (sectionId === 'dependents') {
-                    sectionCollapseId = `#${prefix}collapseTanggungan`;
-                } else if (sectionId === 'darurat') {
-                    sectionCollapseId = `#${prefix}collapseDarurat`;
-                } else if (sectionId === 'family_members') {
-                    sectionCollapseId = `#${prefix}collapseSusunanKeluarga`;
-                } else if (sectionId === 'contact_persons') {
-                    sectionCollapseId = `#${prefix}collapseKontak`;
-                } else {
-                    console.error(`Unknown sectionId: ${sectionId}`);
-                    return;
-                }
-                
-                const sectionElement = document.querySelector(sectionCollapseId);
-                let isValid = true;
+        const sectionId = this.dataset.section;
+        const prefix = this.dataset.prefix || ''; // Ensure prefix is defined, might be empty for some sections
 
-                if (!sectionElement) { // Safety check
-                    console.error(`Section element not found for ID: ${sectionCollapseId}`);
-                    return;
-                }
+        // Adjust sectionCollapseId to correctly target the accordion-collapse div
+        let sectionCollapseId;
+        // --- ADDED/MODIFIED LOGIC HERE ---
+        if (sectionId === 'informasiUtama') {
+            sectionCollapseId = `#${prefix}collapseInformasiUtama`;
+        } else if (sectionId === 'informasiAlamat') {
+            sectionCollapseId = `#${prefix}collapseInformasiAlamat`;
+        } else if (sectionId === 'nomorIdentitas') {
+            sectionCollapseId = `#${prefix}collapseNomorIdentitas`;
+        } else if (sectionId === 'detailPribadiLainnya') {
+            sectionCollapseId = `#${prefix}collapseDetailPribadiLainnya`;
+        } else if (sectionId === 'sumberLowongan') {
+            sectionCollapseId = `#${prefix}collapseSumberLowongan`;
+        } else if (sectionId === 'dependents') {
+            sectionCollapseId = `#${prefix}collapseTanggungan`;
+        } else if (sectionId === 'darurat') {
+            sectionCollapseId = `#${prefix}collapseDarurat`;
+        } else if (sectionId === 'family_members') {
+            sectionCollapseId = `#${prefix}collapseSusunanKeluarga`;
+        } else if (sectionId === 'contact_persons') {
+            sectionCollapseId = `#${prefix}collapseKontak`;
+        } else if (sectionId === 'education_history') {
+            sectionCollapseId = `#${prefix}collapseRiwayatPendidikan`; // Assuming this ID structure
+        } else if (sectionId === 'organizational_experience') {
+            sectionCollapseId = `#${prefix}collapseRiwayatOrganisasi`; // Assuming this ID structure
+        } else if (sectionId === 'training_courses') {
+            sectionCollapseId = `#${prefix}collapseKursusPelatihan`; // Assuming this ID structure
+        } else if (sectionId === 'languages') {
+            sectionCollapseId = `#${prefix}collapseBahasa`; // Assuming this ID structure
+        } else if (sectionId === 'computer_skills') {
+            sectionCollapseId = `#${prefix}collapseKemampuanKomputer`; // Assuming this ID structure
+        } else if (sectionId === 'publications') {
+            sectionCollapseId = `#${prefix}collapseKaryaTulis`; // Assuming this ID structure
+        } else if (sectionId === 'work_experience') {
+            sectionCollapseId = `#${prefix}collapseRiwayatPekerjaan`; // Assuming this ID structure
+        } else if (sectionId === 'work_achievements') {
+            sectionCollapseId = `#${prefix}collapsePrestasiKerja`; // Assuming this ID structure
+        } else if (sectionId === 'health_declaration') {
+            sectionCollapseId = `#${prefix}collapseKesehatan`; // Assuming this ID structure
+        }
+        else {
+            console.error(`Unknown sectionId: ${sectionId}`);
+            return;
+        }
 
-                // Reset error messages and invalid class for the specific section
-                sectionElement.querySelectorAll('.error-message').forEach(msg => {
-                    msg.style.display = 'none';
-                    msg.textContent = ''; // Clear previous error messages
-                });
-                sectionElement.querySelectorAll('.form-control, .form-select, textarea').forEach(input => {
-                    input.classList.remove('is-invalid');
-                });
+        const sectionElement = document.querySelector(sectionCollapseId);
+        let isValid = true;
 
-                // Define required fields for static forms (e.g., Emergency Contact and Fixed Contact Persons)
-                const sectionRequiredFields = {
-                    darurat: {
-                        'emergency_contact_name': 'Silakan masukkan nama kontak darurat',
-                        'emergency_contact_address': 'Silakan masukkan alamat kontak darurat',
-                        'emergency_contact_phone': 'Silakan masukkan telepon kontak darurat',
-                        'emergency_contact_relationship': 'Silakan masukkan hubungan dengan kontak darurat'
-                    },
-                    contact_persons: { // Changed from fixed_kontak
-                        'fixed_contact_persons[0][name]': 'Nama kontak person 1 harus diisi',
-                        'fixed_contact_persons[0][gender]': 'Jenis kelamin kontak person 1 harus dipilih',
-                        'fixed_contact_persons[0][address]': 'Alamat kontak person 1 harus diisi',
-                        'fixed_contact_persons[0][phone_no]': 'No. Telepon kontak person 1 harus diisi',
-                        'fixed_contact_persons[0][occupation]': 'Pekerjaan kontak person 1 harus diisi',
+        if (!sectionElement) { // Safety check
+            console.error(`Section element not found for ID: ${sectionCollapseId}`);
+            // You might want to show a user-friendly error message here too
+            return;
+        }
 
-                        'fixed_contact_persons[1][name]': 'Nama kontak person 2 harus diisi',
-                        'fixed_contact_persons[1][gender]': 'Jenis kelamin kontak person 2 harus dipilih',
-                        'fixed_contact_persons[1][address]': 'Alamat kontak person 2 harus diisi',
-                        'fixed_contact_persons[1][phone_no]': 'No. Telepon kontak person 2 harus diisi',
-                        'fixed_contact_persons[1][occupation]': 'Pekerjaan kontak person 2 harus diisi',
+        // Reset error messages and invalid class for the specific section
+        sectionElement.querySelectorAll('.error-message').forEach(msg => {
+            msg.style.display = 'none';
+            msg.textContent = ''; // Clear previous error messages
+        });
+        sectionElement.querySelectorAll('.form-control, .form-select, textarea').forEach(input => {
+            input.classList.remove('is-invalid');
+        });
 
-                        'fixed_contact_persons[2][name]': 'Nama kontak person 3 harus diisi',
-                        'fixed_contact_persons[2][gender]': 'Jenis kelamin kontak person 3 harus dipilih',
-                        'fixed_contact_persons[2][address]': 'Alamat kontak person 3 harus diisi',
-                        'fixed_contact_persons[2][phone_no]': 'No. Telepon kontak person 3 harus diisi',
-                        'fixed_contact_persons[2][occupation]': 'Pekerjaan kontak person 3 harus diisi',
+        // Define required fields for static forms
+        const sectionRequiredFields = {
+            informasiUtama: {
+                // Add required fields for informasiUtama here if you have frontend validation for them
+                // e.g., 'full_name': 'Nama lengkap harus diisi',
+                // 'mobile_phone_number': 'Nomor telepon harus diisi',
+            },
+            informasiAlamat: {
+                // Add required fields
+            },
+            nomorIdentitas: {
+                // Add required fields
+            },
+            detailPribadiLainnya: {
+                // Add required fields
+            },
+            sumberLowongan: {
+                // Add required fields
+            },
+            darurat: {
+                'emergency_contact_name': 'Silakan masukkan nama kontak darurat',
+                'emergency_contact_address': 'Silakan masukkan alamat kontak darurat',
+                'emergency_contact_phone': 'Silakan masukkan telepon kontak darurat',
+                'emergency_contact_relationship': 'Silakan masukkan hubungan dengan kontak darurat'
+            },
+            contact_persons: {
+                'fixed_contact_persons[0][name]': 'Nama kontak person 1 harus diisi',
+                'fixed_contact_persons[0][gender]': 'Jenis kelamin kontak person 1 harus dipilih',
+                'fixed_contact_persons[0][address]': 'Alamat kontak person 1 harus diisi',
+                'fixed_contact_persons[0][phone_no]': 'No. Telepon kontak person 1 harus diisi',
+                'fixed_contact_persons[0][occupation]': 'Pekerjaan kontak person 1 harus diisi',
 
-                        'fixed_contact_persons[3][name]': 'Nama kontak person 4 harus diisi',
-                        'fixed_contact_persons[3][gender]': 'Jenis kelamin kontak person 4 harus dipilih',
-                        'fixed_contact_persons[3][address]': 'Alamat kontak person 4 harus diisi',
-                        'fixed_contact_persons[3][phone_no]': 'No. Telepon kontak person 4 harus diisi',
-                        'fixed_contact_persons[3][occupation]': 'Pekerjaan kontak person 4 harus diisi',
-                    }
-                };
+                'fixed_contact_persons[1][name]': 'Nama kontak person 2 harus diisi',
+                'fixed_contact_persons[1][gender]': 'Jenis kelamin kontak person 2 harus dipilih',
+                'fixed_contact_persons[1][address]': 'Alamat kontak person 2 harus diisi',
+                'fixed_contact_persons[1][phone_no]': 'No. Telepon kontak person 2 harus diisi',
+                'fixed_contact_persons[1][occupation]': 'Pekerjaan kontak person 2 harus diisi',
 
-                const requiredFields = sectionRequiredFields[sectionId];
+                'fixed_contact_persons[2][name]': 'Nama kontak person 3 harus diisi',
+                'fixed_contact_persons[2][gender]': 'Jenis kelamin kontak person 3 harus dipilih',
+                'fixed_contact_persons[2][address]': 'Alamat kontak person 3 harus diisi',
+                'fixed_contact_persons[2][phone_no]': 'No. Telepon kontak person 3 harus diisi',
+                'fixed_contact_persons[2][occupation]': 'Pekerjaan kontak person 3 harus diisi',
 
-                // Validate static fields (including the new fixed contact persons)
-                if (requiredFields) {
-                    for (const fieldName in requiredFields) {
-                        const fieldSelector = fieldName.includes('[') ?
-                                                `[name="${fieldName}"]` :
-                                                `#${prefix}${fieldName}`;
-                        const field = sectionElement.querySelector(fieldSelector);
+                'fixed_contact_persons[3][name]': 'Nama kontak person 4 harus diisi',
+                'fixed_contact_persons[3][gender]': 'Jenis kelamin kontak person 4 harus dipilih',
+                'fixed_contact_persons[3][address]': 'Alamat kontak person 4 harus diisi',
+                'fixed_contact_persons[3][phone_no]': 'No. Telepon kontak person 4 harus diisi',
+                'fixed_contact_persons[3][occupation]': 'Pekerjaan kontak person 4 harus diisi',
+            },
+            // Add other static sections here if they have frontend required fields
+        };
 
-                        // Only validate if the field is currently visible (e.g., if parent display is not 'none')
-                        if (field && field.offsetParent !== null) { // Check if element is visible
-                            let fieldValue = field.value;
-                            if (field.type === 'select-one') {
-                                fieldValue = field.value; // For select, just use value
-                            } else if (field.type === 'radio') {
-                                // For radios, check if any in the group is checked
-                                const radioGroupElements = sectionElement.querySelectorAll(`[name="${fieldName}"]`);
-                                const isRadioChecked = Array.from(radioGroupElements).some(radio => radio.checked);
-                                if (!isRadioChecked) {
-                                    field.classList.add('is-invalid');
-                                    const errorMsg = field.closest('.mb-3').querySelector('.error-message');
-                                    if (errorMsg) {
-                                        errorMsg.textContent = requiredFields[fieldName];
-                                        errorMsg.style.display = 'block';
-                                    }
-                                    isValid = false;
-                                }
-                                continue; // Skip further processing for this radio group field
-                            } else {
-                                fieldValue = field.value.trim();
-                            }
+        const requiredFields = sectionRequiredFields[sectionId];
 
-                            if (!fieldValue) {
-                                field.classList.add('is-invalid');
-                                const errorMsg = field.parentElement.querySelector('.error-message');
+        // Validate static fields (including the new fixed contact persons)
+        if (requiredFields) {
+            for (const fieldName in requiredFields) {
+                // For fields like fixed_contact_persons[0][name], directly use name attribute for selection
+                // For others, use the prefix and fieldName as ID
+                const fieldSelector = fieldName.includes('[') ?
+                                      `[name="${fieldName}"]` :
+                                      `#${prefix}${fieldName}`;
+                const field = sectionElement.querySelector(fieldSelector);
+
+                // Only validate if the field is currently visible (e.g., if parent display is not 'none')
+                if (field && field.offsetParent !== null) { // Check if element is visible
+                    let fieldValue = field.value;
+                    if (field.type === 'select-one') {
+                        fieldValue = field.value; // For select, just use value
+                    } else if (field.type === 'radio') {
+                        // For radios, check if any in the group is checked
+                        const radioGroupElements = sectionElement.querySelectorAll(`[name="${fieldName}"]`);
+                        const isRadioChecked = Array.from(radioGroupElements).some(radio => radio.checked);
+                        if (!isRadioChecked) {
+                            // Find the container for the radio group to place the error
+                            const radioGroupContainer = field.closest('.form-group') || field.closest('.mb-3');
+                            if (radioGroupContainer) {
+                                radioGroupContainer.querySelector('input[type="radio"]').classList.add('is-invalid'); // Mark first radio as invalid
+                                const errorMsg = radioGroupContainer.querySelector('.error-message');
                                 if (errorMsg) {
                                     errorMsg.textContent = requiredFields[fieldName];
                                     errorMsg.style.display = 'block';
                                 }
+                            }
+                            isValid = false;
+                        }
+                        continue; // Skip further processing for this radio group field
+                    } else {
+                        fieldValue = field.value.trim();
+                    }
+
+                    if (!fieldValue) {
+                        field.classList.add('is-invalid');
+                        // Find the error message div for the specific input
+                        const errorMsg = field.parentElement.querySelector('.error-message');
+                        if (errorMsg) {
+                            errorMsg.textContent = requiredFields[fieldName];
+                            errorMsg.style.display = 'block';
+                        }
+                        isValid = false;
+                    }
+                }
+            }
+        }
+
+        // --- Dynamic Fields Validation ---
+        // ASUMSI: marital_status SELECT element ada di halaman data_pribadi.blade.php
+        const maritalStatusElement = document.getElementById('marital_status');
+        const currentMaritalStatus = maritalStatusElement ? maritalStatusElement.value : '';
+
+        // Validate Dependent Fields (Tanggungan)
+        if (sectionId === 'dependents') {
+            // Only validate if marital_status is not 'Belum menikah'
+            if (currentMaritalStatus !== 'Belum menikah') {
+                const dependentsContainer = document.getElementById('dependentsContainer'); // Ensure this ID exists on your container
+                if (!dependentsContainer) {
+                    console.error('Dependents container not found!');
+                    isValid = false;
+                    alert('Error: Dependents container not found.');
+                    return;
+                }
+                const dependentItems = dependentsContainer.querySelectorAll('.dependent-item');
+
+                if (dependentItems.length === 0) {
+                    isValid = false;
+                    alert('Mohon tambahkan setidaknya satu Data Tanggungan.');
+                } else {
+                    dependentItems.forEach((item, idx) => {
+                        const fieldsToCheck = [
+                            { field: item.querySelector(`[name="dependents[${idx}][name]"]`), msg: 'Nama tanggungan harus diisi' },
+                            { field: item.querySelector(`[name="dependents[${idx}][relationship]"]`), msg: 'Hubungan harus diisi' },
+                            { field: item.querySelector(`[name="dependents[${idx}][place_of_birth]"]`), msg: 'Tempat lahir harus diisi' },
+                            { field: item.querySelector(`[name="dependents[${idx}][date_of_birth]"]`), msg: 'Tanggal lahir harus diisi' },
+                            { field: item.querySelector(`[name="dependents[${idx}][education]"]`), msg: 'Pendidikan terakhir harus diisi' },
+                            // For radio buttons, the check is different, handle it below
+                            // { field: item.querySelector(`[name="dependents[${idx}][gender]"]`), msg: 'Jenis kelamin harus dipilih' },
+                            { field: item.querySelector(`[name="dependents[${idx}][occupation]"]`), msg: 'Pekerjaan harus diisi' }
+                        ];
+
+                        fieldsToCheck.forEach(f => {
+                            if (f.field && (f.field.tagName === 'SELECT' ? !f.field.value : !f.field.value.trim())) {
+                                f.field.classList.add('is-invalid');
+                                const errorMsg = f.field.parentElement.querySelector('.error-message');
+                                if (errorMsg) {
+                                    errorMsg.textContent = f.msg;
+                                    errorMsg.style.display = 'block';
+                                }
                                 isValid = false;
                             }
-                        }
-                    }
-                }
-
-                // --- Dynamic Fields Validation ---
-                // Validate Dependent Fields (Tanggungan)
-                // ASUMSI: marital_status SELECT element ada di halaman data_pribadi.blade.php
-                const maritalStatusElement = document.getElementById('marital_status'); 
-                const currentMaritalStatus = maritalStatusElement ? maritalStatusElement.value : '';
-
-                if (sectionId === 'dependents' && currentMaritalStatus !== 'Belum menikah') {
-                    const dependentItems = dependentsContainer.querySelectorAll('.dependent-item');
-                    if (dependentItems.length === 0) {
-                        isValid = false;
-                        alert('Mohon tambahkan setidaknya satu Data Tanggungan.');
-                    } else {
-                        dependentItems.forEach((item, idx) => {
-                            const fieldsToCheck = [
-                                { field: item.querySelector(`[name="dependents[${idx}][name]"]`), msg: 'Nama tanggungan harus diisi' },
-                                { field: item.querySelector(`[name="dependents[${idx}][relationship]"]`), msg: 'Hubungan harus diisi' },
-                                { field: item.querySelector(`[name="dependents[${idx}][place_of_birth]"]`), msg: 'Tempat lahir harus diisi' },
-                                { field: item.querySelector(`[name="dependents[${idx}][date_of_birth]"]`), msg: 'Tanggal lahir harus diisi' },
-                                { field: item.querySelector(`[name="dependents[${idx}][education]"]`), msg: 'Pendidikan terakhir harus diisi' },
-                                { field: item.querySelector(`[name="dependents[${idx}][gender]"]`), msg: 'Jenis kelamin harus dipilih' },
-                                { field: item.querySelector(`[name="dependents[${idx}][occupation]"]`), msg: 'Pekerjaan harus diisi' }
-                            ];
-
-                            fieldsToCheck.forEach(f => {
-                                if (f.field && (f.field.tagName === 'SELECT' ? !f.field.value : !f.field.value.trim())) {
-                                    f.field.classList.add('is-invalid');
-                                    const errorMsg = f.field.parentElement.querySelector('.error-message');
-                                    if (errorMsg) {
-                                        errorMsg.textContent = f.msg;
-                                        errorMsg.style.display = 'block';
-                                    }
-                                    isValid = false;
-                                }
-                            });
                         });
-                    }
-                } else if (sectionId === 'dependents' && currentMaritalStatus === 'Belum menikah') {
-                    // Jika status pernikahan "Belum menikah", section tanggungan tidak perlu divalidasi.
-                    // Ini penting agar save button untuk section lain tetap berfungsi.
-                    console.log("Dependents section skipped for validation due to 'Belum menikah' status.");
-                }
 
-
-                // Validate Family Member Fields (Susunan Keluarga)
-                if (sectionId === 'family_members') { // Changed from susunanKeluarga
-                    const familyMemberItems = familyMembersContainer.querySelectorAll('.family-member-item');
-                    if (familyMemberItems.length === 0) {
-                        isValid = false;
-                        alert('Mohon tambahkan setidaknya satu Anggota Keluarga.');
-                    } else {
-                        familyMemberItems.forEach((item, idx) => {
-                            const fieldsToCheck = [
-                                { field: item.querySelector(`[name="family_members[${idx}][name]"]`), msg: 'Nama anggota keluarga harus diisi' },
-                                { field: item.querySelector(`[name="family_members[${idx}][relationship]"]`), msg: 'Hubungan harus diisi' },
-                                { field: item.querySelector(`[name="family_members[${idx}][date_of_birth]"]`), msg: 'Tanggal lahir harus diisi' },
-                                { field: item.querySelector(`[name="family_members[${idx}][place_of_birth]"]`), msg: 'Tempat lahir harus diisi' },
-                                { field: item.querySelector(`[name="family_members[${idx}][education]"]`), msg: 'Pendidikan terakhir harus diisi' },
-                                { field: item.querySelector(`[name="family_members[${idx}][occupation]"]`), msg: 'Pekerjaan harus diisi' },
-                                { field: item.querySelector(`[name="family_members[${idx}][gender]"]`), msg: 'Jenis kelamin harus dipilih' }
-                            ];
-
-                            fieldsToCheck.forEach(f => {
-                                if (f.field && (f.field.tagName === 'SELECT' ? !f.field.value : !f.field.value.trim())) {
-                                    f.field.classList.add('is-invalid');
-                                    const errorMsg = f.field.parentElement.querySelector('.error-message');
-                                    if (errorMsg) {
-                                        errorMsg.textContent = f.msg;
-                                        errorMsg.style.display = 'block';
-                                    }
-                                    isValid = false;
-                                }
-                            });
-                        });
-                    }
-                }
-
-                // Common phone number validation for emergency contact and fixed contact persons
-                if (sectionId === 'darurat' || sectionId === 'contact_persons') { // Include 'contact_persons' here
-                    const phoneFields = sectionElement.querySelectorAll('input[type="text"][name$="[phone_no]"], input[type="text"][name="emergency_contact_phone"]');
-                    const phoneRegex = /^[0-9]{10,15}$/;
-
-                    phoneFields.forEach(phoneField => {
-                        // Only validate if the field is visible and has a value
-                        if (phoneField.offsetParent !== null && phoneField.value) { 
-                            if (!phoneRegex.test(phoneField.value.replace(/\D/g, ''))) {
-                                phoneField.classList.add('is-invalid');
-                                const errorMsg = phoneField.parentElement.querySelector('.error-message');
+                        // Specific validation for dependent gender (radio buttons)
+                        const genderRadioGroup = item.querySelectorAll(`[name="dependents[${idx}][gender]"]`);
+                        if (genderRadioGroup.length > 0) {
+                            const isGenderChecked = Array.from(genderRadioGroup).some(radio => radio.checked);
+                            if (!isGenderChecked) {
+                                genderRadioGroup[0].classList.add('is-invalid'); // Mark the first radio of the group
+                                const errorMsg = genderRadioGroup[0].closest('.form-group') ? genderRadioGroup[0].closest('.form-group').querySelector('.error-message') : null;
                                 if (errorMsg) {
-                                    const labelText = phoneField.previousElementSibling ? phoneField.previousElementSibling.textContent.replace('*', '').trim() : 'No. Telepon';
-                                    errorMsg.textContent = `Format ${labelText} tidak valid (10-15 digit).`;
+                                    errorMsg.textContent = 'Jenis kelamin harus dipilih';
                                     errorMsg.style.display = 'block';
                                 }
                                 isValid = false;
@@ -1081,90 +1102,246 @@
                         }
                     });
                 }
+            } else {
+                console.log("Dependents section skipped for validation due to 'Belum menikah' status.");
+            }
+        }
 
-                if (isValid) {
-                    alert(`Data di bagian "${this.textContent.replace('Simpan ', '').trim()}" berhasil disimpan!`);
-                    // In a real application, you would send specific data for this section
-                    const formToSubmit = this.closest('form');
-                    const formData = new FormData(formToSubmit);
-                    formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
-                    
-                    // Anda perlu mendefinisikan rute spesifik untuk menyimpan setiap section di web.php Anda
-                    let saveUrl = '';
-                    if (sectionId === 'dependents') {
-                        saveUrl = '/dashboard/save-dependents'; // Sesuaikan rute ini
-                    } else if (sectionId === 'darurat') {
-                        saveUrl = '/dashboard/save-emergency-contact'; // Sesuaikan rute ini
-                    } else if (sectionId === 'family_members') {
-                        saveUrl = '/dashboard/save-family-members'; // Sesuaikan rute ini
-                    } else if (sectionId === 'contact_persons') {
-                        saveUrl = '/dashboard/save-contact-persons'; // Sesuaikan rute ini (sebelumnya fixed-contact-persons)
-                    }
+        // Validate Family Member Fields (Susunan Keluarga)
+        if (sectionId === 'family_members') {
+            const familyMembersContainer = document.getElementById('familyMembersContainer'); // Ensure this ID exists on your container
+            if (!familyMembersContainer) {
+                console.error('Family members container not found!');
+                isValid = false;
+                alert('Error: Family members container not found.');
+                return;
+            }
+            const familyMemberItems = familyMembersContainer.querySelectorAll('.family-member-item');
+            if (familyMemberItems.length === 0) {
+                isValid = false;
+                alert('Mohon tambahkan setidaknya satu Anggota Keluarga.');
+            } else {
+                familyMemberItems.forEach((item, idx) => {
+                    const fieldsToCheck = [
+                        { field: item.querySelector(`[name="family_members[${idx}][name]"]`), msg: 'Nama anggota keluarga harus diisi' },
+                        { field: item.querySelector(`[name="family_members[${idx}][relationship]"]`), msg: 'Hubungan harus diisi' },
+                        { field: item.querySelector(`[name="family_members[${idx}][place_of_birth]"]`), msg: 'Tempat lahir harus diisi' },
+                        { field: item.querySelector(`[name="family_members[${idx}][date_of_birth]"]`), msg: 'Tanggal lahir harus diisi' },
+                        { field: item.querySelector(`[name="family_members[${idx}][education]"]`), msg: 'Pendidikan terakhir harus diisi' },
+                        { field: item.querySelector(`[name="family_members[${idx}][occupation]"]`), msg: 'Pekerjaan harus diisi' }
+                        // Gender is handled separately for radio buttons
+                    ];
 
-                    if (saveUrl) {
-                        fetch(saveUrl, {
-                            method: 'POST', // Atau PUT jika memperbarui data yang sudah ada
-                            body: formData
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                alert(data.message);
-                                // Opsional: tutup accordion saat ini dan buka yang berikutnya
-                                const currentCollapseElement = this.closest('.accordion-collapse');
-                                const nextAccordionItem = this.closest('.accordion-item').nextElementSibling;
-                                if (currentCollapseElement && nextAccordionItem) {
-                                    const nextCollapseButton = nextAccordionItem.querySelector('.accordion-button');
-                                    if (nextCollapseButton) {
-                                        const bsCollapse = new bootstrap.Collapse(currentCollapseElement, { toggle: false });
-                                        bsCollapse.hide();
-                                        setTimeout(() => {
-                                            nextCollapseButton.click();
-                                        }, 300); // Sesuaikan penundaan sesuai kebutuhan
-                                    }
-                                }
-                            } else {
-                                // Tampilkan error validasi dari backend jika ada
-                                let errorSummary = 'Gagal menyimpan data:\n';
-                                if (data.errors) {
-                                    for (const field in data.errors) {
-                                        errorSummary += `- ${data.errors[field][0]}\n`;
-                                        // Highlight individual fields dari error backend
-                                        const fieldElement = formToSubmit.querySelector(`[name="${field}"]`) || formToSubmit.querySelector(`[name="${field.replace(/\.(\d+)\./g, '[$1][')}.replace(/\.(\w+)$/, '[$1]')}"]`);
-                                        if (fieldElement) {
-                                            fieldElement.classList.add('is-invalid');
-                                            const errorMsgDiv = fieldElement.parentElement.querySelector('.error-message');
-                                            if (errorMsgDiv) {
-                                                errorMsgDiv.textContent = data.errors[field][0];
-                                                errorMsgDiv.style.display = 'block';
-                                            }
-                                        }
-                                    }
-                                } else {
-                                    errorSummary += data.message || 'Terjadi kesalahan tidak diketahui.';
-                                }
-                                alert(errorSummary);
-                                const firstInvalidField = formToSubmit.querySelector('.is-invalid');
-                                if (firstInvalidField) {
-                                    firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                                }
+                    fieldsToCheck.forEach(f => {
+                        if (f.field && (f.field.tagName === 'SELECT' ? !f.field.value : !f.field.value.trim())) {
+                            f.field.classList.add('is-invalid');
+                            const errorMsg = f.field.parentElement.querySelector('.error-message');
+                            if (errorMsg) {
+                                errorMsg.textContent = f.msg;
+                                errorMsg.style.display = 'block';
                             }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            alert('Terjadi kesalahan jaringan atau server saat menyimpan data.');
-                        });
-                    } else {
-                        console.warn('Save URL not defined for section:', sectionId);
+                            isValid = false;
+                        }
+                    });
+
+                    // Specific validation for family member gender (radio buttons)
+                    const genderRadioGroup = item.querySelectorAll(`[name="family_members[${idx}][gender]"]`);
+                    if (genderRadioGroup.length > 0) {
+                        const isGenderChecked = Array.from(genderRadioGroup).some(radio => radio.checked);
+                        if (!isGenderChecked) {
+                            genderRadioGroup[0].classList.add('is-invalid'); // Mark the first radio of the group
+                            const errorMsg = genderRadioGroup[0].closest('.form-group') ? genderRadioGroup[0].closest('.form-group').querySelector('.error-message') : null;
+                            if (errorMsg) {
+                                errorMsg.textContent = 'Jenis kelamin harus dipilih';
+                                errorMsg.style.display = 'block';
+                            }
+                            isValid = false;
+                        }
                     }
-                } else {
-                    const firstInvalidField = sectionElement.querySelector('.is-invalid');
-                    if (firstInvalidField) {
-                        firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                });
+            }
+        }
+
+        // Common phone number validation for emergency contact and fixed contact persons
+        if (sectionId === 'darurat' || sectionId === 'contact_persons') { // Include 'contact_persons' here
+            const phoneFields = sectionElement.querySelectorAll('input[type="text"][name$="[phone_no]"], input[type="text"][name="emergency_contact_phone"], input[type="text"][name="mobile_phone_number"]'); // Add mobile_phone_number
+            const phoneRegex = /^[0-9]{10,15}$/;
+
+            phoneFields.forEach(phoneField => {
+                // Only validate if the field is visible and has a value
+                if (phoneField.offsetParent !== null && phoneField.value) {
+                    if (!phoneRegex.test(phoneField.value.replace(/\D/g, ''))) {
+                        phoneField.classList.add('is-invalid');
+                        const errorMsg = phoneField.parentElement.querySelector('.error-message');
+                        if (errorMsg) {
+                            const labelText = phoneField.previousElementSibling ? phoneField.previousElementSibling.textContent.replace('*', '').trim() : 'No. Telepon';
+                            errorMsg.textContent = `Format ${labelText} tidak valid (10-15 digit).`;
+                            errorMsg.style.display = 'block';
+                        }
+                        isValid = false;
                     }
                 }
             });
-        });
+        }
+
+
+        // IMPORTANT: Add validation logic for other dynamic sections like education_history, organizational_experience, etc.
+        // Similar structure to 'dependents' and 'family_members' for iterating over items and checking fields.
+        // Example structure for other dynamic sections:
+        if (sectionId === 'education_history') {
+            const eduContainer = document.getElementById('educationHistoryContainer'); // Assuming you have this container
+            if (!eduContainer) {
+                console.error('Education History container not found!');
+                isValid = false;
+                alert('Error: Education History container not found.');
+                return;
+            }
+            const eduItems = eduContainer.querySelectorAll('.education-item'); // Assuming a class 'education-item' for each entry
+            if (eduItems.length === 0) {
+                isValid = false;
+                alert('Mohon tambahkan setidaknya satu Riwayat Pendidikan.');
+            } else {
+                eduItems.forEach((item, idx) => {
+                    const fieldsToCheck = [
+                        { field: item.querySelector(`[name="education_history[${idx}][level_of_education]"]`), msg: 'Jenjang pendidikan harus diisi' },
+                        { field: item.querySelector(`[name="education_history[${idx}][institution]"]`), msg: 'Nama institusi harus diisi' },
+                        { field: item.querySelector(`[name="education_history[${idx}][period_start_year]"]`), msg: 'Tahun mulai harus diisi' },
+                        { field: item.querySelector(`[name="education_history[${idx}][period_end_year]"]`), msg: 'Tahun selesai harus diisi' },
+                        // ... add other fields as required
+                    ];
+                    fieldsToCheck.forEach(f => {
+                        if (f.field && (f.field.tagName === 'SELECT' ? !f.field.value : !f.field.value.trim())) {
+                            f.field.classList.add('is-invalid');
+                            const errorMsg = f.field.parentElement.querySelector('.error-message');
+                            if (errorMsg) {
+                                errorMsg.textContent = f.msg;
+                                errorMsg.style.display = 'block';
+                            }
+                            isValid = false;
+                        }
+                    });
+                });
+            }
+        }
+        // ... repeat for organizational_experience, training_courses, languages, computer_skills, publications, work_experience, work_achievements, health_declaration
+
+        // --- END Dynamic Fields Validation ---
+
+
+        if (isValid) {
+            // Replace `alert` with a more modern toast notification system
+            // (You already have a showToast function in your other JS, if using jQuery.
+            // For vanilla JS, you might need a simple custom toast or a library.)
+            // alert(`Data di bagian "${this.textContent.replace('Simpan ', '').trim()}" berhasil disimpan!`);
+
+            const formToSubmit = this.closest('form');
+            const formData = new FormData(formToSubmit);
+            formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+
+            // Use a unified save URL if possible, passing sectionId as part of the URL
+            // This aligns with your Laravel backend controller `saveSectionData(Request $request, $sectionName)`
+            const saveUrl = `/dashboard/save-section/${sectionId}`;
+
+            // Show loading state
+            const originalButtonText = this.innerHTML;
+            this.disabled = true;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...';
+
+
+            fetch(saveUrl, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    // Check if the response is JSON or not (e.g., HTML error page)
+                    const contentType = response.headers.get("content-type");
+                    if (contentType && contentType.indexOf("application/json") !== -1) {
+                        return response.json();
+                    } else {
+                        // If not JSON, it's likely an HTML error page from Laravel/server
+                        return response.text().then(text => {
+                            throw new Error('Server responded with non-JSON: ' + text);
+                        });
+                    }
+                })
+                .then(data => {
+                    if (data.message) {
+                        // Clear all previous errors on success
+                        sectionElement.querySelectorAll('.error-message').forEach(msg => {
+                            msg.style.display = 'none';
+                            msg.textContent = '';
+                        });
+                        sectionElement.querySelectorAll('.form-control, .form-select, textarea').forEach(input => {
+                            input.classList.remove('is-invalid');
+                        });
+
+                        showToast(data.message, 'success'); // Using your existing showToast function
+
+                        // Optional: close current accordion and open the next one
+                        const currentCollapseElement = this.closest('.accordion-collapse');
+                        const nextAccordionItem = this.closest('.accordion-item').nextElementSibling;
+                        if (currentCollapseElement && nextAccordionItem) {
+                            const nextCollapseButton = nextAccordionItem.querySelector('.accordion-button');
+                            if (nextCollapseButton) {
+                                const bsCollapse = new bootstrap.Collapse(currentCollapseElement, { toggle: false });
+                                bsCollapse.hide();
+                                setTimeout(() => {
+                                    nextCollapseButton.click();
+                                }, 300); // Adjust delay as needed
+                            }
+                        }
+                    } else if (data.errors) {
+                        // This block should ideally not be hit if backend sends 422 for validation errors
+                        // But good to have a fallback
+                        let errorSummary = 'Gagal menyimpan data:\n';
+                        for (const field in data.errors) {
+                            errorSummary += `- ${data.errors[field][0]}\n`;
+                            // Highlight individual fields from backend error
+                            // This part needs careful mapping for nested/array inputs
+                            const fieldElement = formToSubmit.querySelector(`[name="${field}"]`) ||
+                                                 formToSubmit.querySelector(`[name="${field.replace(/\.(\d+)\./g, '[$1][')}.replace(/\.(\w+)$/, '[$1]')}"]`);
+                            if (fieldElement) {
+                                fieldElement.classList.add('is-invalid');
+                                const errorMsgDiv = fieldElement.parentElement.querySelector('.error-message');
+                                if (errorMsgDiv) {
+                                    errorMsgDiv.textContent = data.errors[field][0];
+                                    errorMsgDiv.style.display = 'block';
+                                }
+                            }
+                        }
+                        showToast(errorSummary, 'error');
+                        const firstInvalidField = formToSubmit.querySelector('.is-invalid');
+                        if (firstInvalidField) {
+                            firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch Error:', error);
+                    // Check if the error is from the server responding with HTML (500 error from backend)
+                    if (error.message && error.message.startsWith('Server responded with non-JSON')) {
+                        showToast('Terjadi kesalahan pada server. Silakan hubungi administrator.', 'error');
+                        // You might want to log the full HTML response to console for debugging
+                        console.error('Raw server response:', error.message.substring('Server responded with non-JSON: '.length));
+                    } else {
+                        showToast('Terjadi kesalahan jaringan atau saat memproses data. Silakan coba lagi.', 'error');
+                    }
+                })
+                .finally(() => {
+                    // Restore button state
+                    this.disabled = false;
+                    this.innerHTML = originalButtonText;
+                });
+        } else {
+            // Frontend validation failed
+            showToast('Mohon lengkapi semua field yang wajib diisi pada bagian ini.', 'warning');
+            const firstInvalidField = sectionElement.querySelector('.is-invalid');
+            if (firstInvalidField) {
+                firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+    });
+});
         
         // --- Event Listener for Marital Status Change ---
         // ASUMSI: marital_status SELECT element ada di halaman data_pribadi.blade.php
