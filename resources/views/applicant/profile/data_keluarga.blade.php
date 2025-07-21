@@ -1053,7 +1053,6 @@
                 if (!dependentsContainer) {
                     console.error('Dependents container not found!');
                     isValid = false;
-                    alert('Error: Dependents container not found.');
                     return;
                 }
                 const dependentItems = dependentsContainer.querySelectorAll('.dependent-item');
@@ -1229,10 +1228,6 @@
 
 
         if (isValid) {
-            // Replace `alert` with a more modern toast notification system
-            // (You already have a showToast function in your other JS, if using jQuery.
-            // For vanilla JS, you might need a simple custom toast or a library.)
-            // alert(`Data di bagian "${this.textContent.replace('Simpan ', '').trim()}" berhasil disimpan!`);
 
             const formToSubmit = this.closest('form');
             const formData = new FormData(formToSubmit);
@@ -1245,7 +1240,6 @@
             // Show loading state
             const originalButtonText = this.innerHTML;
             this.disabled = true;
-            this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...';
 
 
             fetch(saveUrl, {
@@ -1258,10 +1252,6 @@
                     if (contentType && contentType.indexOf("application/json") !== -1) {
                         return response.json();
                     } else {
-                        // If not JSON, it's likely an HTML error page from Laravel/server
-                        return response.text().then(text => {
-                            throw new Error('Server responded with non-JSON: ' + text);
-                        });
                     }
                 })
                 .then(data => {

@@ -242,12 +242,6 @@
 
                                 <div class="accordion" id="accordionInformasiUtama">
                                     <div class="accordion-item">
-                                        <h2 class="accordion-header" id="headingInformasiUtama">
-                                            <button type="button" class="btn btn-primary px-4 save-section-btn"
-                                                data-section="informasiUtama" data-prefix="{{ $section_prefix ?? '' }}">
-                                                <i class="fas fa-save me-2"></i>Simpan Informasi Utama
-                                            </button>
-                                        </h2>
                                         <div id="collapseInformasiUtama" class="accordion-collapse collapse show"
                                             aria-labelledby="headingInformasiUtama"
                                             data-bs-parent="#accordionInformasiUtama">

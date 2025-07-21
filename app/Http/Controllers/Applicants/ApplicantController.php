@@ -378,16 +378,12 @@ class ApplicantController extends Controller
      */
     public function saveSectionData(Request $request, $sectionName)
     {
-        if (!Auth::check()) {
-            // This response will be JSON, preventing the frontend SyntaxError
-            return response()->json(['message' => 'Unauthorized. Please log in again.'], 401);
-        }
         $user = Auth::user();
         $applicant = $user->applicant;
-        if (!Auth::check()) {
-            // This response will be JSON, preventing the frontend SyntaxError
-            return response()->json(['message' => 'Unauthorized. Please log in again.'], 401);
-        }
+if (!Auth::check()) {
+        // This response will be JSON, preventing the frontend SyntaxError
+        return response()->json(['message' => 'Unauthorized. Please log in again.'], 401);
+    }
         // Create applicant if not exists
         if (!$applicant) {
             $applicant = Applicant::create([
@@ -504,8 +500,7 @@ class ApplicantController extends Controller
                     ]);
                     break;
                 case 'contact_persons':
-                        $this->syncFixedContactPersons($applicant, $request->input('fixed_contact_persons'));
-
+                    $this->syncFixedContactPersons($applicant, $request->input('fixed_contact_persons'));
                     break;
                 case 'education_history':
                     $this->syncSectionHasMany($applicant, 'educationHistory', $request->input('education_history'), [
@@ -735,14 +730,14 @@ class ApplicantController extends Controller
                 break;
             case 'contact_persons':
                 $sectionRules = [
-                    'fixed_contact_persons' => 'nullable|array', // This array can be empty if all fields are cleared
-                    'fixed_contact_persons.*.type' => 'required|in:Keluarga,Teman',
-                    'fixed_contact_persons.*.name' => 'required|string|max:255',
-                    'fixed_contact_persons.*.gender' => 'required|in:L,P',
-                    'fixed_contact_persons.*.address' => 'required|string',
-                    'fixed_contact_persons.*.phone_no' => 'required|string|max:20',
-                    'fixed_contact_persons.*.relationship' => 'required|string|max:100',
-                    'fixed_contact_persons.*.occupation' => 'required|string|max:100',
+                    'contact_persons' => $allRules['contact_persons'],
+                    'contact_persons.*.type' => 'required|in:Keluarga,Teman', // Changed to required
+                    'contact_persons.*.name' => 'required|string|max:255', // Changed to required
+                    'contact_persons.*.gender' => 'required|in:L,P', // Changed to required
+                    'contact_persons.*.address' => 'required|string', // Changed to required
+                    'contact_persons.*.phone_no' => 'required|string|max:20', // Changed to required
+                    'contact_persons.*.relationship' => 'required|string|max:100', // Changed to required
+                    'contact_persons.*.occupation' => 'required|string|max:100', // Changed to required
                 ];
                 break;
             case 'education_history':
@@ -1237,7 +1232,6 @@ class ApplicantController extends Controller
             $this->syncSectionHasMany($applicant, $relationName, $request->input($requestKey), $fieldsToCreate);
         }
         $this->syncFixedContactPersons($applicant, $request->input('fixed_contact_persons'));
-
         $healthData = $request->only([
             'weight_kg',
             'height_cm',
