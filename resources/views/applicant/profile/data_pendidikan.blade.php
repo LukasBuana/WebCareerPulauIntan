@@ -364,23 +364,6 @@
                     }
                 }
 
-                // Add validation for other dynamic sections if you enable them (e.g., otherEducation)
-                /*
-                if (sectionId === 'otherEducation') {
-                    // ... validation logic for other education fields ...
-                }
-                */
-
-                if (isValid) {
-                    alert(`Data di bagian "${this.textContent.replace('Simpan ', '').trim()}" berhasil disimpan!`);
-                    // In a real application, you would send specific data for this section
-                    // using forms like `formPendidikanFormal`, etc.
-                } else {
-                    const firstInvalidField = sectionElement.querySelector('.is-invalid');
-                    if (firstInvalidField) {
-                        firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                }
             });
         });
     });

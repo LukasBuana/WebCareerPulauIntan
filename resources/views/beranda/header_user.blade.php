@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -29,7 +30,7 @@
         /* Header Styles */
         .header {
             background: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             position: fixed;
             top: 0;
             left: 0;
@@ -60,7 +61,7 @@
 
         .logo-subtitle {
             font-size: 0.7rem;
-            color:red;
+            color: red;
             font-weight: 400;
             letter-spacing: 2px;
             margin-top: -5px;
@@ -117,6 +118,25 @@
             color: white;
         }
 
+        /* Style for Logout button (make it look similar to btn-masuk) */
+        .btn-keluar {
+            background: #dc2626; /* A red color for "Keluar" */
+            border: 2px solid #dc2626;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer; /* Ensure it looks clickable */
+        }
+
+        .btn-keluar:hover {
+            background: #b01c1c; /* Darker red on hover */
+            border-color: #b01c1c;
+        }
+
+
         .language-selector {
             display: flex;
             align-items: center;
@@ -160,7 +180,7 @@
                 background: white;
                 flex-direction: column;
                 gap: 0;
-                box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
                 padding: 20px;
             }
 
@@ -208,75 +228,88 @@
         }
     </style>
 </head>
+
 <body>
     <header class="header">
         <div class="container">
             <div class="header-content">
- @if(Request::is('/')) 
-                <a href="" class="logo">
-                    <div>
-                        <div class="logo-text">Pulau</div>
-                        <div class="logo-subtitle">INTAN</div>
-                    </div>
-                </a>
+                @if(Request::is('/'))
+                    <a href="" class="logo">
+                        <div>
+                            <div class="logo-text">Pulau</div>
+                            <div class="logo-subtitle">INTAN</div>
+                        </div>
+                    </a>
                 @else {{-- Jika rute saat ini BUKAN halaman landing --}}
-                               <a href="{{route("home")}}" class="logo">
-                    <div>
-                        <div class="logo-text">Pulau</div>
-                        <div class="logo-subtitle">INTAN</div>
-                    </div>
-                </a>
-                            @endif  
+                    <a href="{{route("home")}}" class="logo">
+                        <div>
+                            <div class="logo-text">Pulau</div>
+                            <div class="logo-subtitle">INTAN</div>
+                        </div>
+                    </a>
+                @endif
 
                 <nav>
                     <ul class="nav-menu" id="navMenu">
                         <li class="nav-item">
-                        @if(Request::is('/')) {{-- Jika rute saat ini adalah halaman landing (home) --}}
+                            @if(Request::is('/')) {{-- Jika rute saat ini adalah halaman landing (home) --}}
                                 <a href="#beranda" class="nav-link {{ Request::is('/') ? 'active' : '' }}">Beranda</a>
                             @else {{-- Jika rute saat ini BUKAN halaman landing --}}
                                 <a href="{{ route('home') }}" class="nav-link">Beranda</a>
-                            @endif                        </li>
+                            @endif
+                        </li>
                         <li class="nav-item">
                             @if(Request::is(patterns: '/'))
                             <a href="#tentang" class="nav-link">Tentang</a>
-                             @else {{-- Jika rute saat ini BUKAN halaman landing --}}
+                            @else {{-- Jika rute saat ini BUKAN halaman landing --}}
                                 <a href="{{ route('home') }}" class="nav-link">Tentang</a>
-                            @endif  
+                            @endif
                         </li>
                         <li class="nav-item">
                             @if(Request::is('/'))
                             <a href="#berita" class="nav-link">Berita</a>
-                             @else {{-- Jika rute saat ini BUKAN halaman landing --}}
+                            @else {{-- Jika rute saat ini BUKAN halaman landing --}}
                                 <a href="{{ route('home') }}" class="nav-link">Berita</a>
-                            @endif  
-                        </li>
-                        <li class="nav-item">
-                         @if(Request::is('/'))
-                            <a href="#lowongan" class="nav-link">Lowongan</a>
-                             @else {{-- Jika rute saat ini BUKAN halaman landing --}}
-                                <a href="{{ route('home') }}" class="nav-link">Lowongan</a>
-                            @endif  
+                            @endif
                         </li>
                         <li class="nav-item">
                             @if(Request::is('/'))
-
-                            <a href="#bursa-kerja" class="nav-link">Bursa Kerja</a>
-                             @else {{-- Jika rute saat ini BUKAN halaman landing --}}
-                                <a href="{{ route('home') }}" class="nav-link">Bursa Kerja</a>
-                            @endif  
+                            <a href="#lowongan" class="nav-link">Lowongan</a>
+                            @else {{-- Jika rute saat ini BUKAN halaman landing --}}
+                                <a href="{{ route('home') }}" class="nav-link">Lowongan</a>
+                            @endif
                         </li>
                         <li class="nav-item">
-                             @if(Request::is('/'))
+                            @if(Request::is('/'))
+                            <a href="#bursa-kerja" class="nav-link">Bursa Kerja</a>
+                            @else {{-- Jika rute saat ini BUKAN halaman landing --}}
+                                <a href="{{ route('home') }}" class="nav-link">Bursa Kerja</a>
+                            @endif
+                        </li>
+                        <li class="nav-item">
+                            @if(Request::is('/'))
                             <a href="#faq" class="nav-link">Tanya Jawab</a>
-                             @else {{-- Jika rute saat ini BUKAN halaman landing --}}
+                            @else {{-- Jika rute saat ini BUKAN halaman landing --}}
                                 <a href="{{ route('home') }}" class="nav-link">Tanya Jawab</a>
-                            @endif  
+                            @endif
                         </li>
                     </ul>
                 </nav>
 
                 <div class="header-actions">
-                    <a href="login" class="btn-masuk">Masuk</a>
+                    {{-- Check if user is authenticated --}}
+                    @auth
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="btn-keluar">Keluar</button>
+                        </form>
+                    @endauth
+
+                    {{-- Check if user is NOT authenticated --}}
+                    @guest
+                        <a href="{{ route('login') }}" class="btn-masuk">Masuk</a>
+                    @endguest
+
                     <div class="language-selector">
                         <div class="flag-icon"></div>
                         <span>Indonesia</span>
@@ -289,3 +322,16 @@
             </div>
         </div>
     </header>
+
+    {{-- You might need a script for the mobile menu toggle here if it's not in another included file --}}
+    <script>
+        function toggleMobileMenu() {
+            const navMenu = document.getElementById('navMenu');
+            if (navMenu) {
+                navMenu.classList.toggle('active');
+            }
+        }
+    </script>
+</body>
+
+</html>

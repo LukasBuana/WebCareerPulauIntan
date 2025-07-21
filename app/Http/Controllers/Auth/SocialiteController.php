@@ -68,7 +68,7 @@ class SocialiteController extends Controller
             }
 
             // Default redirection untuk user biasa (termasuk yang baru daftar via Google)
-            return redirect()->intended(route('dashboard', absolute: false));
+            return redirect()->intended(route('my_biodata.form', absolute: false));
 
         } catch (\Exception $e) {
             // Handle exceptions (e.g., connection issues, user cancels)

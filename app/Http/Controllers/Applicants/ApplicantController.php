@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Applicants;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Applicants\Applicant;
-use App\Models\User;
 // Import semua model terkait yang diperlukan untuk form dinamis (Dependent, FamilyMember, dll)
 use App\Models\Applicants\Dependent;
 use App\Models\Applicants\FamilyMember;
@@ -19,7 +18,10 @@ use App\Models\Applicants\Publication;
 use App\Models\Applicants\WorkExperience;
 use App\Models\Applicants\WorkAchievement;
 use App\Models\Applicants\HealthDeclaration;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon; // Import Carbon for date formatting
+
 use Illuminate\Support\Facades\DB; // Add this for database transactions
 use Illuminate\Support\Str; // Add this for Str::endsWith
 
@@ -38,9 +40,17 @@ class ApplicantController extends Controller
         } else {
             // Load all necessary relationships for dynamic forms
             $applicant->load([
-                'dependents', 'familyMembers', 'contactPersons', 'educationHistory',
-                'organizationalExperience', 'trainingCourses', 'languages',
-                'computerSkills', 'publications', 'workExperience', 'workAchievements',
+                'dependents',
+                'familyMembers',
+                'contactPersons',
+                'educationHistory',
+                'organizationalExperience',
+                'trainingCourses',
+                'languages',
+                'computerSkills',
+                'publications',
+                'workExperience',
+                'workAchievements',
                 'healthDeclaration'
             ]);
 
@@ -50,49 +60,117 @@ class ApplicantController extends Controller
         $educationLevels = ['SMA/SMK', 'D1', 'D2', 'D3', 'D4', 'S1', 'S2', 'S3'];
         $experienceLevels = ['Entry Level', 'Junior', 'Mid', 'Senior', 'Lead', 'Manager'];
         $maritalStatuses = ['Belum menikah', 'Menikah', 'Janda-Duda'];
-        
-        // Data untuk dynamic fields (convert collections to array of arrays/objects)
-        $dependentsData = $applicant->dependents->map(function($dep) {
-            return $dep->only(['name', 'relationship', 'gender', 'place_of_birth', 'date_of_birth', 'education', 'occupation']);
+
+        $dependentsData = $applicant->dependents->map(function ($dep) {
+            return [
+                'name' => $dep->name,
+                'relationship' => $dep->relationship,
+                'gender' => $dep->gender,
+                'place_of_birth' => $dep->place_of_birth,
+                'date_of_birth' => $dep->date_of_birth ? Carbon::parse($dep->date_of_birth)->format('Y-m-d') : null,
+                'education' => $dep->education,
+                'occupation' => $dep->occupation,
+            ];
         })->toArray();
-        $familyMembersData = $applicant->familyMembers->map(function($fm) {
-            return $fm->only(['name', 'relationship', 'gender', 'place_of_birth', 'date_of_birth', 'education', 'occupation']);
+
+        $familyMembersData = $applicant->familyMembers->map(function ($fm) {
+            return [
+                'name' => $fm->name,
+                'relationship' => $fm->relationship,
+                'gender' => $fm->gender,
+                'place_of_birth' => $fm->place_of_birth,
+                'date_of_birth' => $fm->date_of_birth ? Carbon::parse($fm->date_of_birth)->format('Y-m-d') : null,
+                'education' => $fm->education,
+                'occupation' => $fm->occupation,
+            ];
         })->toArray();
-        $contactPersonsData = $applicant->contactPersons->map(function($cp) {
-            return $cp->only(['type', 'name', 'gender', 'address', 'phone_no', 'relationship', 'occupation']);
-        })->toArray();
-        $educationHistoryData = $applicant->educationHistory->map(function($eh) {
+        $fixedContactPersonsData = [];
+        $contactPersons = $applicant->contactPersons->sortBy('id')->values(); // Ensure consistent order
+
+        // Initialize with default empty slots
+        for ($i = 0; $i < 4; $i++) {
+            $fixedContactPersonsData[$i] = [
+                'id' => null, // Will be used for update/delete later
+                'type' => null, // Will be set in blade as hidden field or managed
+                'name' => null,
+                'gender' => null,
+                'address' => null,
+                'phone_no' => null,
+                'relationship' => null,
+                'occupation' => null,
+            ];
+            // Pre-set types as per your requirement (2 Keluarga, 2 Teman)
+            if ($i < 2) {
+                $fixedContactPersonsData[$i]['type'] = 'Keluarga';
+            } else {
+                $fixedContactPersonsData[$i]['type'] = 'Teman';
+            }
+        }
+
+        // Populate existing data into the fixed slots
+        foreach ($contactPersons as $index => $cp) {
+            if ($index < 4) { // Only take up to 4 existing contacts
+                $fixedContactPersonsData[$index] = [
+                    'id' => $cp->id, // Important for updating existing records
+                    'type' => $cp->type,
+                    'name' => $cp->name,
+                    'gender' => $cp->gender,
+                    'address' => $cp->address,
+                    'phone_no' => $cp->phone_no,
+                    'relationship' => $cp->relationship,
+                    'occupation' => $cp->occupation,
+                ];
+            }
+        }
+        $educationHistoryData = $applicant->educationHistory->map(function ($eh) {
             return $eh->only(['level_of_education', 'institution', 'period_start_year', 'period_end_year', 'major', 'grade']);
         })->toArray();
-        $organizationalExperienceData = $applicant->organizationalExperience->map(function($oe) {
+        $organizationalExperienceData = $applicant->organizationalExperience->map(function ($oe) {
             return $oe->only(['organization_name', 'title_in_organization', 'period']);
         })->toArray();
-        $trainingCoursesData = $applicant->trainingCourses->map(function($tc) {
+        $trainingCoursesData = $applicant->trainingCourses->map(function ($tc) {
             return $tc->only(['training_course_name', 'year', 'held_by', 'grade']);
         })->toArray();
-        $languagesData = $applicant->languages->map(function($lang) {
+        $languagesData = $applicant->languages->map(function ($lang) {
             return $lang->only(['language_name', 'listening_proficiency', 'reading_proficiency', 'speaking_proficiency', 'written_proficiency']);
         })->toArray();
-        $computerSkillsData = $applicant->computerSkills->map(function($cs) {
+        $computerSkillsData = $applicant->computerSkills->map(function ($cs) {
             return $cs->only(['skill_name', 'proficiency']);
         })->toArray();
-        $publicationsData = $applicant->publications->map(function($pub) {
+        $publicationsData = $applicant->publications->map(function ($pub) {
             return $pub->only(['title', 'type']);
         })->toArray();
-        $workExperienceData = $applicant->workExperience->map(function($we) {
+        $workExperienceData = $applicant->workExperience->map(function ($we) {
             return $we->only(['company_name', 'period_start_date', 'period_end_date', 'company_address', 'company_phone_number', 'first_role_title', 'last_role_title', 'direct_supervisor_name', 'resignation_reason', 'last_salary']);
         })->toArray();
-        $workAchievementsData = $applicant->workAchievements->map(function($wa) {
+        $workAchievementsData = $applicant->workAchievements->map(function ($wa) {
             return $wa->only(['achievement_description', 'year']);
         })->toArray();
         $healthDeclarationData = $applicant->healthDeclaration ? $applicant->healthDeclaration->only([
-            'weight_kg', 'height_cm', 'has_medical_condition', 'medical_condition_explanation',
-            'resigned_due_to_health', 'resigned_due_to_health_explanation', 'failed_pre_employment_exam',
-            'failed_pre_employment_exam_explanation', 'undergoing_treatment_or_surgery', 'treatment_or_surgery_explanation',
-            'under_medical_supervision', 'medical_supervision_explanation', 'on_regular_medication',
-            'regular_medication_explanation', 'has_allergies', 'allergies_explanation',
-            'absent_due_to_health_12_months', 'absent_due_to_health_explanation', 'had_accident',
-            'accident_explanation', 'is_pregnant', 'pregnancy_week', 'declaration_agreed', 'declaration_date'
+            'weight_kg',
+            'height_cm',
+            'has_medical_condition',
+            'medical_condition_explanation',
+            'resigned_due_to_health',
+            'resigned_due_to_health_explanation',
+            'failed_pre_employment_exam',
+            'failed_pre_employment_exam_explanation',
+            'undergoing_treatment_or_surgery',
+            'treatment_or_surgery_explanation',
+            'under_medical_supervision',
+            'medical_supervision_explanation',
+            'on_regular_medication',
+            'regular_medication_explanation',
+            'has_allergies',
+            'allergies_explanation',
+            'absent_due_to_health_12_months',
+            'absent_due_to_health_explanation',
+            'had_accident',
+            'accident_explanation',
+            'is_pregnant',
+            'pregnancy_week',
+            'declaration_agreed',
+            'declaration_date'
         ]) : null;
 
 
@@ -101,10 +179,18 @@ class ApplicantController extends Controller
             'educationLevels',
             'experienceLevels',
             'maritalStatuses', // Make sure this is passed if used
-            'dependentsData', 'familyMembersData', 'contactPersonsData', 'educationHistoryData',
-            'organizationalExperienceData', 'trainingCoursesData', 'languagesData',
-            'computerSkillsData', 'publicationsData', 'workExperienceData',
-            'workAchievementsData', 'healthDeclarationData'
+            'dependentsData',
+            'familyMembersData',
+            'fixedContactPersonsData',
+            'educationHistoryData',
+            'organizationalExperienceData',
+            'trainingCoursesData',
+            'languagesData',
+            'computerSkillsData',
+            'publicationsData',
+            'workExperienceData',
+            'workAchievementsData',
+            'healthDeclarationData'
         ));
     }
 
@@ -133,19 +219,41 @@ class ApplicantController extends Controller
             }
 
             $applicantData = $request->except([
-                '_token', '_method', 'profile_image', 'dependents', 'family_members',
-                'contact_persons', 'education_history', 'organizational_experience',
-                'training_courses', 'languages', 'computer_skills', 'publications',
-                'work_experience', 'work_achievements', 'health_declaration'
+                '_token',
+                '_method',
+                'profile_image',
+                'dependents',
+                'family_members',
+                'contact_persons',
+                'education_history',
+                'organizational_experience',
+                'training_courses',
+                'languages',
+                'computer_skills',
+                'publications',
+                'work_experience',
+                'work_achievements',
+                'health_declaration'
             ]);
 
             // Handle boolean fields from checkboxes/radios explicitly for main applicant data
             $booleanFields = [
-                'applied_before', 'applying_other_company', 'under_contract', 'has_part_time_job',
-                'object_previous_employer_contact', 'has_acquaintance_in_company', 'undergone_psych_exam',
-                'involved_police_case', 'willing_to_be_located_as_needed', 'accept_company_salary_standard',
-                'comply_company_rules', 'willing_to_take_psych_exam', 'willing_to_take_medical_checkup',
-                'willing_to_work_out_of_town', 'willing_to_transfer', 'willing_to_be_demoted',
+                'applied_before',
+                'applying_other_company',
+                'under_contract',
+                'has_part_time_job',
+                'object_previous_employer_contact',
+                'has_acquaintance_in_company',
+                'undergone_psych_exam',
+                'involved_police_case',
+                'willing_to_be_located_as_needed',
+                'accept_company_salary_standard',
+                'comply_company_rules',
+                'willing_to_take_psych_exam',
+                'willing_to_take_medical_checkup',
+                'willing_to_work_out_of_town',
+                'willing_to_transfer',
+                'willing_to_be_demoted',
                 'declaration_agreement' // Assuming this is part of main applicant data
             ];
             foreach ($booleanFields as $field) {
@@ -156,7 +264,7 @@ class ApplicantController extends Controller
             $applicantData['email_address'] = $user->email;
             $applicantData['full_name'] = $user->name; // Use user's name as initial value
             $applicantData['profile_image'] = $profileImageBase64;
-            
+
             $applicant = Applicant::create($applicantData);
 
             $this->syncApplicantNestedData($request, $applicant);
@@ -188,7 +296,7 @@ class ApplicantController extends Controller
             // If no applicant data exists, delegate to store method
             return $this->storeMyBiodata($request);
         }
-        
+
         $rules = $this->validationRules($user->id, $applicant->id);
         $request->validate($rules); // This will throw ValidationException on failure
 
@@ -203,19 +311,41 @@ class ApplicantController extends Controller
             }
 
             $applicantData = $request->except([
-                '_token', '_method', 'profile_image', 'dependents', 'family_members',
-                'contact_persons', 'education_history', 'organizational_experience',
-                'training_courses', 'languages', 'computer_skills', 'publications',
-                'work_experience', 'work_achievements', 'health_declaration'
+                '_token',
+                '_method',
+                'profile_image',
+                'dependents',
+                'family_members',
+                'contact_persons',
+                'education_history',
+                'organizational_experience',
+                'training_courses',
+                'languages',
+                'computer_skills',
+                'publications',
+                'work_experience',
+                'work_achievements',
+                'health_declaration'
             ]);
 
             // Handle boolean fields from checkboxes/radios explicitly for main applicant data
             $booleanFields = [
-                'applied_before', 'applying_other_company', 'under_contract', 'has_part_time_job',
-                'object_previous_employer_contact', 'has_acquaintance_in_company', 'undergone_psych_exam',
-                'involved_police_case', 'willing_to_be_located_as_needed', 'accept_company_salary_standard',
-                'comply_company_rules', 'willing_to_take_psych_exam', 'willing_to_take_medical_checkup',
-                'willing_to_work_out_of_town', 'willing_to_transfer', 'willing_to_be_demoted',
+                'applied_before',
+                'applying_other_company',
+                'under_contract',
+                'has_part_time_job',
+                'object_previous_employer_contact',
+                'has_acquaintance_in_company',
+                'undergone_psych_exam',
+                'involved_police_case',
+                'willing_to_be_located_as_needed',
+                'accept_company_salary_standard',
+                'comply_company_rules',
+                'willing_to_take_psych_exam',
+                'willing_to_take_medical_checkup',
+                'willing_to_work_out_of_town',
+                'willing_to_transfer',
+                'willing_to_be_demoted',
                 'declaration_agreement'
             ];
             foreach ($booleanFields as $field) {
@@ -250,7 +380,10 @@ class ApplicantController extends Controller
     {
         $user = Auth::user();
         $applicant = $user->applicant;
-
+if (!Auth::check()) {
+        // This response will be JSON, preventing the frontend SyntaxError
+        return response()->json(['message' => 'Unauthorized. Please log in again.'], 401);
+    }
         // Create applicant if not exists
         if (!$applicant) {
             $applicant = Applicant::create([
@@ -271,8 +404,11 @@ class ApplicantController extends Controller
             switch ($sectionName) {
                 case 'informasiUtama':
                     $applicantData = $request->only([
-                        'full_name', 'mobile_phone_number', 'place_of_birth',
-                        'date_of_birth', 'blood_type'
+                        'full_name',
+                        'mobile_phone_number',
+                        'place_of_birth',
+                        'date_of_birth',
+                        'blood_type'
                     ]);
                     // Handle profile image separately as it's a file upload
                     if ($request->hasFile('profile_image')) {
@@ -289,23 +425,33 @@ class ApplicantController extends Controller
 
                 case 'informasiAlamat':
                     $applicant->update($request->only([
-                        'permanent_address_ktp', 'permanent_postal_code_ktp',
-                        'current_address', 'current_postal_code',
-                        'parents_address', 'parents_postal_code'
+                        'permanent_address_ktp',
+                        'permanent_postal_code_ktp',
+                        'current_address',
+                        'current_postal_code',
+                        'parents_address',
+                        'parents_postal_code'
                     ]));
                     break;
 
                 case 'nomorIdentitas':
                     $applicant->update($request->only([
-                        'id_passport_number', 'npwp_number', 'bpjs_health_number',
-                        'license_number', 'license_expiry_date', 'bpjs_employment_number'
+                        'id_passport_number',
+                        'npwp_number',
+                        'bpjs_health_number',
+                        'license_number',
+                        'license_expiry_date',
+                        'bpjs_employment_number'
                     ]));
                     break;
 
                 case 'detailPribadiLainnya':
                     $applicant->update($request->only([
-                        'gender', 'religion', 'marital_status',
-                        'married_since_date', 'widowed_since_date'
+                        'gender',
+                        'religion',
+                        'marital_status',
+                        'married_since_date',
+                        'widowed_since_date'
                     ]));
                     // Explicitly handle married_since_date and widowed_since_date based on marital_status
                     if ($request->input('marital_status') !== 'Menikah') {
@@ -319,115 +465,163 @@ class ApplicantController extends Controller
                 case 'sumberLowongan':
                     $applicant->update($request->only(['job_vacancy_source']));
                     break;
-                
+
                 // --- Add cases for other sections that might have specific saving logic or dynamic inputs ---
                 // For dynamic sections, you would typically delete existing and re-create.
                 // Example for dependents:
                 case 'dependents':
-                    $applicant->dependents()->delete();
-                    if ($request->has('dependents') && is_array($request->input('dependents'))) {
-                        foreach ($request->input('dependents') as $index => $data) {
-                            if (!empty(array_filter($data))) {
-                                $dependentData = [
-                                    'name' => $data['name'] ?? null,
-                                    'relationship' => $data['relationship'] ?? null,
-                                    'gender' => $data['gender'] ?? null,
-                                    'place_of_birth' => $data['place_of_birth'] ?? null,
-                                    'date_of_birth' => ($data['date_of_birth'] ?? null) ? \Carbon\Carbon::parse($data['date_of_birth'])->format('Y-m-d') : null,
-                                    'education' => $data['education'] ?? null,
-                                    'occupation' => $data['occupation'] ?? null,
-                                    'order' => $index + 1,
-                                ];
-                                $applicant->dependents()->create($dependentData);
-                            }
-                        }
-                    }
+                    $this->syncSectionHasMany($applicant, 'dependents', $request->input('dependents'), [
+                        'name',
+                        'relationship',
+                        'gender',
+                        'place_of_birth',
+                        'date_of_birth',
+                        'education',
+                        'occupation'
+                    ]);
+
+                case 'darurat':
+                    $applicant->update($request->only([
+                        'emergency_contact_name',
+                        'emergency_contact_address',
+                        'emergency_contact_phone',
+                        'emergency_contact_relationship'
+                    ]));
                     break;
-                // Add more cases for other dynamic sections (family_members, education_history, etc.)
-                // This will be repetitive, but necessary for granular saving.
-                // You can refactor the `syncHasMany` helper from `syncApplicantNestedData` to be callable here.
                 case 'family_members':
                     $this->syncSectionHasMany($applicant, 'familyMembers', $request->input('family_members'), [
-                        'name', 'relationship', 'gender', 'place_of_birth', 'date_of_birth', 'education', 'occupation'
+                        'name',
+                        'relationship',
+                        'gender',
+                        'place_of_birth',
+                        'date_of_birth',
+                        'education',
+                        'occupation'
                     ]);
                     break;
                 case 'contact_persons':
-                    $this->syncSectionHasMany($applicant, 'contactPersons', $request->input('contact_persons'), [
-                        'type', 'name', 'gender', 'address', 'phone_no', 'relationship', 'occupation'
-                    ]);
+                    $this->syncFixedContactPersons($applicant, $request->input('fixed_contact_persons'));
                     break;
                 case 'education_history':
                     $this->syncSectionHasMany($applicant, 'educationHistory', $request->input('education_history'), [
-                        'level_of_education', 'institution', 'period_start_year', 'period_end_year', 'major', 'grade'
+                        'level_of_education',
+                        'institution',
+                        'period_start_year',
+                        'period_end_year',
+                        'major',
+                        'grade'
                     ]);
                     break;
                 case 'organizational_experience':
                     $this->syncSectionHasMany($applicant, 'organizationalExperience', $request->input('organizational_experience'), [
-                        'organization_name', 'title_in_organization', 'period'
+                        'organization_name',
+                        'title_in_organization',
+                        'period'
                     ]);
                     break;
                 case 'training_courses':
                     $this->syncSectionHasMany($applicant, 'trainingCourses', $request->input('training_courses'), [
-                        'training_course_name', 'year', 'held_by', 'grade'
+                        'training_course_name',
+                        'year',
+                        'held_by',
+                        'grade'
                     ]);
                     break;
                 case 'languages':
                     $this->syncSectionHasMany($applicant, 'languages', $request->input('languages'), [
-                        'language_name', 'listening_proficiency', 'reading_proficiency', 'speaking_proficiency', 'written_proficiency'
+                        'language_name',
+                        'listening_proficiency',
+                        'reading_proficiency',
+                        'speaking_proficiency',
+                        'written_proficiency'
                     ]);
                     break;
                 case 'computer_skills':
                     $this->syncSectionHasMany($applicant, 'computerSkills', $request->input('computer_skills'), [
-                        'skill_name', 'proficiency'
+                        'skill_name',
+                        'proficiency'
                     ]);
                     break;
                 case 'publications':
                     $this->syncSectionHasMany($applicant, 'publications', $request->input('publications'), [
-                        'title', 'type'
+                        'title',
+                        'type'
                     ]);
                     break;
                 case 'work_experience':
                     $this->syncSectionHasMany($applicant, 'workExperience', $request->input('work_experience'), [
-                        'company_name', 'period_start_date', 'period_end_date', 'company_address', 'company_phone_number',
-                        'first_role_title', 'last_role_title', 'direct_supervisor_name', 'resignation_reason', 'last_salary'
+                        'company_name',
+                        'period_start_date',
+                        'period_end_date',
+                        'company_address',
+                        'company_phone_number',
+                        'first_role_title',
+                        'last_role_title',
+                        'direct_supervisor_name',
+                        'resignation_reason',
+                        'last_salary'
                     ]);
                     break;
                 case 'work_achievements':
                     $this->syncSectionHasMany($applicant, 'workAchievements', $request->input('work_achievements'), [
-                        'achievement_description', 'year'
+                        'achievement_description',
+                        'year'
                     ]);
                     break;
                 case 'health_declaration':
                     $healthData = $request->only([
-                        'weight_kg', 'height_cm', 'has_medical_condition', 'medical_condition_explanation',
-                        'resigned_due_to_health', 'resigned_due_to_health_explanation', 'failed_pre_employment_exam',
-                        'failed_pre_employment_exam_explanation', 'undergoing_treatment_or_surgery', 'treatment_or_surgery_explanation',
-                        'under_medical_supervision', 'medical_supervision_explanation', 'on_regular_medication',
-                        'regular_medication_explanation', 'has_allergies', 'allergies_explanation',
-                        'absent_due_to_health_12_months', 'absent_due_to_health_explanation', 'had_accident',
-                        'accident_explanation', 'is_pregnant', 'pregnancy_week', 'declaration_agreed', 'declaration_date'
+                        'weight_kg',
+                        'height_cm',
+                        'has_medical_condition',
+                        'medical_condition_explanation',
+                        'resigned_due_to_health',
+                        'resigned_due_to_health_explanation',
+                        'failed_pre_employment_exam',
+                        'failed_pre_employment_exam_explanation',
+                        'undergoing_treatment_or_surgery',
+                        'treatment_or_surgery_explanation',
+                        'under_medical_supervision',
+                        'medical_supervision_explanation',
+                        'on_regular_medication',
+                        'regular_medication_explanation',
+                        'has_allergies',
+                        'allergies_explanation',
+                        'absent_due_to_health_12_months',
+                        'absent_due_to_health_explanation',
+                        'had_accident',
+                        'accident_explanation',
+                        'is_pregnant',
+                        'pregnancy_week',
+                        'declaration_agreed',
+                        'declaration_date'
                     ]);
-                    // Handle booleans for health data
+                    // Handle booleans for health data 
                     $healthBooleanFields = [
-                        'has_medical_condition', 'resigned_due_to_health', 'failed_pre_employment_exam',
-                        'undergoing_treatment_or_surgery', 'under_medical_supervision', 'on_regular_medication',
-                        'has_allergies', 'absent_due_to_health_12_months', 'had_accident', 'is_pregnant',
+                        'has_medical_condition',
+                        'resigned_due_to_health',
+                        'failed_pre_employment_exam',
+                        'undergoing_treatment_or_surgery',
+                        'under_medical_supervision',
+                        'on_regular_medication',
+                        'has_allergies',
+                        'absent_due_to_health_12_months',
+                        'had_accident',
+                        'is_pregnant',
                         'declaration_agreed'
                     ];
                     foreach ($healthBooleanFields as $field) {
                         $healthData[$field] = $request->has($field) ? 1 : 0;
                     }
 
-                    if (array_filter($healthData)) { // Only create/update if there's actual data
+                    if (array_filter($healthData)) { // Only create/update if there's actual data 
                         $applicant->healthDeclaration()->updateOrCreate(
-                            ['applicant_id' => $applicant->id],
+                            ['applicant_id' => $applicant->id], // Find by applicant_id
                             $healthData
                         );
                     } else if ($applicant->healthDeclaration) {
-                        $applicant->healthDeclaration()->delete();
+                        $applicant->healthDeclaration()->delete(); // Delete if all fields are empty 
                     }
                     break;
-                // Add more cases for other sections...
                 default:
                     return response()->json(['message' => 'Section not found or not supported for AJAX save.'], 400);
             }
@@ -504,111 +698,120 @@ class ApplicantController extends Controller
             case 'dependents':
                 $sectionRules = [
                     'dependents' => $allRules['dependents'],
-                    'dependents.*.name' => $allRules['dependents.*.name'],
-                    'dependents.*.relationship' => $allRules['dependents.*.relationship'],
-                    'dependents.*.gender' => $allRules['dependents.*.gender'],
-                    'dependents.*.place_of_birth' => $allRules['dependents.*.place_of_birth'],
-                    'dependents.*.date_of_birth' => $allRules['dependents.*.date_of_birth'],
-                    'dependents.*.education' => $allRules['dependents.*.education'],
-                    'dependents.*.occupation' => $allRules['dependents.*.occupation'],
+                    'dependents.*.name' => 'required|string|max:255', // Changed to required
+                    'dependents.*.relationship' => 'required|string|max:100', // Changed to required
+                    'dependents.*.gender' => 'required|in:L,P', // Changed to required
+                    'dependents.*.place_of_birth' => 'nullable|string|max:100',
+                    'dependents.*.date_of_birth' => 'nullable|date',
+                    'dependents.*.education' => 'nullable|string|max:100',
+                    'dependents.*.occupation' => 'nullable|string|max:100',
                 ];
                 break;
             case 'family_members':
                 $sectionRules = [
                     'family_members' => $allRules['family_members'],
-                    'family_members.*.name' => $allRules['family_members.*.name'],
-                    'family_members.*.relationship' => $allRules['family_members.*.relationship'],
-                    'family_members.*.gender' => $allRules['family_members.*.gender'],
-                    'family_members.*.place_of_birth' => $allRules['family_members.*.place_of_birth'],
-                    'family_members.*.date_of_birth' => $allRules['family_members.*.date_of_birth'],
-                    'family_members.*.education' => $allRules['family_members.*.education'],
-                    'family_members.*.occupation' => $allRules['family_members.*.occupation'],
+                    'family_members.*.name' => 'required|string|max:255', // Changed to required
+                    'family_members.*.relationship' => 'required|string|max:100', // Changed to required
+                    'family_members.*.gender' => 'required|in:L,P', // Changed to required
+                    'family_members.*.place_of_birth' => 'nullable|string|max:100',
+                    'family_members.*.date_of_birth' => 'nullable|date',
+                    'family_members.*.education' => 'nullable|string|max:100',
+                    'family_members.*.occupation' => 'nullable|string|max:100',
+                ];
+                break;
+
+            case 'darurat':
+                $sectionRules = [
+                    'emergency_contact_name' => $allRules['emergency_contact_name'],
+                    'emergency_contact_address' => $allRules['emergency_contact_address'],
+                    'emergency_contact_phone' => $allRules['emergency_contact_phone'],
+                    'emergency_contact_relationship' => $allRules['emergency_contact_relationship'],
                 ];
                 break;
             case 'contact_persons':
                 $sectionRules = [
                     'contact_persons' => $allRules['contact_persons'],
-                    'contact_persons.*.type' => $allRules['contact_persons.*.type'],
-                    'contact_persons.*.name' => $allRules['contact_persons.*.name'],
-                    'contact_persons.*.gender' => $allRules['contact_persons.*.gender'],
-                    'contact_persons.*.address' => $allRules['contact_persons.*.address'],
-                    'contact_persons.*.phone_no' => $allRules['contact_persons.*.phone_no'],
-                    'contact_persons.*.relationship' => $allRules['contact_persons.*.relationship'],
-                    'contact_persons.*.occupation' => $allRules['contact_persons.*.occupation'],
+                    'contact_persons.*.type' => 'required|in:Keluarga,Teman', // Changed to required
+                    'contact_persons.*.name' => 'required|string|max:255', // Changed to required
+                    'contact_persons.*.gender' => 'required|in:L,P', // Changed to required
+                    'contact_persons.*.address' => 'required|string', // Changed to required
+                    'contact_persons.*.phone_no' => 'required|string|max:20', // Changed to required
+                    'contact_persons.*.relationship' => 'required|string|max:100', // Changed to required
+                    'contact_persons.*.occupation' => 'required|string|max:100', // Changed to required
                 ];
                 break;
             case 'education_history':
                 $sectionRules = [
                     'education_history' => $allRules['education_history'],
-                    'education_history.*.level_of_education' => $allRules['education_history.*.level_of_education'],
-                    'education_history.*.institution' => $allRules['education_history.*.institution'],
-                    'education_history.*.period_start_year' => $allRules['education_history.*.period_start_year'],
-                    'education_history.*.period_end_year' => $allRules['education_history.*.period_end_year'],
-                    'education_history.*.major' => $allRules['education_history.*.major'],
-                    'education_history.*.grade' => $allRules['education_history.*.grade'],
+                    'education_history.*.level_of_education' => 'required|string|max:100', // Changed to required
+                    'education_history.*.institution' => 'required|string|max:255', // Changed to required
+                    'education_history.*.period_start_year' => 'required|integer|min:1900|max:' . date('Y'), // Changed to required
+                    'education_history.*.period_end_year' => 'required|integer|min:1900|max:' . date('Y'), // Changed to required
+                    'education_history.*.major' => 'nullable|string|max:255',
+                    'education_history.*.grade' => 'nullable|string|max:50',
                 ];
                 break;
             case 'organizational_experience':
                 $sectionRules = [
                     'organizational_experience' => $allRules['organizational_experience'],
-                    'organizational_experience.*.organization_name' => $allRules['organizational_experience.*.organization_name'],
-                    'organizational_experience.*.title_in_organization' => $allRules['organizational_experience.*.title_in_organization'],
-                    'organizational_experience.*.period' => $allRules['organizational_experience.*.period'],
+                    'organizational_experience.*.organization_name' => 'required|string|max:255', // Changed to required
+                    'organizational_experience.*.title_in_organization' => 'nullable|string|max:255',
+                    'organizational_experience.*.period' => 'nullable|string|max:100',
                 ];
                 break;
             case 'training_courses':
                 $sectionRules = [
                     'training_courses' => $allRules['training_courses'],
-                    'training_courses.*.training_course_name' => $allRules['training_courses.*.training_course_name'],
-                    'training_courses.*.year' => $allRules['training_courses.*.year'],
-                    'training_courses.*.held_by' => $allRules['training_courses.*.held_by'],
-                    'training_courses.*.grade' => $allRules['training_courses.*.grade'],
+                    'training_courses.*.training_course_name' => 'required|string|max:255', // Changed to required
+                    'training_courses.*.year' => 'required|integer|min:1900|max:' . date('Y'), // Changed to required
+                    'training_courses.*.held_by' => 'nullable|string|max:255',
+                    'training_courses.*.grade' => 'nullable|string|max:50',
                 ];
                 break;
             case 'languages':
                 $sectionRules = [
                     'languages' => $allRules['languages'],
-                    'languages.*.language_name' => $allRules['languages.*.language_name'],
-                    'languages.*.listening_proficiency' => $allRules['languages.*.listening_proficiency'],
-                    'languages.*.reading_proficiency' => $allRules['languages.*.reading_proficiency'],
-                    'languages.*.speaking_proficiency' => $allRules['languages.*.speaking_proficiency'],
-                    'languages.*.written_proficiency' => $allRules['languages.*.written_proficiency'],
+                    'languages.*.language_name' => 'required|string|max:100', // Changed to required
+                    'languages.*.listening_proficiency' => 'required|in:Baik Sekali,Baik,Cukup,Kurang', // Changed to required
+                    'languages.*.reading_proficiency' => 'required|in:Baik Sekali,Baik,Cukup,Kurang', // Changed to required
+                    'languages.*.speaking_proficiency' => 'required|in:Baik Sekali,Baik,Cukup,Kurang', // Changed to required
+                    'languages.*.written_proficiency' => 'required|in:Baik Sekali,Baik,Cukup,Kurang', // Changed to required
                 ];
                 break;
             case 'computer_skills':
                 $sectionRules = [
                     'computer_skills' => $allRules['computer_skills'],
-                    'computer_skills.*.skill_name' => $allRules['computer_skills.*.skill_name'],
-                    'computer_skills.*.proficiency' => $allRules['computer_skills.*.proficiency'],
+                    'computer_skills.*.skill_name' => 'required|string|max:100', // Changed to required
+                    'computer_skills.*.proficiency' => 'required|in:Baik Sekali,Baik,Cukup,Kurang', // Changed to required
                 ];
                 break;
             case 'publications':
                 $sectionRules = [
                     'publications' => $allRules['publications'],
-                    'publications.*.title' => $allRules['publications.*.title'],
-                    'publications.*.type' => $allRules['publications.*.type'],
+                    'publications.*.title' => 'required|string', // Changed to required
+                    'publications.*.type' => 'nullable|string|max:100',
                 ];
                 break;
             case 'work_experience':
                 $sectionRules = [
                     'work_experience' => $allRules['work_experience'],
-                    'work_experience.*.company_name' => $allRules['work_experience.*.company_name'],
-                    'work_experience.*.period_start_date' => $allRules['work_experience.*.period_start_date'],
-                    'work_experience.*.period_end_date' => $allRules['work_experience.*.period_end_date'],
-                    'work_experience.*.company_address' => $allRules['work_experience.*.company_address'],
-                    'work_experience.*.company_phone_number' => $allRules['work_experience.*.company_phone_number'],
-                    'work_experience.*.first_role_title' => $allRules['work_experience.*.first_role_title'],
-                    'work_experience.*.last_role_title' => $allRules['work_experience.*.last_role_title'],
-                    'work_experience.*.direct_supervisor_name' => $allRules['work_experience.*.direct_supervisor_name'],
-                    'work_experience.*.resignation_reason' => $allRules['work_experience.*.resignation_reason'],
-                    'work_experience.*.last_salary' => $allRules['work_experience.*.last_salary'],
+                    'work_experience.*.company_name' => 'required|string|max:255', // Changed to required
+                    'work_experience.*.period_start_date' => 'required|date', // Changed to required
+                    'work_experience.*.period_end_date' => 'nullable|date',
+                    'work_experience.*.company_address' => 'nullable|string',
+                    'work_experience.*.company_phone_number' => 'nullable|string|max:20',
+                    'work_experience.*.first_role_title' => 'required|string|max:255', // Changed to required
+                    'work_experience.*.last_role_title' => 'required|string|max:255', // Changed to required
+                    'work_experience.*.direct_supervisor_name' => 'nullable|string|max:255',
+                    'work_experience.*.resignation_reason' => 'nullable|string',
+                    'work_experience.*.last_salary' => 'nullable|string|max:100',
                 ];
                 break;
             case 'work_achievements':
                 $sectionRules = [
                     'work_achievements' => $allRules['work_achievements'],
-                    'work_achievements.*.achievement_description' => $allRules['work_achievements.*.achievement_description'],
-                    'work_achievements.*.year' => $allRules['work_achievements.*.year'],
+                    'work_achievements.*.achievement_description' => 'required|string', // Changed to required
+                    'work_achievements.*.year' => 'nullable|integer|min:1900|max:' . date('Y'),
                 ];
                 break;
             case 'health_declaration':
@@ -642,7 +845,6 @@ class ApplicantController extends Controller
         }
         return $sectionRules;
     }
-
     /**
      * Helper method to sync HasMany relationships for a specific section.
      * This will DELETE all existing records for the relationship and RECREATE them
@@ -660,14 +862,14 @@ class ApplicantController extends Controller
                     foreach ($fieldsToCreate as $field) {
                         $createData[$field] = $data[$field] ?? null;
                     }
-                    
+
                     // Add 'order' to maintain insertion order if needed
                     $createData['order'] = $index + 1;
 
                     // Special handling for date and year fields
                     foreach ($createData as $key => $val) {
                         if (Str::endsWith($key, '_date') && $val) {
-                            $createData[$key] = \Carbon\Carbon::parse($val)->format('Y-m-d');
+                            $createData[$key] = Carbon::parse($val)->format('Y-m-d');
                         }
                         if (Str::endsWith($key, '_year') && $val) {
                             $createData[$key] = intval($val);
@@ -679,6 +881,60 @@ class ApplicantController extends Controller
         }
     }
 
+    protected function syncFixedContactPersons($applicant, $requestData)
+    {
+        // Ensure $requestData is an array, even if empty
+        $requestData = is_array($requestData) ? array_values($requestData) : [];
+
+        // Get existing contact persons for this applicant, indexed by ID if possible
+        $existingContactPersons = $applicant->contactPersons->keyBy('id');
+
+        $processedIds = []; // To keep track of existing IDs that were updated
+
+        for ($i = 0; $i < 4; $i++) {
+            $data = $requestData[$i] ?? []; // Get data for this slot, or an empty array
+
+            // If all fields for this slot are empty, and it corresponds to an existing record, delete it.
+            // Check if there's actual data for this slot in the request after trimming
+            $hasData = false;
+            foreach (['name', 'gender', 'address', 'phone_no', 'relationship', 'occupation'] as $field) {
+                if (!empty(trim($data[$field] ?? ''))) {
+                    $hasData = true;
+                    break;
+                }
+            }
+
+            // Determine the 'type' based on index (0, 1 for Keluarga; 2, 3 for Teman)
+            $type = ($i < 2) ? 'Keluarga' : 'Teman';
+            $data['type'] = $type; // Ensure type is always set for the database
+
+            if ($hasData) {
+                // Try to find by ID if it exists in the request data
+                $contactPersonId = $data['id'] ?? null;
+                $contactPerson = null;
+
+                if ($contactPersonId && $existingContactPersons->has($contactPersonId)) {
+                    $contactPerson = $existingContactPersons->pull($contactPersonId); // Remove from remaining existing
+                    $contactPerson->update($data);
+                } else {
+                    // Create new if no ID or ID not found
+                    $applicant->contactPersons()->create($data);
+                }
+            } else {
+                // If no data for this slot, and it corresponds to an existing record, delete it.
+                // This scenario means a user cleared out a previously saved fixed contact.
+                $contactPersonId = $data['id'] ?? null;
+                if ($contactPersonId && $existingContactPersons->has($contactPersonId)) {
+                    $existingContactPersons->pull($contactPersonId)->delete();
+                }
+            }
+        }
+
+        // Any remaining records in $existingContactPersons were not in the requestData (i.e., removed from the form), so delete them.
+        foreach ($existingContactPersons as $remainingCp) {
+            $remainingCp->delete();
+        }
+    }
 
     /**
      * Define common validation rules for create and update.
@@ -871,19 +1127,41 @@ class ApplicantController extends Controller
         // Health Declaration (hasOne relationship)
         // This needs specific handling as it's not a dynamic list but a single related record.
         $healthData = $request->only([
-            'weight_kg', 'height_cm', 'has_medical_condition', 'medical_condition_explanation',
-            'resigned_due_to_health', 'resigned_due_to_health_explanation', 'failed_pre_employment_exam',
-            'failed_pre_employment_exam_explanation', 'undergoing_treatment_or_surgery', 'treatment_or_surgery_explanation',
-            'under_medical_supervision', 'medical_supervision_explanation', 'on_regular_medication',
-            'regular_medication_explanation', 'has_allergies', 'allergies_explanation',
-            'absent_due_to_health_12_months', 'absent_due_to_health_explanation', 'had_accident',
-            'accident_explanation', 'is_pregnant', 'pregnancy_week' // Removed declaration_agreed and declaration_date as they are in Applicant model
+            'weight_kg',
+            'height_cm',
+            'has_medical_condition',
+            'medical_condition_explanation',
+            'resigned_due_to_health',
+            'resigned_due_to_health_explanation',
+            'failed_pre_employment_exam',
+            'failed_pre_employment_exam_explanation',
+            'undergoing_treatment_or_surgery',
+            'treatment_or_surgery_explanation',
+            'under_medical_supervision',
+            'medical_supervision_explanation',
+            'on_regular_medication',
+            'regular_medication_explanation',
+            'has_allergies',
+            'allergies_explanation',
+            'absent_due_to_health_12_months',
+            'absent_due_to_health_explanation',
+            'had_accident',
+            'accident_explanation',
+            'is_pregnant',
+            'pregnancy_week' // Removed declaration_agreed and declaration_date as they are in Applicant model
         ]);
         // Handle booleans for health data
         $healthBooleanFields = [
-            'has_medical_condition', 'resigned_due_to_health', 'failed_pre_employment_exam',
-            'undergoing_treatment_or_surgery', 'under_medical_supervision', 'on_regular_medication',
-            'has_allergies', 'absent_due_to_health_12_months', 'had_accident', 'is_pregnant',
+            'has_medical_condition',
+            'resigned_due_to_health',
+            'failed_pre_employment_exam',
+            'undergoing_treatment_or_surgery',
+            'under_medical_supervision',
+            'on_regular_medication',
+            'has_allergies',
+            'absent_due_to_health_12_months',
+            'had_accident',
+            'is_pregnant',
         ];
         foreach ($healthBooleanFields as $field) {
             $healthData[$field] = $request->has($field) ? 1 : 0;
@@ -912,10 +1190,6 @@ class ApplicantController extends Controller
             'family_members' => [
                 'relation' => 'familyMembers',
                 'fields' => ['name', 'relationship', 'gender', 'place_of_birth', 'date_of_birth', 'education', 'occupation']
-            ],
-            'contact_persons' => [
-                'relation' => 'contactPersons',
-                'fields' => ['type', 'name', 'gender', 'address', 'phone_no', 'relationship', 'occupation']
             ],
             'education_history' => [
                 'relation' => 'educationHistory',
@@ -954,8 +1228,57 @@ class ApplicantController extends Controller
         foreach ($dynamicSectionsMapping as $requestKey => $map) {
             $relationName = $map['relation'];
             $fieldsToCreate = $map['fields'];
-            
+
             $this->syncSectionHasMany($applicant, $relationName, $request->input($requestKey), $fieldsToCreate);
+        }
+        $this->syncFixedContactPersons($applicant, $request->input('fixed_contact_persons'));
+        $healthData = $request->only([
+            'weight_kg',
+            'height_cm',
+            'has_medical_condition',
+            'medical_condition_explanation',
+            'resigned_due_to_health',
+            'resigned_due_to_health_explanation',
+            'failed_pre_employment_exam',
+            'failed_pre_employment_exam_explanation',
+            'undergoing_treatment_or_surgery',
+            'treatment_or_surgery_explanation',
+            'under_medical_supervision',
+            'medical_supervision_explanation',
+            'on_regular_medication',
+            'regular_medication_explanation',
+            'has_allergies',
+            'allergies_explanation',
+            'absent_due_to_health_12_months',
+            'absent_due_to_health_explanation',
+            'had_accident',
+            'accident_explanation',
+            'is_pregnant',
+            'pregnancy_week'
+        ]);
+        $healthBooleanFields = [
+            'has_medical_condition',
+            'resigned_due_to_health',
+            'failed_pre_employment_exam',
+            'undergoing_treatment_or_surgery',
+            'under_medical_supervision',
+            'on_regular_medication',
+            'has_allergies',
+            'absent_due_to_health_12_months',
+            'had_accident',
+            'is_pregnant',
+        ];
+        foreach ($healthBooleanFields as $field) {
+            $healthData[$field] = $request->has($field) ? 1 : 0;
+        }
+
+        if (array_filter($healthData)) {
+            $applicant->healthDeclaration()->updateOrCreate(
+                ['applicant_id' => $applicant->id],
+                $healthData
+            );
+        } else if ($applicant->healthDeclaration) {
+            $applicant->healthDeclaration()->delete();
         }
     }
 }

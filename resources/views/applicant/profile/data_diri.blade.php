@@ -199,7 +199,7 @@
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center active"
                         data-bs-toggle="collapse" data-bs-target="#dataPribadiCollapse" aria-expanded="true"
-                        style="cursor: pointer;">
+                        style="cursor: pointer;"id="mainCardHeaderToggle">
                         <h5 class="mb-0">
                             <i class="fas fa-user me-2"></i>Data Pribadi<span class="required">*</span>
                         </h5>
@@ -242,13 +242,6 @@
 
                                 <div class="accordion" id="accordionInformasiUtama">
                                     <div class="accordion-item">
-                                        <h2 class="accordion-header" id="headingInformasiUtama">
-                                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                                data-bs-target="#collapseInformasiUtama" aria-expanded="true"
-                                                aria-controls="collapseInformasiUtama">
-                                                Informasi Utama
-                                            </button>
-                                        </h2>
                                         <div id="collapseInformasiUtama" class="accordion-collapse collapse show"
                                             aria-labelledby="headingInformasiUtama"
                                             data-bs-parent="#accordionInformasiUtama">
@@ -618,7 +611,6 @@
                                                             <select class="form-select" id="marital_status"
                                                                 name="marital_status" required>
                                                                 <option value="">Pilih Status Pernikahan</option>
-                                                                {{-- Opsi Status Pernikahan (Hardcode) --}}
                                                                 <option value="Belum menikah"
                                                                     {{ old('marital_status', $applicant->marital_status) == 'Belum menikah' ? 'selected' : '' }}>
                                                                     Belum Menikah</option>
@@ -628,29 +620,34 @@
                                                                 <option value="Janda-Duda"
                                                                     {{ old('marital_status', $applicant->marital_status) == 'Janda-Duda' ? 'selected' : '' }}>
                                                                     Janda-Duda</option>
-                                                                {{-- Akhir Opsi Status Pernikahan --}}
                                                             </select>
                                                             <div class="error-message"></div>
                                                         </div>
+
+                                                        {{-- Pastikan div ini ada dan ID-nya benar --}}
                                                         <div class="mb-3" id="marriedDateGroup"
-                                                            style="display: none;">
+                                                            style="display: {{ old('marital_status', $applicant->marital_status) == 'Menikah' ? 'block' : 'none' }};">
                                                             <label for="married_since_date" class="form-label">
                                                                 Menikah Sejak Tanggal <span class="required">*</span>
                                                             </label>
                                                             <input type="date" class="form-control"
                                                                 id="married_since_date" name="married_since_date"
-                                                                value="{{ old('married_since_date', $applicant->married_since_date ? $applicant->married_since_date->format('Y-m-d') : '') }}">
+                                                                value="{{ old('married_since_date', $applicant->married_since_date ? $applicant->married_since_date->format('Y-m-d') : '') }}"
+                                                                {{ old('marital_status', $applicant->marital_status) == 'Menikah' ? 'required' : '' }}>
                                                             <div class="error-message"></div>
                                                         </div>
+
+                                                        {{-- Dan div ini juga --}}
                                                         <div class="mb-3" id="widowedDateGroup"
-                                                            style="display: none;">
+                                                            style="display: {{ old('marital_status', $applicant->marital_status) == 'Janda-Duda' ? 'block' : 'none' }};">
                                                             <label for="widowed_since_date" class="form-label">
                                                                 Duda/Janda Sejak Tanggal <span
                                                                     class="required">*</span>
                                                             </label>
                                                             <input type="date" class="form-control"
                                                                 id="widowed_since_date" name="widowed_since_date"
-                                                                value="{{ old('widowed_since_date', $applicant->widowed_since_date ? $applicant->widowed_since_date->format('Y-m-d') : '') }}">
+                                                                value="{{ old('widowed_since_date', $applicant->widowed_since_date ? $applicant->widowed_since_date->format('Y-m-d') : '') }}"
+                                                                {{ old('marital_status', $applicant->marital_status) == 'Janda-Duda' ? 'required' : '' }}>
                                                             <div class="error-message"></div>
                                                         </div>
                                                     </div>
@@ -760,13 +757,14 @@
             } else {
                 // Ensure the correct default image is shown if no file is selected and there's no old image
                 const existingProfileImage = "{{ old('profile_image', $applicant->profile_image) }}";
-                if (existingProfileImage) {
+                if (existingProfileImage && existingProfileImage !== 'https://via.placeholder.com/80x80?text=?') {
                     profilePreview.src = existingProfileImage;
                     profilePreview.style.display = 'block';
                     uploadAreaContainer.style.display = 'none';
-                    // Update file info for existing image
+
+                    // Extract file name if possible, or just indicate existing
                     const oldFileName = existingProfileImage.substring(existingProfileImage.lastIndexOf('/') +
-                    1); // Simple extraction
+                        1); // Simple extraction
                     fileInfo.innerHTML = `
                     Syarat: format jpg / png maks. 2 MB<br>
                     File: <strong>${oldFileName}</strong> (Ukuran: N/A - existing file)<br>
@@ -783,6 +781,7 @@
                 }
             }
         }
+
 
         // Call on page load to set the initial state of the profile image display
         function updateProfileImageDisplay() {
@@ -814,6 +813,7 @@
 
         // Fungsi untuk validasi satu field (menambah/menghapus kelas is-invalid)
         function validateField(inputElement) {
+            console.log(`Validating field: ${inputElement.id || inputElement.name}`); // Log which field is being validated
             let isValid = true;
             const errorMessageElement = inputElement.parentElement.querySelector('.error-message');
 
@@ -826,6 +826,7 @@
                 } else {
                     isValid = inputElement.value.trim() !== '';
                 }
+
             }
 
             if (!isValid) {
@@ -833,11 +834,14 @@
                 if (errorMessageElement) {
                     errorMessageElement.textContent = inputElement.validationMessage || 'Field ini wajib diisi.';
                     errorMessageElement.style.display = 'block';
+                    console.log(
+                    `Error for ${inputElement.id || inputElement.name}: ${errorMessageElement.textContent}`); // Log the error message
                 }
             } else {
                 inputElement.classList.remove('is-invalid');
                 if (errorMessageElement) {
                     errorMessageElement.style.display = 'none';
+                    console.log(`Field ${inputElement.id || inputElement.name} is valid.`); // Log if valid
                 }
             }
             return isValid;
@@ -906,9 +910,12 @@
             // Validasi khusus untuk tanggal terkait status pernikahan
             const maritalStatusSelect = document.getElementById('marital_status');
             if (maritalStatusSelect) {
+                console.log('Marital Status Select element found during full validation.');
+
                 if (maritalStatusSelect.value === 'Menikah') {
                     const marriedSinceDate = document.getElementById('married_since_date');
-                    if (marriedSinceDate && marriedSinceDate.value.trim() === '') {
+                    if (marriedSinceDate && marriedSinceDate.hasAttribute('required') && marriedSinceDate.value.trim() ===
+                        '') {
                         marriedSinceDate.classList.add('is-invalid');
                         const errorMsg = marriedSinceDate.parentElement.querySelector('.error-message');
                         if (errorMsg) {
@@ -923,7 +930,8 @@
                     }
                 } else if (maritalStatusSelect.value === 'Janda-Duda') {
                     const widowedSinceDate = document.getElementById('widowed_since_date');
-                    if (widowedSinceDate && widowedSinceDate.value.trim() === '') {
+                    if (widowedSinceDate && widowedSinceDate.hasAttribute('required') && widowedSinceDate.value.trim() ===
+                        '') {
                         widowedSinceDate.classList.add('is-invalid');
                         const errorMsg = widowedSinceDate.parentElement.querySelector('.error-message');
                         if (errorMsg) {
@@ -938,9 +946,9 @@
                     }
                 }
             }
-
             return allFormValid;
         }
+
 
         // Fungsi untuk mengelola state collapse header
         function setupAccordionHeaderToggle(headerId, collapseId) {
@@ -979,7 +987,7 @@
                     event.preventDefault(); // Mencegah submit form utama
                     const sectionName = this.dataset.section;
                     const sectionAccordionBody = this.closest(
-                    '.accordion-body'); // Dapatkan body accordion section ini
+                        '.accordion-body'); // Dapatkan body accordion section ini
                     const form = document.getElementById('biodataForm');
                     const formData = new FormData();
 
@@ -990,7 +998,9 @@
 
                     inputsInThisSection.forEach(input => {
                         // Validate individual field (client-side)
-                        if (input.hasAttribute('required') && !validateField(input)) {
+                        // Only validate if the input is visible and required
+                        if (input.hasAttribute('required') && input.offsetParent !== null && !
+                            validateField(input)) {
                             sectionValid = false;
                         }
 
@@ -1010,7 +1020,7 @@
                                         'placeholder.com') && !input.files.length) {
                                     // If placeholder image is shown and no new file, it means the image was potentially cleared
                                     formData.append('profile_image_cleared',
-                                    '1'); // Send a flag to backend to clear image
+                                        '1'); // Send a flag to backend to clear image
                                 }
                             } else if (input.type === 'radio') {
                                 if (input.checked) {
@@ -1031,6 +1041,42 @@
                         }
                     });
 
+                    // Handle radio groups that are conditionally required but might not be caught by individual input validation
+                    const radioGroupsInThisSection = ['gender', 'marital_status',
+                    'job_vacancy_source']; // Add more as needed
+                    radioGroupsInThisSection.forEach(groupName => {
+                        const radioElements = sectionAccordionBody.querySelectorAll(
+                            `input[name="${groupName}"]`);
+                        if (radioElements.length > 0) {
+                            const isChecked = sectionAccordionBody.querySelector(
+                                `input[name="${groupName}"]:checked`);
+                            if (radioElements[0].hasAttribute('required') && !isChecked) {
+                                // If required and not checked, mark as invalid
+                                radioElements.forEach(radio => radio.classList.add(
+                                    'is-invalid'));
+                                const parentDiv = radioElements[0].closest('.mb-3');
+                                const errorDiv = parentDiv ? parentDiv.querySelector(
+                                    '.error-message') : null;
+                                if (errorDiv) {
+                                    errorDiv.textContent = 'Field ini wajib dipilih.';
+                                    errorDiv.style.display = 'block';
+                                }
+                                sectionValid = false;
+                            } else if (isChecked) {
+                                // If checked, remove invalid state
+                                radioElements.forEach(radio => radio.classList.remove(
+                                    'is-invalid'));
+                                const parentDiv = radioElements[0].closest('.mb-3');
+                                const errorDiv = parentDiv ? parentDiv.querySelector(
+                                    '.error-message') : null;
+                                if (errorDiv) {
+                                    errorDiv.style.display = 'none';
+                                }
+                            }
+                        }
+                    });
+
+
                     // Add CSRF token for AJAX requests
                     formData.append('_token', document.querySelector('meta[name="csrf-token"]')
                         .getAttribute('content'));
@@ -1039,13 +1085,13 @@
                     // For a typical "save section", POST is fine for create/update on the backend via updateOrCreate.
                     // If you explicitly want PUT for updates, you'd need to adjust.
                     formData.append('_method',
-                    'POST'); // Explicitly set _method to POST for Laravel route to work
+                        'POST'); // Explicitly set _method to POST for Laravel route to work
 
                     // Kirim melalui AJAX hanya jika validasi client-side sukses
                     if (sectionValid) {
                         try {
                             const url =
-                            `{{ url('/dashboard/save-section') }}/${sectionName}`; // Corrected URL
+                                `{{ url('/dashboard/save-section') }}/${sectionName}`; // Corrected URL
                             const response = await fetch(url, {
                                 method: 'POST', // Always POST for these section saves
                                 body: formData
@@ -1097,40 +1143,16 @@
                                             `[name="${fieldSelector}"]`);
 
                                         // Fallback for radio groups if direct name selector doesn't work well
-                                        if (!fieldElement && field.includes('.')) {
-                                            const parts = field.split('.');
-                                            if (parts.length >= 2 && !isNaN(parseInt(parts[
-                                                1]))) { // Likely a dynamic array item
-                                                const baseName = parts[0]; // e.g., dependents
-                                                const index = parseInt(parts[1]); // e.g., 0
-                                                const propName = parts[2]; // e.g., name
-
-                                                const dynamicInputGroups = sectionAccordionBody
-                                                    .querySelectorAll('.dynamic-input-group');
-                                                if (dynamicInputGroups[index]) {
-                                                    fieldElement = dynamicInputGroups[index]
-                                                        .querySelector(
-                                                            `[name="${baseName}[${index}][${propName}]"]`
-                                                            );
-                                                    // For radios, you might need to target any radio within that group
-                                                    if (!fieldElement && propName === 'gender' &&
-                                                        dynamicInputGroups[index].querySelector(
-                                                            `input[name="${baseName}[${index}][${propName}]"]`
-                                                            )) {
-                                                        fieldElement = dynamicInputGroups[index]
-                                                            .querySelector(
-                                                                `input[name="${baseName}[${index}][${propName}]"]`
-                                                                );
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        // General fallback for radio groups not tied to dynamic input groups
-                                        if (!fieldElement && field.includes('has_medical_condition') ||
-                                            field.includes('is_pregnant')) { // Example
+                                        if (!fieldElement && (field.includes('gender') || field
+                                                .includes(
+                                                    'has_medical_condition') || field.includes(
+                                                    'is_pregnant')
+                                                // Add other radio group names here if needed
+                                            )) {
                                             fieldElement = sectionAccordionBody.querySelector(
                                                 `input[name="${field}"]`);
                                         }
+
 
                                         if (fieldElement) {
                                             fieldElement.classList.add('is-invalid');
@@ -1773,7 +1795,7 @@
                                 input.checked = false;
                             } else if (input.tagName === 'SELECT') {
                                 input.selectedIndex =
-                                0; // Reset select to first option (usually "Pilih...")
+                                    0; // Reset select to first option (usually "Pilih...")
                             } else {
                                 input.value = '';
                             }
@@ -1932,7 +1954,7 @@
 
                             // Special handling for radio buttons if direct selection fails
                             if (!fieldElement && (field.includes('gender') || field.includes(
-                                    'has_medical_condition'))) {
+                                    'has_medical_condition') || field.includes('is_pregnant'))) {
                                 // Try to find any radio button in the group
                                 fieldElement = form.querySelector(`input[name="${queryName}"]`);
                             }
@@ -1940,7 +1962,7 @@
                             if (fieldElement) {
                                 fieldElement.classList.add('is-invalid');
                                 let errorMessageDiv = fieldElement.parentElement.querySelector(
-                                '.error-message');
+                                    '.error-message');
                                 // Fallback for radio buttons if error message isn't directly next to input
                                 if (!errorMessageDiv && fieldElement.closest('.form-check-inline')) {
                                     errorMessageDiv = fieldElement.closest('.mb-3').querySelector(
@@ -1973,156 +1995,78 @@
         });
 
 
-        // On DOMContentLoaded, render existing data or 'old' data
         document.addEventListener('DOMContentLoaded', function() {
             // Initial call for profile image display
             updateProfileImageDisplay();
             setupSectionSaveButtons();
+
             // Setup for main card header toggle (the first one)
-            const mainCardHeader = document.querySelector('.card-header[data-bs-toggle="collapse"]');
+            const mainCardHeader = document.getElementById('mainCardHeaderToggle'); // Get by its specific ID
             if (mainCardHeader) {
                 const targetCollapseId = mainCardHeader.dataset.bsTarget.substring(1); // Remove '#'
                 setupAccordionHeaderToggle(mainCardHeader.id, targetCollapseId);
             }
 
-            // Data for dynamic sections (using data from controller)
-            const dynamicSectionsData = {
-                'dependents-container': {
-                    type: 'dependents',
-                    fields: dependentFields,
-                    data: @json($dependentsData ?? old('dependents', []))
-                },
-                'family-members-container': {
-                    type: 'family_members',
-                    fields: familyMemberFields,
-                    data: @json($familyMembersData ?? old('family_members', []))
-                },
-                'contact-persons-container': {
-                    type: 'contact_persons',
-                    fields: contactPersonFields,
-                    data: @json($contactPersonsData ?? old('contact_persons', []))
-                },
-                'education-history-container': {
-                    type: 'education_history',
-                    fields: educationFields,
-                    data: @json($educationHistoryData ?? old('education_history', []))
-                },
-                'organizational-experience-container': {
-                    type: 'organizational_experience',
-                    fields: organizationalExperienceFields,
-                    data: @json($organizationalExperienceData ?? old('organizational_experience', []))
-                },
-                'training-courses-container': {
-                    type: 'training_courses',
-                    fields: trainingCoursesFields,
-                    data: @json($trainingCoursesData ?? old('training_courses', []))
-                },
-                'languages-container': {
-                    type: 'languages',
-                    fields: languageFields,
-                    data: @json($languagesData ?? old('languages', []))
-                },
-                'computer-skills-container': {
-                    type: 'computer_skills',
-                    fields: computerSkillFields,
-                    data: @json($computerSkillsData ?? old('computer_skills', []))
-                },
-                'publications-container': {
-                    type: 'publications',
-                    fields: publicationFields,
-                    data: @json($publicationsData ?? old('publications', []))
-                },
-                'work-experience-container': {
-                    type: 'work_experience',
-                    fields: workExperienceFields,
-                    data: @json($workExperienceData ?? old('work_experience', []))
-                },
-                'work-achievements-container': {
-                    type: 'work_achievements',
-                    fields: workAchievementFields,
-                    data: @json($workAchievementsData ?? old('work_achievements', []))
-                }
-            };
-
-            for (const containerId in dynamicSectionsData) {
-                const section = dynamicSectionsData[containerId];
-                const containerElement = document.getElementById(containerId);
-                // Store itemType on the container for reindexing later
-                if (containerElement) {
-                    containerElement.dataset.itemType = section.type;
-                }
-
-                if (section.data && section.data.length > 0) {
-                    section.data.forEach((itemData, index) => {
-                        addDynamicInputGroup(containerId, section.type, section.fields, itemData, index);
-                    });
-                } else {
-                    addDynamicInputGroup(containerId, section.type, section.fields, {}); // Add one empty by default
-                }
-            }
 
 
             // Initial setup for marital status date inputs
             const maritalStatusSelect = document.getElementById('marital_status');
+
             if (maritalStatusSelect) {
                 maritalStatusSelect.addEventListener('change', function() {
                     const marriedDateGroup = document.getElementById('marriedDateGroup');
                     const widowedDateGroup = document.getElementById('widowedDateGroup');
+                    const marriedInput = document.getElementById('married_since_date');
+                    const widowedInput = document.getElementById('widowed_since_date');
 
                     if (this.value === 'Menikah') {
                         if (marriedDateGroup) {
                             marriedDateGroup.style.display = 'block';
-                            const marriedInput = marriedDateGroup.querySelector('input');
                             if (marriedInput) marriedInput.setAttribute('required', 'required');
                         }
                         if (widowedDateGroup) {
                             widowedDateGroup.style.display = 'none';
-                            const widowedInput = widowedDateGroup.querySelector('input');
                             if (widowedInput) {
                                 widowedInput.removeAttribute('required');
-                                widowedInput.value = '';
-                                validateField(widowedInput);
+                                widowedInput.value = ''; // Clear value when hidden
+                                validateField(widowedInput); // Re-validate to clear error styling
                             }
                         }
                     } else if (this.value === 'Janda-Duda') {
                         if (marriedDateGroup) {
                             marriedDateGroup.style.display = 'none';
-                            const marriedInput = marriedDateGroup.querySelector('input');
                             if (marriedInput) {
                                 marriedInput.removeAttribute('required');
-                                marriedInput.value = '';
-                                validateField(marriedInput);
+                                marriedInput.value = ''; // Clear value when hidden
+                                validateField(marriedInput); // Re-validate to clear error styling
                             }
                         }
                         if (widowedDateGroup) {
                             widowedDateGroup.style.display = 'block';
-                            const widowedInput = widowedDateGroup.querySelector('input');
                             if (widowedInput) widowedInput.setAttribute('required', 'required');
                         }
-                    } else { // Belum menikah
+                    } else { // Belum menikah (Not married)
                         if (marriedDateGroup) {
                             marriedDateGroup.style.display = 'none';
-                            const marriedInput = marriedDateGroup.querySelector('input');
                             if (marriedInput) {
                                 marriedInput.removeAttribute('required');
-                                marriedInput.value = '';
-                                validateField(marriedInput);
+                                marriedInput.value = ''; // Clear value when hidden
+                                validateField(marriedInput); // Re-validate to clear error styling
                             }
                         }
                         if (widowedDateGroup) {
                             widowedDateGroup.style.display = 'none';
-                            const widowedInput = widowedDateGroup.querySelector('input');
                             if (widowedInput) {
                                 widowedInput.removeAttribute('required');
-                                widowedInput.value = '';
-                                validateField(widowedInput);
+                                widowedInput.value = ''; // Clear value when hidden
+                                validateField(widowedInput); // Re-validate to clear error styling
                             }
                         }
                     }
                     // Trigger validation for marital status select itself
                     validateField(this);
                 });
-                maritalStatusSelect.dispatchEvent(new Event('change')); // Trigger on load
+                maritalStatusSelect.dispatchEvent(new Event('change')); // Trigger on load to set initial state
             }
 
             // Add event listeners 'input' and 'change' for all required inputs for real-time validation

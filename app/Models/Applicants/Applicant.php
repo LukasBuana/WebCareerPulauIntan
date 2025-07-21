@@ -156,6 +156,7 @@ class Applicant extends Model
         return $this->hasMany(ContactPerson::class, 'applicant_id');
     }
 
+
     /**
      * Get the education history for the applicant.
      */
