@@ -81,7 +81,7 @@ class AdminNewsController extends Controller
     public function update(Request $request, News $news)
     {
         $request->validate([
-            'title' => 'required|string|max:100',
+            'title' => 'required|string|max:256',
             'subtitle' => 'required|string|max:100',
             'category' => 'required|string|max:100',
             'description' => 'required|string',
