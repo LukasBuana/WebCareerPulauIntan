@@ -582,53 +582,7 @@
     </style>
 </head>
 <body>
-    <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <a href="#" class="logo">
-                    <div>
-                        <div class="logo-text">Pulau</div>
-                        <div class="logo-subtitle">INTAN</div>
-                    </div>
-                </a>
-
-                <nav>
-                    <ul class="nav-menu" id="navMenu">
-                        <li class="nav-item">
-                            <a href="#beranda" class="nav-link active">Beranda</a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#tentang" class="nav-link">Tentang</a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#berita" class="nav-link">Berita</a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#lowongan" class="nav-link">Lowongan</a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#bursa-kerja" class="nav-link">Bursa Kerja</a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#faq" class="nav-link">Tanya Jawab</a>
-                        </li>
-                    </ul>
-                </nav>
-
-                <div class="header-actions">
-                    <a href="login" class="btn-masuk">Masuk</a>
-                    <div class="language-selector">
-                        <div class="flag-icon"></div>
-                        <span>Indonesia</span>
-                        <span class="dropdown-arrow">▼</span>
-                    </div>
-                    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
-                        ☰
-                    </button>
-                </div>
-            </div>
-        </div>
-    </header>
+    @include('beranda.header_user')
 
     <main>
         <section class="hero-section" id="beranda">

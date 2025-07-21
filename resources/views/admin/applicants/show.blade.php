@@ -210,6 +210,15 @@
                                         <strong>No. NPWP:</strong>
                                         <p>{{ $applicant->npwp_number ?? '-' }}</p>
                                     </div>
+                                    <div class="detail-item">
+                                        <strong>No. SIM:</strong>
+                                        <p>{{ $applicant->license_number ?? '-' }}</p>
+                                    </div>
+                                    <div class="detail-item">
+                                        <strong>Tanggal Kadaluarsa SIM:</strong>
+                                        <p>{{ $applicant->license_expiry_date ? \Carbon\Carbon::parse($applicant->license_expiry_date)->format('d M Y') : '-' }}
+                                        </p>
+                                    </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="detail-item">
@@ -220,15 +229,7 @@
                                         <strong>No. BPJS Ketenagakerjaan:</strong>
                                         <p>{{ $applicant->bpjs_employment_number ?? '-' }}</p>
                                     </div>
-                                    <div class="detail-item">
-                                        <strong>No. SIM:</strong>
-                                        <p>{{ $applicant->license_number ?? '-' }}</p>
-                                    </div>
-                                    <div class="detail-item">
-                                        <strong>Tanggal Kadaluarsa SIM:</strong>
-                                        <p>{{ $applicant->license_expiry_date ? \Carbon\Carbon::parse($applicant->license_expiry_date)->format('d M Y') : '-' }}
-                                        </p>
-                                    </div>
+                                    
                                 </div>
                             </div>
 
@@ -250,6 +251,9 @@
                                                     <p>{{ $dependent->gender == 'L' ? 'Laki-laki' : ($dependent->gender == 'P' ? 'Perempuan' : '-') }}
                                                     </p>
                                                 </div>
+                                                <div class="detail-item"><strong>Pekerjaan:</strong>
+                                                    <p>{{ $dependent->occupation ?? '-' }}</p>
+                                                </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="detail-item"><strong>Tempat Lahir:</strong>
@@ -262,9 +266,7 @@
                                                 <div class="detail-item"><strong>Pendidikan:</strong>
                                                     <p>{{ $dependent->education ?? '-' }}</p>
                                                 </div>
-                                                <div class="detail-item"><strong>Pekerjaan:</strong>
-                                                    <p>{{ $dependent->occupation ?? '-' }}</p>
-                                                </div>
+                                                
                                             </div>
                                         </div>
                                     </div>
@@ -273,8 +275,35 @@
                                 <p>Tidak ada data tanggungan.</p>
                             @endif
 
+                           {{-- START: Updated Section V for Emergency Contact --}}
+                            <h3 class="section-header">V. Kontak Person Darurat</h3>
+                            @if ($applicant->emergency_contact_name) {{-- Check if emergency contact data exists --}}
+                                <div class="row">
+                                <div class="col-md-6">
+                                    <div class="detail-item">
+                                        <strong>Nama:</strong>
+                                                <p>{{ $applicant->emergency_contact_name ?? '-' }}</p>
+                                    </div>
+                                    <div class="detail-item"><strong>Alamat:</strong>
+                                                <p>{{ $applicant->emergency_contact_address ?? '-' }}</p>
+                                            </div>
+                                </div>
+                                <div class="col-md-6">
+                                     <div class="detail-item"><strong>No. Telepon:</strong>
+                                                <p>{{ $applicant->emergency_contact_phone ?? '-' }}</p>
+                                            </div>
+                                            <div class="detail-item"><strong>Hubungan:</strong>
+                                                <p>{{ $applicant->emergency_contact_relationship ?? '-' }}</p>
+                                            </div>
+                                    
+                                </div>
+                            </div>
+                            @else
+                                <p>Tidak ada data kontak person darurat.</p>
+                            @endif
+
                             {{-- Dynamic Section: Family Members --}}
-                            <h3 class="section-header">V. Susunan Keluarga (Ayah, Ibu, Saudara Kandung)</h3>
+                            <h3 class="section-header">VI. Susunan Keluarga (Ayah, Ibu, Saudara Kandung)</h3>
                             @if ($applicant->familyMembers->isNotEmpty())
                                 @foreach ($applicant->familyMembers as $familyMember)
                                     <div class="detail-card mb-3 bg-light">
@@ -291,6 +320,9 @@
                                                     <p>{{ $familyMember->gender == 'L' ? 'Laki-laki' : ($familyMember->gender == 'P' ? 'Perempuan' : '-') }}
                                                     </p>
                                                 </div>
+                                                <div class="detail-item"><strong>Pekerjaan:</strong>
+                                                    <p>{{ $familyMember->occupation ?? '-' }}</p>
+                                                </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="detail-item"><strong>Tempat Lahir:</strong>
@@ -303,9 +335,7 @@
                                                 <div class="detail-item"><strong>Pendidikan:</strong>
                                                     <p>{{ $familyMember->education ?? '-' }}</p>
                                                 </div>
-                                                <div class="detail-item"><strong>Pekerjaan:</strong>
-                                                    <p>{{ $familyMember->occupation ?? '-' }}</p>
-                                                </div>
+                                                
                                             </div>
                                         </div>
                                     </div>
@@ -315,7 +345,7 @@
                             @endif
 
                             {{-- Dynamic Section: Contact Persons --}}
-                            <h3 class="section-header">VI. Kontak Person Darurat</h3>
+                            <h3 class="section-header">VII. Kontak Person</h3>
                             @if ($applicant->contactPersons->isNotEmpty())
                                 @foreach ($applicant->contactPersons as $contactPerson)
                                     <div class="detail-card mb-3 bg-light">
@@ -355,7 +385,7 @@
                             @endif
 
                             {{-- Dynamic Section: Education History --}}
-                            <h3 class="section-header">VII. Riwayat Pendidikan</h3>
+                            <h3 class="section-header">VIII. Riwayat Pendidikan</h3>
                             @if ($applicant->educationHistory->isNotEmpty())
                                 @foreach ($applicant->educationHistory as $edu)
                                     <div class="detail-card mb-3 bg-light">
@@ -389,7 +419,7 @@
                             @endif
 
                             {{-- Dynamic Section: Organizational Experience --}}
-                            <h3 class="section-header">VIII. Pengalaman Organisasi</h3>
+                            <h3 class="section-header">IX. Pengalaman Organisasi</h3>
                             @if ($applicant->organizationalExperience->isNotEmpty())
                                 @foreach ($applicant->organizationalExperience as $org)
                                     <div class="detail-card mb-3 bg-light">
@@ -416,7 +446,7 @@
                             @endif
 
                             {{-- Dynamic Section: Training Courses --}}
-                            <h3 class="section-header">IX. Pengalaman Kursus & Training</h3>
+                            <h3 class="section-header">X. Pengalaman Kursus & Training</h3>
                             @if ($applicant->trainingCourses->isNotEmpty())
                                 @foreach ($applicant->trainingCourses as $training)
                                     <div class="detail-card mb-3 bg-light">
@@ -446,7 +476,7 @@
                             @endif
 
                             {{-- Dynamic Section: Languages --}}
-                            <h3 class="section-header">X. Bahasa Asing yang Dikuasai</h3>
+                            <h3 class="section-header">XI. Bahasa Asing yang Dikuasai</h3>
                             @if ($applicant->languages->isNotEmpty())
                                 @foreach ($applicant->languages as $language)
                                     <div class="detail-card mb-3 bg-light">
@@ -477,7 +507,7 @@
                             @endif
 
                             {{-- Dynamic Section: Computer Skills --}}
-                            <h3 class="section-header">XI. Keterampilan Komputer</h3>
+                            <h3 class="section-header">XII. Keterampilan Komputer</h3>
                             @if ($applicant->computerSkills->isNotEmpty())
                                 @foreach ($applicant->computerSkills as $skill)
                                     <div class="detail-card mb-3 bg-light">
@@ -501,7 +531,7 @@
                             @endif
 
                             {{-- Dynamic Section: Publications --}}
-                            <h3 class="section-header">XII. Publikasi</h3>
+                            <h3 class="section-header">XIII. Publikasi</h3>
                             @if ($applicant->publications->isNotEmpty())
                                 @foreach ($applicant->publications as $publication)
                                     <div class="detail-card mb-3 bg-light">
@@ -525,7 +555,7 @@
                             @endif
 
                             {{-- Dynamic Section: Work Experience --}}
-                            <h3 class="section-header">XIII. Pengalaman Kerja</h3>
+                            <h3 class="section-header">XIV. Pengalaman Kerja</h3>
                             @if ($applicant->workExperience->isNotEmpty())
                                 @foreach ($applicant->workExperience as $work)
                                     <div class="detail-card mb-3 bg-light">
@@ -570,7 +600,7 @@
                             @endif
 
                             {{-- Dynamic Section: Work Achievements --}}
-                            <h3 class="section-header">XIV. Prestasi Kerja</h3>
+                            <h3 class="section-header">XV. Prestasi Kerja</h3>
                             @if ($applicant->workAchievements->isNotEmpty())
                                 @foreach ($applicant->workAchievements as $achievement)
                                     <div class="detail-card mb-3 bg-light">
@@ -594,7 +624,7 @@
                             @endif
 
                             {{-- Section: Health Declaration --}}
-                            <h3 class="section-header">XV. Riwayat Kesehatan</h3>
+                            <h3 class="section-header">XVI. Riwayat Kesehatan</h3>
                             @if ($applicant->healthDeclaration)
                                 <div class="detail-card mb-3 bg-light">
                                     <div class="row">
@@ -726,7 +756,7 @@
                                 <p>Tidak ada data riwayat kesehatan.</p>
                             @endif
 
-                            <h3 class="section-header">XVI. Sumber Informasi Lowongan</h3>
+                            <h3 class="section-header">XVII. Sumber Informasi Lowongan</h3>
                             <div class="detail-item">
                                 <strong>Sumber:</strong>
                                 <p>{{ $applicant->job_vacancy_source ?? '-' }}</p>
