@@ -310,11 +310,7 @@
                         <a href="{{ route('login') }}" class="btn-masuk">Masuk</a>
                     @endguest
 
-                    <div class="language-selector">
-                        <div class="flag-icon"></div>
-                        <span>Indonesia</span>
-                        <span class="dropdown-arrow">▼</span>
-                    </div>
+
                     <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
                         ☰
                     </button>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,7 +29,7 @@
             background: #DA251C;
             padding: 15px 0;
             position: relative;
-            
+
         }
 
         .aboutnav-container {
@@ -36,7 +37,7 @@
             justify-content: center;
             align-items: center;
             gap: 60px;
-            
+
 
         }
 
@@ -49,7 +50,7 @@
             border-radius: 25px;
             transition: all 0.3s ease;
             position: relative;
-            
+
         }
 
         .aboutnav-item.active {
@@ -83,7 +84,8 @@
             padding: 80px 0;
             position: relative;
             overflow: hidden;
-            display: none; /* Hidden by default, managed by JS */
+            display: none;
+            /* Hidden by default, managed by JS */
         }
 
         .section::before {
@@ -215,8 +217,8 @@
 
         .center-circle {
             position: absolute;
-            width: 300px;
-            height: 300px;
+            width: 400px;
+            height: 400px;
             background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
             border-radius: 50%;
             display: flex;
@@ -360,7 +362,8 @@
         .nilai-budaya-section {
             /* Inherits general .section styles, no need to duplicate background, min-height, etc. */
             align-items: center;
-            justify-content: center; /* Center content vertically and horizontally */
+            justify-content: center;
+            /* Center content vertically and horizontally */
         }
 
         .nilai-budaya-content {
@@ -376,18 +379,29 @@
             color: white;
         }
 
-        .section-title {
+        .ourprojectsection-title {
             font-size: 3.5rem;
             font-weight: 700;
             line-height: 1.2;
-            margin-bottom: 40px;
+            margin-bottom: 15px;
+            margin-top: -40px;
+            margin-left: auto;
+            margin-right: auto;
+            /* Tambahkan ini */
+            text-align: center;
+            /* Tambahkan ini untuk teks */
+            display: block;
+            /* Pastikan elemen ini adalah blok */
+            color: #fbbf24;
         }
+
 
         .nilai-description {
             font-size: 1.2rem;
             line-height: 1.8;
             margin-bottom: 40px;
             opacity: 0.9;
+            margin-top: 40px;
         }
 
         .nilai-description strong {
@@ -754,13 +768,14 @@
         }
     </style>
 </head>
+
 <body>
     <nav class="aboutnav">
         <div class="aboutcontainer">
             <div class="aboutnav-container">
                 <a href="#" class="aboutnav-item active" data-target-section="about-section">Siapa Kami</a>
                 <a href="#" class="aboutnav-item" data-target-section="visi-misi-section">Visi & Misi</a>
-                <a href="#" class="aboutnav-item" data-target-section="nilai-budaya-section">Nilai Kami</a>
+                <a href="#" class="aboutnav-item" data-target-section="nilai-budaya-section">Project Kami</a>
             </div>
         </div>
     </nav>
@@ -770,34 +785,39 @@
             <div class="about-content">
                 <div class="text-content">
                     <h1 class="company-title">
-                        Perusahaan <span class="highlight">Total<br>Food Solutions</span>
+                        PT. PULAUINTAN <span class="highlight">BAJAPERKASA</span>
                     </h1>
-                    
+
                     <p class="company-description">
-                        Kami adalah Perusahaan yang beroperasi di segala tahap 
-                        pengolahan makanan, mulai dari produksi dan pemrosesan 
-                        bahan mentah, hingga produk siap pakai di pasaran.
+                        ESTABLISHED ON 30TH JULY 1990,
+                        PT PULAUINTAN BAJAPERKASA
+                        KONSTRUKSI HAS EVOLVED TO BE A
+                        RESPECTABLE BUILDING CONTRACTOR
+                        IN INDONESIA
                     </p>
-                    
+
                     <p class="company-tagline">
-                        Kini, Indofood dikenal sebagai perusahaan terkemuka yang 
-                        menjadi acuan di setiap lini bisnis di mana kami beroperasi.
+                        Lebih dari sekadar membangun, PT Pulauintan Bajaperkasa Konstruksi kini dikenal sebagai pionir
+                        yang menetapkan arah baru dalam dunia konstruksi Indonesia.
                     </p>
-                    
+
                     <a href="#" class="learn-more-btn">
                         Selengkapnya
                     </a>
                 </div>
-                
+
                 <div class="images-grid">
                     <div class="image-card large">
-                        <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Modern Office Building">
+                        <img src="/images/Pulauintanaward3.jpg"
+                                                    alt="Award3">
                     </div>
                     <div class="image-card">
-                        <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Business Team Meeting">
+                        <img src="/images/Pulauintanaward.jpg"
+                            alt="Award">
                     </div>
                     <div class="image-card">
-                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Food Production">
+                        <img src="/images/Pulauintanaward2.jpg"
+                            alt="Award2">
                     </div>
                 </div>
             </div>
@@ -810,38 +830,38 @@
                 <div class="circular-diagram">
                     <div class="mission-points">
                         <div class="mission-point mission-1">
-                            <p>Memberikan solusi atas kebutuhan pangan secara berkelanjutan</p>
+                            <p>High quality services</p>
                         </div>
                         <div class="mission-point mission-2">
-                            <p>Senantiasa meningkatkan kompetensi karyawan, proses produksi dan teknologi kami</p>
+                            <p>Timely services</p>
                         </div>
                         <div class="mission-point mission-3">
-                            <p>Memberikan kontribusi bagi kesejahteraan masyarakat dan lingkungan secara berkelanjutan</p>
+                            <p>Competitive pricing
+                            </p>
                         </div>
                         <div class="mission-point mission-4">
-                            <p>Meningkatkan <em>stakeholders' values</em> secara berkesinambungan</p>
+                            <p>Total customer satisfaction assurance</p>
                         </div>
                     </div>
-                    
+
                     <div class="center-circle">
                         <div class="visi-content">
                             <h2>Visi</h2>
-                            <p>Perusahaan</p>
-                            <p><em>Total Food Solutions</em></p>
+                            <p>To become the leading and reliable general contractor with the support of our people, experiences and core values; integrity, teamwork, and customer service oriented mind-set.</p>
                         </div>
                     </div>
-                    
+
                     <div class="misi-label">
                         <h2>Misi</h2>
                     </div>
-                    
+
                     <div class="connecting-lines">
                         <div class="line line-1"></div>
                         <div class="line line-2"></div>
                         <div class="line line-3"></div>
                         <div class="line line-4"></div>
                     </div>
-                    
+
                     <div class="outer-circle"></div>
                 </div>
             </div>
@@ -850,61 +870,63 @@
 
     <section class="section nilai-budaya-section" id="nilai-budaya-section">
         <div class="container">
-            <div class="nilai-budaya-content">
-                <div class="text-content-nilai">
-                    <h1 class="section-title">
-                        Nilai & Budaya Perusahaan
-                    </h1>
-                    <p class="nilai-description">
-                        Di **Perusahaan Total Food Solutions**, kami berkomitmen pada nilai-nilai inti yang membentuk budaya kerja kami. Nilai-nilai ini menjadi panduan dalam setiap keputusan dan tindakan, memastikan kami tetap berpegang pada integritas, inovasi, dan kepedulian terhadap pelanggan. Kami percaya bahwa dengan menjunjung tinggi nilai-nilai ini, kami dapat mencapai keunggulan berkelanjutan dan memberikan dampak positif.
-                    </p>
-                    <p class="nilai-description">
-                        Budaya kami adalah fondasi bagi pertumbuhan dan keberhasilan kami. Kami mendorong lingkungan kolaboratif di mana setiap individu dapat berkembang, berkontribusi, dan meraih potensi penuh mereka.
-                    </p>
-                </div>
+            <div class="text-content-nilai">
                 
-                <div class="nilai-diagram">
-                    <div class="nilai-center">
-                        <span class="center-word">INOVASI</span>
+                <div class="images-grid">
+                    <div class="image-card large">
+                        <img src="/images/Tzuchicenter.jpg"
+                            alt="Tzuchicenter">
                     </div>
-                    <div class="nilai-circles">
-                        <div class="nilai-circle nilai-1">Integritas</div>
-                        <div class="nilai-circle nilai-2">Pelayanan Prima</div>
-                        <div class="nilai-circle nilai-3">Kolaborasi</div>
-                        <div class="nilai-circle nilai-4">Keberlanjutan</div>
-                        <div class="nilai-circle nilai-5">Tanggung Jawab</div>
+                    <div class="image-card">
+                        <img src="/images/Tamananggrek.jpg"
+                            alt="Tamananggrek">
                     </div>
-                    <div class="connecting-shapes">
-                        <div class="shape shape-1"></div>
-                        <div class="shape shape-2"></div>
-                        <div class="shape shape-3"></div>
-                        <div class="shape shape-4"></div>
-                        <div class="shape shape-5"></div>
+                    <div class="image-card">
+                        <img src="/images/BundaMulia.jpg"
+                            alt="BundaMulia">
                     </div>
                 </div>
+                <p class="nilai-description">
+                    We offer a diverse portfolio that includes:
+
+                    Commercial developments such as offices, hotels, shopping malls, and apartments
+
+                    Industrial facilities including factories and warehouses
+
+                    Social infrastructure such as educational and religious buildings.
+                    In order to serve our customers even better, we bring
+                    excellent combination of team work, knowledge, skill,
+                    along with the commitment to customers satisfaction.
+                    We are always passionate to increase customers
+                    satisfaction and contribute to the society by providing
+                    our core values that beyond all expectations.
+                </p>
+        
             </div>
+
+
         </div>
     </section>
 
     <script>
         // Navigation functionality
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const navItems = document.querySelectorAll('.aboutnav-item'); // Changed to .nav-item
             const sections = document.querySelectorAll('.section'); // Select all sections with the 'section' class
-            
+
             navItems.forEach(item => {
-                item.addEventListener('click', function(e) {
+                item.addEventListener('click', function (e) {
                     e.preventDefault();
-                    
+
                     // Remove active class from all nav items
                     navItems.forEach(nav => nav.classList.remove('active'));
-                    
+
                     // Add active class to clicked item
                     this.classList.add('active');
-                    
+
                     // Get the target section ID from data-target-section attribute
                     const targetSectionId = this.getAttribute('data-target-section');
-                    
+
                     // Show/hide sections based on the targetSectionId
                     sections.forEach(section => {
                         if (section.id === targetSectionId) {
@@ -915,10 +937,11 @@
                     });
                 });
             });
-            
+
             // Initially show the 'Siapa Kami' section
             document.getElementById('about-section').style.display = 'flex';
         });
     </script>
 </body>
+
 </html>

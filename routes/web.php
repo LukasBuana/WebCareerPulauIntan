@@ -20,6 +20,7 @@ use App\Http\Controllers\News\NewsListingController;
 use App\Http\Controllers\Applicants\ApplicantController;
 use App\Http\Controllers\WordProcessorController;
 
+
 use Illuminate\Support\Facades\Auth;
 
 // Rute utama (landing page)
@@ -194,3 +195,8 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/dashboard-final', [ApplicantController::class, 'updateMyBiodata'])->name('my_biodata.update_final'); // Jika mode update
 
 });
+
+
+Route::get('/news/{news}', [NewsDetailController::class, 'show'])->name('news.show');
+Route::get('/news', [NewsListingController::class, 'index'])->name('news.index');
+
