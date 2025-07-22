@@ -1,13 +1,33 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     @include('admin.css')
     <style>
-        .form-group { margin-bottom: 15px; }
-        .form-control { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
-        .btn-action { margin-top: 20px; }
-        textarea.form-control { min-height: 100px; resize: vertical; }
-        input[type="file"] { padding: 5px 0; }
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .btn-action {
+            margin-top: 20px;
+        }
+
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        input[type="file"] {
+            padding: 5px 0;
+        }
+
         .current-image {
             max-width: 150px;
             height: auto;
@@ -19,6 +39,7 @@
         }
     </style>
 </head>
+
 <body>
     @include('admin.header')
     @include('admin.sidebar')
@@ -44,22 +65,26 @@
                             </div>
                         @endif
 
-                        <form action="{{ route('admin.news.update', $news->id) }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('admin.news.update', $news->id) }}" method="POST"
+                            enctype="multipart/form-data">
                             @csrf
                             @method('PUT') {{-- Penting untuk metode UPDATE --}}
 
                             <div class="form-group">
                                 <label for="title">Judul Berita</label>
-                                <input type="text" class="form-control" id="title" name="title" value="{{ old('title', $news->title) }}" maxlength="256" required>
+                                <input type="text" class="form-control" id="title" name="title"
+                                    value="{{ old('title', $news->title) }}" maxlength="256" required>
                             </div>
 
                             <div class="form-group">
                                 <label for="subtitle">Sub Judul</label>
-                                <input type="text" class="form-control" id="subtitle" name="subtitle" value="{{ old('subtitle', $news->subtitle) }}" maxlength="100" required>
+                                <input type="text" class="form-control" id="subtitle" name="subtitle"
+                                    value="{{ old('subtitle', $news->subtitle) }}" maxlength="100" required>
                             </div>
                             <div class="form-group">
                                 <label for="category">Category</label>
-                                <input type="text" class="form-control" id="category" name="category" value="{{ old('category',$news->category) }}" maxlength="100" required>
+                                <input type="text" class="form-control" id="category" name="category"
+                                    value="{{ old('category', $news->category) }}" maxlength="100" required>
                             </div>
                             <div class="form-group">
                                 <label for="description">Deskripsi</label>
@@ -68,14 +93,17 @@
 
                             <div class="form-group">
                                 <label for="image">Gambar Berita</label>
-                                @if($news->image)
+                                @if ($news->image)
                                     <p>Gambar Saat Ini:</p>
-                                    <img src="{{ $news->image }}" alt="Current Image" class="current-image">
+                                    <img src="{{ Storage::url($news->image) }}" alt="{{ $news->title }}"
+                                        class="news-image-thumbnail">
                                 @else
                                     <p>Tidak ada gambar saat ini.</p>
                                 @endif
-                                <input type="file" class="form-control-file" id="image" name="image" accept="image/*">
-                                <small class="form-text text-muted">Pilih gambar baru jika ingin mengubah. Format: JPG, PNG, GIF, SVG. Maks: 2MB.</small>
+                                <input type="file" class="form-control-file" id="image" name="image"
+                                    accept="image/*">
+                                <small class="form-text text-muted">Pilih gambar baru jika ingin mengubah. Format: JPG,
+                                    PNG, GIF, SVG. Maks: 2MB.</small>
                             </div>
 
                             <button type="submit" class="btn btn-primary btn-action">Update Berita</button>
@@ -87,4 +115,5 @@
         </section>
     </div>
 </body>
+
 </html>

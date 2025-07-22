@@ -297,48 +297,50 @@
         <div class="beritaarticles-grid">
             {{-- Loop untuk menampilkan setiap berita dari database --}}
             @forelse($newsArticles as $news)
-                    <article class="beritaarticle-card" data-news-id="{{ $news->id }}"> {{-- <<< TAMBAHKAN INI --}} <div
-                            class="beritaarticle-image">
-                            <img src="{{ $news->image }}" alt="{{ $news->title }}">
-                            {{-- Jika ada badge seperti "WE ARE HIRING" yang disimpan di DB, Anda bisa menambahkannya di sini
+                <article class="beritaarticle-card" data-news-id="{{ $news->id }}"> {{-- <<< TAMBAHKAN INI --}} <div
+                        class="beritaarticle-image">
+                        <img src="{{ Storage::url($news->image) }}" alt="{{ $news->title }}"
+                            class="news-image-thumbnail"> {{-- Jika ada badge seperti "WE ARE HIRING" yang disimpan di DB, Anda bisa menambahkannya di sini
                             --}}
-                            {{-- @if($news->has_hiring_badge)
+                        {{-- @if ($news->has_hiring_badge)
                             <div class="beritahiring-badge">WE ARE HIRING</div>
                             @endif --}}
-                </div>
-                <div class="beritaarticle-content">
-                    <div class="beritaarticle-meta">
-                        <span>{{ \Carbon\Carbon::parse($news->created_at)->format('d M Y') }}</span> {{-- Format tanggal --}}
-                        <span>•</span>
-                        <span>{{ $news->category }}</span> {{-- Subtitle digunakan sebagai kategori/tipe di sini --}}
                     </div>
-                    <h3 class="beritaarticle-title">{{ $news->title }}</h3>
-                    <p class="beritaarticle-excerpt">{{ $news->subtitle }}</p>
-                </div>
+                    <div class="beritaarticle-content">
+                        <div class="beritaarticle-meta">
+                            <span>{{ \Carbon\Carbon::parse($news->created_at)->format('d M Y') }}</span>
+                            {{-- Format tanggal --}}
+                            <span>•</span>
+                            <span>{{ $news->category }}</span> {{-- Subtitle digunakan sebagai kategori/tipe di sini --}}
+                        </div>
+                        <h3 class="beritaarticle-title">{{ $news->title }}</h3>
+                        <p class="beritaarticle-excerpt">{{ $news->subtitle }}</p>
+                    </div>
                 </article>
             @empty
-            <p style="text-align: center; color: #777; padding: 20px; grid-column: 1 / -1;">Tidak ada berita yang tersedia
-                saat ini.</p>
-        @endforelse
+                <p style="text-align: center; color: #777; padding: 20px; grid-column: 1 / -1;">Tidak ada berita yang
+                    tersedia
+                    saat ini.</p>
+            @endforelse
 
-    </div>
-    <a href="{{route(name: 'news.index')}}" class="news-all-button">Lihat Semua</a>
+        </div>
+        <a href="{{ route(name: 'news.index') }}" class="news-all-button">Lihat Semua</a>
 
 
 
-    <script>
-        // Add click functionality to article cards
-        document.querySelectorAll('.beritaarticle-card').forEach(card => {
-            card.addEventListener('click', function () {
-                // Anda mungkin ingin menavigasi ke halaman detail berita
-                console.log('Article clicked:', this.querySelector('.beritaarticle-title').textContent);
-                // Contoh: window.location.href = `/news/${this.dataset.id}`; // Jika Anda punya ID di data-attribute
+        <script>
+            // Add click functionality to article cards
+            document.querySelectorAll('.beritaarticle-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    // Anda mungkin ingin menavigasi ke halaman detail berita
+                    console.log('Article clicked:', this.querySelector('.beritaarticle-title').textContent);
+                    // Contoh: window.location.href = `/news/${this.dataset.id}`; // Jika Anda punya ID di data-attribute
+                });
             });
-        });
 
-        document.querySelector('.beritaview-all').addEventListener('click', function (e) {
-            e.preventDefault();
-            console.log('View all clicked');
-        });
-    </script>
+            document.querySelector('.beritaview-all').addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('View all clicked');
+            });
+        </script>
 </body>

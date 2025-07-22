@@ -139,270 +139,303 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // --- Logic for Main Card Header Toggle (Riwayat Pendidikan) ---
-        const mainCardHeaderPendidikan = document.querySelector(
-                '#{{ $section_prefix ?? '' }}RiwayatPendidikanMainCollapse')
-            .previousElementSibling; // Get the header
-        const mainCollapsePendidikan = document.getElementById(
-            '{{ $section_prefix ?? '' }}RiwayatPendidikanMainCollapse');
-        const mainCollapseIconPendidikan = mainCardHeaderPendidikan.querySelector('.collapse-icon');
+   document.addEventListener('DOMContentLoaded', function() {
+    // --- Logic for Main Card Header Toggle (Riwayat Pendidikan) ---
+    const mainCardHeaderPendidikan = document.querySelector(
+            '#{{ $section_prefix ?? '' }}RiwayatPendidikanMainCollapse')
+        .previousElementSibling; // Get the header
+    const mainCollapsePendidikan = document.getElementById(
+        '{{ $section_prefix ?? '' }}RiwayatPendidikanMainCollapse');
+    const mainCollapseIconPendidikan = mainCardHeaderPendidikan.querySelector('.collapse-icon');
 
-        if (mainCardHeaderPendidikan && mainCollapsePendidikan && mainCollapseIconPendidikan) {
-            mainCollapsePendidikan.addEventListener('show.bs.collapse', function() {
-                mainCardHeaderPendidikan.classList.add('active');
-                mainCollapseIconPendidikan.classList.remove('fa-chevron-down');
-                mainCollapseIconPendidikan.classList.add('fa-chevron-up');
-            });
+    if (mainCardHeaderPendidikan && mainCollapsePendidikan && mainCollapseIconPendidikan) {
+        mainCollapsePendidikan.addEventListener('show.bs.collapse', function() {
+            mainCardHeaderPendidikan.classList.add('active');
+            mainCollapseIconPendidikan.classList.remove('fa-chevron-down');
+            mainCollapseIconPendidikan.classList.add('fa-chevron-up');
+        });
 
-            mainCollapsePendidikan.addEventListener('hide.bs.collapse', function() {
-                mainCardHeaderPendidikan.classList.remove('active');
-                mainCollapseIconPendidikan.classList.remove('fa-chevron-up');
-                mainCollapseIconPendidikan.classList.add('fa-chevron-down');
-            });
+        mainCollapsePendidikan.addEventListener('hide.bs.collapse', function() {
+            mainCardHeaderPendidikan.classList.remove('active');
+            mainCollapseIconPendidikan.classList.remove('fa-chevron-up');
+            mainCollapseIconPendidikan.classList.add('fa-chevron-down');
+        });
 
-            // Initial state for main card header
-            if (mainCollapsePendidikan.classList.contains('show')) {
-                mainCardHeaderPendidikan.classList.add('active');
-                mainCollapseIconPendidikan.classList.remove('fa-chevron-down');
-                mainCollapseIconPendidikan.classList.add('fa-chevron-up');
-            } else {
-                mainCardHeaderPendidikan.classList.remove('active');
-                mainCollapseIconPendidikan.classList.remove('fa-chevron-up');
-                mainCollapseIconPendidikan.classList.add('fa-chevron-down');
-            }
-        }
-        const existingEducationData = @json($applicant->educationHistory ?? []);
-        let educationCount = existingEducationData.length; // Initialize count with existing data size
-        const educationHistoryContainer = document.getElementById(
-            '{{ $section_prefix ?? '' }}education-history-container');
-        const addEducationButton = document.getElementById('{{ $section_prefix ?? '' }}add-education');
-        const sectionPrefix = '{{ $section_prefix ?? '' }}';
-
-        
-
-         function addEducationField(prefix, index, data = {}) {
-            // Use provided data or empty strings if no data
-            const level_of_education = data.level_of_education || '';
-            const institution = data.institution || '';
-            const major = data.major || '';
-            const period_start_year = data.period_start_year || '';
-            const period_end_year = data.period_end_year || '';
-            const grade = data.grade || '';
-
-            const educationHtml = `
-                <div class="education-item border p-3 mb-3 rounded" id="${prefix}education-${index}">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="${prefix}level_of_education_${index}" class="form-label">
-                                    Jenjang <span class="required">*</span>
-                                </label>
-                                <select class="form-select" id="${prefix}level_of_education_${index}" name="education_history[${index}][level_of_education]" required>
-                                    <option value="">Pilih Jenjang Anda</option>
-                                    <option value="SMA/SMK" ${level_of_education === 'SMA/SMK' ? 'selected' : ''}>SMA/SMK</option>
-                                    <option value="S1" ${level_of_education === 'S1' ? 'selected' : ''}>S1 (Sarjana)</option>
-                                    <option value="S2" ${level_of_education === 'S2' ? 'selected' : ''}>S2 (Master)</option>
-                                    <option value="S3" ${level_of_education === 'S3' ? 'selected' : ''}>S3 (Doktor)</option>
-                                </select>
-                                <div class="error-message"></div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="${prefix}institution_${index}" class="form-label">Nama Institusi / Sekolah <span class="required">*</span></label>
-                            <input type="text" class="form-control" id="${prefix}institution_${index}" name="education_history[${index}][institution]" value="${institution}" required>
-                            <div class="error-message"></div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="${prefix}period_start_year_${index}" class="form-label">Tahun Mulai <span class="required">*</span></label>
-                            <input type="number" class="form-control" id="${prefix}period_start_year_${index}" name="education_history[${index}][period_start_year]" placeholder="YYYY" min="1900" max="2100" value="${period_start_year}" required>
-                            <div class="error-message"></div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="${prefix}period_end_year_${index}" class="form-label">Tahun Selesai <span class="required">*</span></label>
-                            <input type="number" class="form-control" id="${prefix}period_end_year_${index}" name="education_history[${index}][period_end_year]" placeholder="YYYY" min="1900" max="2100" value="${period_end_year}" required>
-                            <div class="error-message"></div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="${prefix}major_${index}" class="form-label">Jurusan <span class="required">*</span></label>
-                            <input type="text" class="form-control" id="${prefix}major_${index}" name="education_history[${index}][major]" value="${major}" required>
-                            <div class="error-message"></div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="${prefix}grade_${index}" class="form-label">IPK / Nilai Rata-rata</label>
-                            <input type="text" class="form-control" id="${prefix}grade_${index}" name="education_history[${index}][grade]" placeholder="Contoh: 3.50" value="${grade}">
-                            <div class="error-message"></div>
-                        </div>
-                    </div>
-                    <button type="button" class="btn btn-danger btn-sm remove-education mt-2" data-target-id="${prefix}education-${index}">Hapus</button>
-                </div>
-            `;
-            if (educationHistoryContainer) {
-                educationHistoryContainer.insertAdjacentHTML('beforeend', educationHtml);
-            }
-        }
-
-        // Load existing education data when the page loads
-        if (existingEducationData && existingEducationData.length > 0) {
-            existingEducationData.forEach((data, index) => {
-                addEducationField(sectionPrefix, index, data);
-            });
+        // Initial state for main card header
+        if (mainCollapsePendidikan.classList.contains('show')) {
+            mainCardHeaderPendidikan.classList.add('active');
+            mainCollapseIconPendidikan.classList.remove('fa-chevron-down');
+            mainCollapseIconPendidikan.classList.add('fa-chevron-up');
         } else {
-            // If no existing data, add one empty field by default (optional, based on UX)
-            // addEducationField(sectionPrefix, educationCount);
-            // educationCount++;
+            mainCardHeaderPendidikan.classList.remove('active');
+            mainCollapseIconPendidikan.classList.remove('fa-chevron-up');
+            mainCollapseIconPendidikan.classList.add('fa-chevron-down');
         }
+    }
 
-        // Event listener for "Tambah Pendidikan" button remains the same,
-        // it will just use the updated `educationCount`.
-        if (addEducationButton) {
-            addEducationButton.addEventListener('click', function() {
-                addEducationField(sectionPrefix, educationCount);
-                educationCount++;
-            });
+    const existingEducationData = @json($applicant->educationHistory ?? []);
+    let educationCount = existingEducationData.length; // Initialize count with existing data size
+    const educationHistoryContainer = document.getElementById(
+        '{{ $section_prefix ?? '' }}education-history-container');
+    const addEducationButton = document.getElementById('{{ $section_prefix ?? '' }}add-education');
+    const sectionPrefix = '{{ $section_prefix ?? '' }}';
+
+    // --- Definisi fungsi addEducationField yang BENAR dan HANYA SATU ---
+    function addEducationField(prefix, index, data = {}) {
+        // Use provided data or empty strings if no data
+        const level_of_education = data.level_of_education || '';
+        const institution = data.institution || '';
+        const major = data.major || '';
+        const period_start_year = data.period_start_year || '';
+        const period_end_year = data.period_end_year || '';
+        const grade = data.grade || '';
+
+        const educationHtml = `
+            <div class="education-item border p-3 mb-3 rounded" id="${prefix}education_history-${index}">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="${prefix}level_of_education_${index}" class="form-label">
+                                Jenjang <span class="required">*</span>
+                            </label>
+                            <select class="form-select" id="${prefix}level_of_education_${index}" name="education_history[${index}][level_of_education]" required>
+                                <option value="">Pilih Jenjang Anda</option>
+                                <option value="SMA/SMK" ${level_of_education === 'SMA/SMK' ? 'selected' : ''}>SMA/SMK</option>
+                                <option value="S1" ${level_of_education === 'S1' ? 'selected' : ''}>S1 (Sarjana)</option>
+                                <option value="S2" ${level_of_education === 'S2' ? 'selected' : ''}>S2 (Master)</option>
+                                <option value="S3" ${level_of_education === 'S3' ? 'selected' : ''}>S3 (Doktor)</option>
+                            </select>
+                            <div class="error-message"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="${prefix}institution_${index}" class="form-label">Nama Institusi / Sekolah <span class="required">*</span></label>
+                        <input type="text" class="form-control" id="${prefix}institution_${index}" name="education_history[${index}][institution]" value="${institution}" required>
+                        <div class="error-message"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="${prefix}period_start_year_${index}" class="form-label">Tahun Mulai <span class="required">*</span></label>
+                        <input type="number" class="form-control" id="${prefix}period_start_year_${index}" name="education_history[${index}][period_start_year]" placeholder="YYYY" min="1900" max="2100" value="${period_start_year}" required>
+                        <div class="error-message"></div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="${prefix}period_end_year_${index}" class="form-label">Tahun Selesai <span class="required">*</span></label>
+                        <input type="number" class="form-control" id="${prefix}period_end_year_${index}" name="education_history[${index}][period_end_year]" placeholder="YYYY" min="1900" max="2100" value="${period_end_year}" required>
+                        <div class="error-message"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="${prefix}major_${index}" class="form-label">Jurusan <span class="required">*</span></label>
+                        <input type="text" class="form-control" id="${prefix}major_${index}" name="education_history[${index}][major]" value="${major}" required>
+                        <div class="error-message"></div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="${prefix}grade_${index}" class="form-label">IPK / Nilai Rata-rata</label>
+                        <input type="text" class="form-control" id="${prefix}grade_${index}" name="education_history[${index}][grade]" placeholder="Contoh: 3.50" value="${grade}">
+                        <div class="error-message"></div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-danger btn-sm remove-education mt-2" data-target-id="${prefix}education_history-${index}">Hapus</button>
+            </div>
+        `;
+        if (educationHistoryContainer) {
+            educationHistoryContainer.insertAdjacentHTML('beforeend', educationHtml);
         }
+    }
 
+    // --- Fungsi untuk memperbarui nama field setelah penghapusan ---
+    function updateEducationFieldNames(prefix, container) {
+        const educationItems = container.querySelectorAll('.education-item');
+        educationItems.forEach((item, index) => {
+            // Perbarui ID dari elemen pendidikan itu sendiri
+            item.id = `${prefix}education_history-${index}`;
 
-        // --- Validation Logic for Individual Sections ---
-        // This part needs to be in your main script or a script that loads after all includes
-        // and iterates over all .save-section-btn. It needs to know the prefix.
-        // For demonstration, I'll put it here, but ideally, this validation logic
-        // would be consolidated in your main application script.
-
-        document.querySelectorAll('.save-section-btn').forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-
-                const sectionId = this.dataset.section;
-                const prefix = this.dataset.prefix;
-                const sectionCollapseId = `#${prefix}collapse${sectionId.charAt(0).toUpperCase() + sectionId.slice(1)}`;
-                const sectionElement = document.querySelector(sectionCollapseId);
-                let isValid = true;
-
-                if (!sectionElement) {
-                    console.error(`Section element not found for ID: ${sectionCollapseId}`);
-                    return;
+            // Perbarui semua atribut nama input/select
+            // Menggunakan selector yang benar: [name^="education_history["]
+            item.querySelectorAll('[name^="education_history["]').forEach(input => {
+                const oldName = input.name;
+                // Regex untuk menangkap kunci field (misalnya, 'level_of_education')
+                const match = oldName.match(/education_history\[\d+\]\[(.*)\]/);
+                if (match && match[1]) {
+                    input.name = `education_history[${index}][${match[1]}]`;
                 }
+            });
 
-                // Reset error messages and invalid class for the specific section
-                sectionElement.querySelectorAll('.error-message').forEach(msg => {
-                    msg.style.display = 'none';
-                });
-                sectionElement.querySelectorAll('.form-control, .form-select, textarea').forEach(input => {
-                    input.classList.remove('is-invalid');
-                });
+            // Perbarui data-target-id pada tombol hapus
+            const removeButton = item.querySelector('.remove-education');
+            if (removeButton) {
+                removeButton.dataset.targetId = `${prefix}education_history-${index}`;
+            }
+        });
+        educationCount = educationItems.length; // Update educationCount after re-indexing
+    }
 
-                // --- Dynamic Fields Validation ---
-                if (sectionId === 'education_history') { // Corrected sectionId to match data-section attribute
-                    const educationItems = educationHistoryContainer.querySelectorAll('.education-item');
-                    if (educationItems.length === 0) {
-                        isValid = false;
-                        alert('Mohon tambahkan setidaknya satu Riwayat Pendidikan.');
-                    } else {
-                        educationItems.forEach((item, idx) => {
-                            // Corrected field selectors to match `name` attributes
-                            const jenjangField = item.querySelector(`[name="education_history[${idx}][level_of_education]"]`);
-                            const institusiField = item.querySelector(`[name="education_history[${idx}][institution]"]`);
-                            const jurusanField = item.querySelector(`[name="education_history[${idx}][major]"]`);
-                            const tahunMulaiField = item.querySelector(`[name="education_history[${idx}][period_start_year]"]`);
-                            const tahunSelesaiField = item.querySelector(`[name="education_history[${idx}][period_end_year]"]`);
+    // Load existing education data when the page loads
+    // Ini harus berjalan PERTAMA kali untuk menampilkan data yang sudah ada
+    if (existingEducationData && existingEducationData.length > 0) {
+        existingEducationData.forEach((data, index) => {
+            addEducationField(sectionPrefix, index, data);
+        });
+    }
 
-                            const fieldsToCheck = [
-                                { field: jenjangField, msg: 'Jenjang harus diisi' },
-                                { field: institusiField, msg: 'Nama institusi harus diisi' },
-                                { field: jurusanField, msg: 'Jurusan harus diisi' },
-                                { field: tahunMulaiField, msg: 'Tahun mulai harus diisi' },
-                                { field: tahunSelesaiField, msg: 'Tahun selesai harus diisi' }
-                            ];
+    // Event listener for "Tambah Pendidikan" button
+    if (addEducationButton) {
+        addEducationButton.addEventListener('click', function() {
+            addEducationField(sectionPrefix, educationCount);
+            educationCount++;
+        });
+    }
 
-                            fieldsToCheck.forEach(f => {
-                                if (f.field && (f.field.type === 'select-one' ? !f.field.value : !f.field.value.trim())) {
-                                    f.field.classList.add('is-invalid');
-                                    const errorMsg = f.field.parentElement.querySelector('.error-message');
-                                    if (errorMsg) {
-                                        errorMsg.textContent = f.msg;
-                                        errorMsg.style.display = 'block';
-                                    }
-                                    isValid = false;
+    // --- Event Delegation untuk tombol Hapus Pendidikan ---
+    // PENTING: Listener ini harus berada di luar fungsi addEducationField
+    // dan dipasang pada kontainer induk yang statis (educationHistoryContainer)
+    if (educationHistoryContainer) {
+        educationHistoryContainer.addEventListener('click', function(e) {
+            // Memeriksa apakah elemen yang diklik atau salah satu leluhurnya memiliki kelas 'remove-education'
+            // Kita menggunakan .closest() untuk memastikan kita menangkap tombol jika ada elemen nested di dalamnya
+            if (e.target.classList.contains('remove-education') || e.target.closest('.remove-education')) {
+                const removeButton = e.target.closest('.remove-education'); // Dapatkan tombol yang sebenarnya
+                const targetId = removeButton.dataset.targetId;
+                const elementToRemove = document.getElementById(targetId);
+                if (elementToRemove) {
+                    elementToRemove.remove();
+                    // Panggil fungsi untuk memperbarui nama atribut setelah penghapusan
+                    updateEducationFieldNames(sectionPrefix, educationHistoryContainer);
+                }
+            }
+        });
+    }
+
+
+    // --- Validation Logic for Individual Sections ---
+    document.querySelectorAll('.save-section-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            const sectionId = this.dataset.section;
+            const prefix = this.dataset.prefix;
+            const sectionCollapseId = `#${prefix}collapse${sectionId.charAt(0).toUpperCase() + sectionId.slice(1)}`;
+            const sectionElement = document.querySelector(sectionCollapseId);
+            let isValid = true;
+
+            if (!sectionElement) {
+                console.error(`Section element not found for ID: ${sectionCollapseId}`);
+                return;
+            }
+
+            // Reset error messages and invalid class for the specific section
+            sectionElement.querySelectorAll('.error-message').forEach(msg => {
+                msg.style.display = 'none';
+            });
+            sectionElement.querySelectorAll('.form-control, .form-select, textarea').forEach(input => {
+                input.classList.remove('is-invalid');
+            });
+
+            // --- Dynamic Fields Validation ---
+            if (sectionId === 'education_history') { // Corrected sectionId to match data-section attribute
+                const educationItems = educationHistoryContainer.querySelectorAll('.education-item');
+                if (educationItems.length === 0) {
+                    isValid = false;
+                    alert('Mohon tambahkan setidaknya satu Riwayat Pendidikan.');
+                } else {
+                    educationItems.forEach((item, idx) => {
+                        // Corrected field selectors to match `name` attributes
+                        const jenjangField = item.querySelector(`[name="education_history[${idx}][level_of_education]"]`);
+                        const institusiField = item.querySelector(`[name="education_history[${idx}][institution]"]`);
+                        const jurusanField = item.querySelector(`[name="education_history[${idx}][major]"]`);
+                        const tahunMulaiField = item.querySelector(`[name="education_history[${idx}][period_start_year]"]`);
+                        const tahunSelesaiField = item.querySelector(`[name="education_history[${idx}][period_end_year]"]`);
+
+                        const fieldsToCheck = [
+                            { field: jenjangField, msg: 'Jenjang harus diisi' },
+                            { field: institusiField, msg: 'Nama institusi harus diisi' },
+                            { field: jurusanField, msg: 'Jurusan harus diisi' },
+                            { field: tahunMulaiField, msg: 'Tahun mulai harus diisi' },
+                            { field: tahunSelesaiField, msg: 'Tahun selesai harus diisi' }
+                        ];
+
+                        fieldsToCheck.forEach(f => {
+                            if (f.field && (f.field.type === 'select-one' ? !f.field.value : !f.field.value.trim())) {
+                                f.field.classList.add('is-invalid');
+                                const errorMsg = f.field.parentElement.querySelector('.error-message');
+                                if (errorMsg) {
+                                    errorMsg.textContent = f.msg;
+                                    errorMsg.style.display = 'block';
                                 }
-                            });
-
-                            if (tahunMulaiField && tahunSelesaiField && tahunMulaiField.value && tahunSelesaiField.value) {
-                                const startYear = parseInt(tahunMulaiField.value);
-                                const endYear = parseInt(tahunSelesaiField.value);
-                                if (startYear > endYear) {
-                                    tahunSelesaiField.classList.add('is-invalid');
-                                    const errorMsg = tahunSelesaiField.parentElement.querySelector('.error-message');
-                                    if (errorMsg) {
-                                        errorMsg.textContent = 'Tahun selesai tidak boleh sebelum tahun mulai.';
-                                        errorMsg.style.display = 'block';
-                                    }
-                                    isValid = false;
-                                }
+                                isValid = false;
                             }
                         });
+
+                        if (tahunMulaiField && tahunSelesaiField && tahunMulaiField.value && tahunSelesaiField.value) {
+                            const startYear = parseInt(tahunMulaiField.value);
+                            const endYear = parseInt(tahunSelesaiField.value);
+                            if (startYear > endYear) {
+                                tahunSelesaiField.classList.add('is-invalid');
+                                const errorMsg = tahunSelesaiField.parentElement.querySelector('.error-message');
+                                if (errorMsg) {
+                                    errorMsg.textContent = 'Tahun selesai tidak boleh sebelum tahun mulai.';
+                                    errorMsg.style.display = 'block';
+                                }
+                                isValid = false;
+                            }
+                        }
+                    });
+                }
+            }
+
+            // If validation passes, you'd typically submit the form via AJAX
+            if (isValid) {
+                const form = document.getElementById(`${prefix}formPendidikanFormal`);
+                const formData = new FormData(form);
+                const allFormData = {};
+                formData.forEach((value, key) => {
+                    // Handle array inputs correctly
+                    const match = key.match(/(\w+)\[(\d+)\]\[(\w+)\]/);
+                    if (match) {
+                        const parentKey = match[1];
+                        const index = match[2];
+                        const fieldKey = match[3];
+
+                        if (!allFormData[parentKey]) {
+                            allFormData[parentKey] = [];
+                        }
+                        if (!allFormData[parentKey][index]) {
+                            allFormData[parentKey][index] = {};
+                        }
+                        allFormData[parentKey][index][fieldKey] = value;
+                    } else {
+                        allFormData[key] = value;
                     }
-                }
+                });
 
-                // If validation passes, you'd typically submit the form via AJAX
-                if (isValid) {
-                    // This assumes you're submitting the specific form, not the whole page.
-                    // If you want to submit the whole form, you can do:
-                    // document.getElementById(`${prefix}formPendidikanFormal`).submit();
-
-                    // For AJAX submission, you'd collect data and send it:
-                    const form = document.getElementById(`${prefix}formPendidikanFormal`);
-                    const formData = new FormData(form);
-                    const allFormData = {};
-                    formData.forEach((value, key) => {
-                        // Handle array inputs correctly
-                        const match = key.match(/(\w+)\[(\d+)\]\[(\w+)\]/);
-                        if (match) {
-                            const parentKey = match[1];
-                            const index = match[2];
-                            const fieldKey = match[3];
-
-                            if (!allFormData[parentKey]) {
-                                allFormData[parentKey] = [];
-                            }
-                            if (!allFormData[parentKey][index]) {
-                                allFormData[parentKey][index] = {};
-                            }
-                            allFormData[parentKey][index][fieldKey] = value;
-                        } else {
-                            allFormData[key] = value;
-                        }
-                    });
-
-                    // Convert to JSON and send with Fetch API or Axios
-                    fetch(form.action, {
-                        method: 'POST', // Or PATCH/PUT for updates
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') // Add CSRF token
-                        },
-                        body: JSON.stringify(allFormData)
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.redirect) {
-                            window.location.href = data.redirect;
-                        } else {
-                            alert(data.message);
-                            // Handle success (e.g., refresh part of the page or show success message)
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Terjadi kesalahan saat menyimpan data.');
-                        // Handle errors (e.g., display specific error messages from backend)
-                    });
-                }
-            });
+                // Convert to JSON and send with Fetch API or Axios
+                fetch(form.action, {
+                    method: 'POST', // Or PATCH/PUT for updates
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') // Add CSRF token
+                    },
+                    body: JSON.stringify(allFormData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                    } else {
+                        alert(data.message);
+                        // Handle success (e.g., refresh part of the page or show success message)
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Terjadi kesalahan saat menyimpan data.');
+                    // Handle errors (e.g., display specific error messages from backend)
+                });
+            }
         });
     });
+});
 </script>

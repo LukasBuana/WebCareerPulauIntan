@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\News;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+
+use Illuminate\Support\Facades\Storage;
 // use Illuminate\Support\Facades\Storage; // TIDAK PERLU Storage lagi untuk Base64
 
 class AdminNewsController extends Controller
@@ -39,12 +42,15 @@ class AdminNewsController extends Controller
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Validasi tetap sebagai file gambar
         ]);
 
-        $base64Image = null;
+        $imagePath = null;
         if ($request->hasFile('image')) {
             $file = $request->file('image');
-            $mimeType = $file->getMimeType(); // Dapatkan tipe MIME file (e.g., 'image/png')
-            $base64Data = base64_encode(file_get_contents($file->getRealPath())); // Baca dan encode ke Base64
-            $base64Image = "data:{$mimeType};base64,{$base64Data}"; // Bentuk string lengkap
+            // Generate a unique file name to prevent conflicts
+            $fileName = Str::uuid() . '.' . $file->getClientOriginalExtension();
+            // Store the file in 'public/news_images' disk (ensure you've configured a 'public' disk)
+            // This will typically save to storage/app/public/news_images
+            $imagePath = $file->storeAs('news_images', $fileName, 'public');
+            // $imagePath will now be something like 'news_images/random_uuid.jpg'
         }
 
         News::create([
@@ -53,7 +59,7 @@ class AdminNewsController extends Controller
             'category' => $request->category,
 
             'description' => $request->description,
-            'image' => $base64Image, // Simpan string Base64 di DB
+            'image' => $imagePath, // Simpan string Base64 di DB
         ]);
 
         return redirect()->route('admin.news.index')->with('message', 'Berita berhasil ditambahkan!');
@@ -87,14 +93,19 @@ class AdminNewsController extends Controller
             'description' => 'required|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Gambar opsional untuk update
         ]);
+        $imagePath = $news->image; // Keep the old image path by default
 
-        $base64Image = $news->image; // Pertahankan Base64 lama secara default
         if ($request->hasFile('image')) {
+            // Delete the old image if it exists
+            if ($news->image && Storage::disk('public')->exists($news->image)) {
+                Storage::disk('public')->delete($news->image);
+            }
+
             $file = $request->file('image');
-            $mimeType = $file->getMimeType();
-            $base64Data = base64_encode(file_get_contents($file->getRealPath()));
-            $base64Image = "data:{$mimeType};base64,{$base64Data}";
+            $fileName = Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $imagePath = $file->storeAs('news_images', $fileName, 'public');
         }
+
 
         $news->update([
             'title' => $request->title,
@@ -102,7 +113,7 @@ class AdminNewsController extends Controller
             'category' => $request->category,
 
             'description' => $request->description,
-            'image' => $base64Image, // Simpan string Base64 yang baru
+            'image' => $imagePath, // Simpan string Base64 yang baru
         ]);
 
         return redirect()->route('admin.news.index')->with('message', 'Berita berhasil diperbarui!');
@@ -113,8 +124,21 @@ class AdminNewsController extends Controller
      */
     public function destroy(News $news)
     {
-        // Tidak perlu menghapus dari Storage karena gambar disimpan di DB
+        // Delete the image file from local storage if it exists
+        // The 'image' attribute of the News model now holds the file path relative to the 'public' disk root.
+        if ($news->image) { // Check if an image path exists for the news item
+            // Use Storage::disk('public') to target the correct disk where the image is stored
+            if (Storage::disk('public')->exists($news->image)) {
+                Storage::disk('public')->delete($news->image);
+            } else {
+                // Optional: Log a warning if the file path exists in DB but not on disk
+                \Log::warning('News image file not found on disk for deletion: ' . $news->image);
+            }
+        }
+
+        // Now delete the news record from the database
         $news->delete();
+
         return redirect()->route('admin.news.index')->with('message', 'Berita berhasil dihapus!');
     }
 }

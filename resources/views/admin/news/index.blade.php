@@ -86,7 +86,7 @@
                                             <th scope="row">{{ $loop->iteration + ($newsArticles->currentPage() - 1) * $newsArticles->perPage() }}</th>
                                             <td>
                                                 @if($news->image)
-                                                   <img src="{{ $news->image }}" alt="{{ $news->title }}" class="news-image-thumbnail">
+                                                   <img src="{{ Storage::url($news->image) }}" alt="{{ $news->title }}" class="news-image-thumbnail">
                                                 @else
                                                     No Image
                                                 @endif

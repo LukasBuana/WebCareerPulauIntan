@@ -60,16 +60,22 @@
 
         /* Perbaikan untuk membuat ukuran foto utama tetap */
         .detailnews-hero-illustration {
-            width: 450px; /* Lebar tetap yang diinginkan */
-            height: 300px; /* Tinggi tetap yang diinginkan */
-            overflow: hidden; /* Penting untuk menyembunyikan bagian gambar yang terpotong */
+            width: 450px;
+            /* Lebar tetap yang diinginkan */
+            height: 300px;
+            /* Tinggi tetap yang diinginkan */
+            overflow: hidden;
+            /* Penting untuk menyembunyikan bagian gambar yang terpotong */
             border-radius: 5px;
         }
 
         .detailnews-hero-illustration img {
-            width: 100%; /* Pastikan gambar mengisi lebar kontainernya */
-            height: 100%; /* Pastikan gambar mengisi tinggi kontainernya */
-            object-fit: cover; /* Ini yang membuat gambar pas dalam ukuran tetap tanpa distorsi, dengan memotong jika perlu */
+            width: 100%;
+            /* Pastikan gambar mengisi lebar kontainernya */
+            height: 100%;
+            /* Pastikan gambar mengisi tinggi kontainernya */
+            object-fit: cover;
+            /* Ini yang membuat gambar pas dalam ukuran tetap tanpa distorsi, dengan memotong jika perlu */
             display: block;
         }
 
@@ -229,12 +235,15 @@
 
             /* Sesuaikan ukuran foto utama untuk layar yang lebih kecil */
             .detailnews-hero-illustration {
-                width: 100%; /* Lebar penuh */
-                height: 250px; /* Tinggi yang sedikit lebih kecil */
+                width: 100%;
+                /* Lebar penuh */
+                height: 250px;
+                /* Tinggi yang sedikit lebih kecil */
             }
 
             .detailnews-hero-illustration img {
-                max-width: 100%; /* Pastikan tetap responsif */
+                max-width: 100%;
+                /* Pastikan tetap responsif */
             }
         }
 
@@ -278,8 +287,9 @@
             <div class="detailnews-hero-section">
                 <div class="detailnews-hero-content">
                     <div class="detailnews-hero-illustration">
-                        @if($news->image)
-                            <img src="{{ $news->image }}" alt="{{ $news->title }}">
+                        @if ($news->image)
+                            <img src="{{ Storage::url($news->image) }}" 
+                                class="news-image-thumbnail">
                         @else
                             <img src="https://via.placeholder.com/450x300?text=News+Image" alt="Placeholder News Image">
                         @endif
@@ -312,18 +322,19 @@
             <ul class="detailnews-news-list">
                 @forelse($moreNews as $item)
                     <li class="detailnews-news-item">
-                        @if($item->image)
-                            <img src="{{ $item->image }}" alt="{{ $item->title }}">
+                        @if ($item->image)
+                            <img src="{{ Storage::url($item->image) }}" class="news-image-thumbnail">
                         @else
                             <img src="https://via.placeholder.com/80x60?text=News" alt="Placeholder News Image">
                         @endif
                         <div class="detailnews-news-item-content">
-                            <a href="{{ route('news.show', $item->id) }}" class="detailnews-news-item-title">{{ $item->title }}</a>
+                            <a href="{{ route('news.show', $item->id) }}"
+                                class="detailnews-news-item-title">{{ $item->title }}</a>
                             {{-- MODIFIKASI INI: Akses nama penulis melalui relasi 'user' untuk setiap item --}}
                             <div class="detailnews-news-item-author">By {{ $item->user->name ?? 'Unknown' }}</div>
                         </div>
                     </li>
-                    @if(!$loop->last)
+                    @if (!$loop->last)
                         <div class="detailberita-accent-bar1"></div>
                     @endif
                 @empty
