@@ -11,7 +11,7 @@
 
         /* Header Section for News Page */
         .news-page-header {
-            background-color: #3B5998; /* Blue background from image */
+            background-color: #DA251C; /* Blue background from image */
             color: white;
             padding: 60px 20px;
             text-align: center;
@@ -19,7 +19,7 @@
             margin-top: 70px;
             position: relative;
             overflow: hidden;
-            border-radius: 0 0 50% 50% / 0 0 10% 10%; /* Rounded bottom shape from image */
+            border-radius: 0 0 50% 50% / 0 0 20% 20%; /* Rounded bottom shape from image */
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
         .news-page-header h1 {

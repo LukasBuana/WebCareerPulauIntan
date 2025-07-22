@@ -4,8 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Scalability Solution: Understanding Layer One vs. Layer Two Blockchains</title>
+    {{-- Menggunakan title dari berita utama --}}
+    <title>{{ $news->title }}</title>
     <style>
+        /* CSS Anda yang sudah ada */
         * {
             margin: 0;
             padding: 0;
@@ -21,34 +23,25 @@
             justify-content: center;
             padding: 20px;
             margin-top: 67px;
-
-
-
         }
 
         .detailnews {
-            /* Main container class */
             display: flex;
             width: 100%;
             max-width: 1200px;
-            /* Increased max width slightly to match image better */
             background-color: #fff;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             border-top-right-radius: 9px;
             border-bottom-right-radius: 9px;
-
         }
 
         .detailnews-main-content {
-            /* Specific to main content */
             flex: 2;
             padding: 40px;
             border-right: 1px solid transparent;
-            /* margin-top: 50px; */
         }
 
         .detailnews-header {
-            /* Specific to news category header */
             font-size: 14px;
             color: #777;
             margin-bottom: 10px;
@@ -56,33 +49,36 @@
         }
 
         .detailnews-hero-section {
-            /* Specific to hero section */
             margin-bottom: 40px;
         }
 
         .detailnews-hero-content {
-            /* Specific to hero content */
             display: flex;
             gap: 30px;
             align-items: flex-start;
         }
 
-        .detailnews-hero-illustration img {
-            /* Specific to hero image */
-            max-width: 450px;
-            height: auto;
-            display: block;
+        /* Perbaikan untuk membuat ukuran foto utama tetap */
+        .detailnews-hero-illustration {
+            width: 450px; /* Lebar tetap yang diinginkan */
+            height: 300px; /* Tinggi tetap yang diinginkan */
+            overflow: hidden; /* Penting untuk menyembunyikan bagian gambar yang terpotong */
             border-radius: 5px;
         }
 
+        .detailnews-hero-illustration img {
+            width: 100%; /* Pastikan gambar mengisi lebar kontainernya */
+            height: 100%; /* Pastikan gambar mengisi tinggi kontainernya */
+            object-fit: cover; /* Ini yang membuat gambar pas dalam ukuran tetap tanpa distorsi, dengan memotong jika perlu */
+            display: block;
+        }
+
         .detailnews-hero-text {
-            /* Specific to hero text block */
             flex: 1;
             color: #333;
         }
 
         .detailnews-hero-title {
-            /* Specific to hero title */
             font-size: 32px;
             font-weight: 700;
             margin-bottom: 10px;
@@ -91,7 +87,6 @@
         }
 
         .detailnews-hero-subtitle {
-            /* Specific to hero subtitle */
             font-size: 16px;
             opacity: 0.9;
             margin-bottom: 15px;
@@ -100,7 +95,6 @@
         }
 
         .detailnews-author-date {
-            /* Specific to author and date */
             display: flex;
             align-items: center;
             gap: 15px;
@@ -110,14 +104,12 @@
         }
 
         .detailnews-content-section {
-            /* Specific to content section */
             max-width: 100%;
             margin: 0;
             padding: 0;
         }
 
         .detailnews-article-content {
-            /* Specific to article content */
             background: white;
             padding: 0;
             border-radius: 0;
@@ -125,64 +117,51 @@
             margin-bottom: 40px;
         }
 
-        /* Removed .section-title as it was commented out in previous request */
-
         .detailnews-article-text {
-            /* Specific to article text */
             font-size: 16px;
             line-height: 1.8;
             color: #444;
             margin-bottom: 20px;
-
-
         }
 
         .detailnews-article-text p {
-            /* Specific to paragraphs within article text */
             margin-bottom: 20px;
             white-space: pre-line;
         }
 
         /* More News Section */
         .detailnews-more-news-section {
-            /* Specific to more news section */
             flex: 1;
             padding: 40px;
             background-color: transparent;
-            /* margin-top: 50px; */
             border-left: 2px solid #DA251C;
             border-radius: 9px;
             border-right: 2px solid #DA251C;
             color: transparent;
-
-
-
+            /* Ini mungkin menyebabkan teks di dalam section tidak terlihat jika tidak ada elemen child yang menimpa color */
         }
 
         .detailnews-more-news-title {
-            /* Specific to more news title */
             font-size: 22px;
             font-weight: 600;
             margin-bottom: 25px;
             color: #333;
+            /* Pastikan judul terlihat */
         }
 
         .detailnews-news-list {
-            /* Specific to news list */
             list-style: none;
             padding: 0;
             margin: 0;
         }
 
         .detailnews-news-item {
-            /* Specific to individual news item */
             display: flex;
             align-items: center;
             margin-bottom: 25px;
         }
 
         .detailnews-news-item img {
-            /* Specific to news item image */
             width: 80px;
             height: 60px;
             object-fit: cover;
@@ -191,46 +170,41 @@
         }
 
         .detailnews-news-item-content {
-            /* Specific to news item text content */
             flex: 1;
         }
 
         .detailnews-news-item-title {
-            /* Specific to news item title */
             font-size: 16px;
             font-weight: 600;
             line-height: 1.3;
             margin-bottom: 5px;
             color: #333;
+            /* Pastikan judul berita terlihat */
             cursor: pointer;
+            text-decoration: none;
+            /* Menghilangkan garis bawah pada link */
         }
 
         .detailnews-news-item-title:hover {
-            /* Specific to news item title hover */
             color: #E54155;
         }
 
         .detailnews-news-item-author {
-            /* Specific to news item author */
             font-size: 13px;
             color: #777;
+            /* Pastikan nama penulis terlihat */
         }
 
         .detailberita-accent-bar1 {
             display: flex;
-            color: #E54155;
-            /* This applies to text content if any */
+            /* color: #E54155; -- Ini tidak relevan untuk bar */
             background-color: #E54155;
-            /* Use this to make the bar itself orange */
             width: 280px;
-            /* Example width */
             height: 2px;
-            /* Example height */
             border-radius: 50px;
             margin: 0 auto;
+            /* Tengah secara horizontal */
             margin-bottom: 20px;
-
-
         }
 
         /* Media Queries */
@@ -253,8 +227,14 @@
                 gap: 20px;
             }
 
+            /* Sesuaikan ukuran foto utama untuk layar yang lebih kecil */
+            .detailnews-hero-illustration {
+                width: 100%; /* Lebar penuh */
+                height: 250px; /* Tinggi yang sedikit lebih kecil */
+            }
+
             .detailnews-hero-illustration img {
-                max-width: 100%;
+                max-width: 100%; /* Pastikan tetap responsif */
             }
         }
 
@@ -290,27 +270,27 @@
 </head>
 
 <body>
-    <div class="detailnews"> {{-- Changed from .container to .detailnews --}}
+    <div class="detailnews">
         @include('beranda.header_user')
-        <div class="detailnews-main-content"> {{-- Changed from .main-content --}}
-            <div class="detailnews-header">News</div> {{-- Changed from .news-header --}}
-            <div class="detailnews-hero-section"> {{-- Changed from .hero-section --}}
-                <div class="detailnews-hero-content"> {{-- Changed from .hero-content --}}
-                    <div class="detailnews-hero-illustration"> {{-- Changed from .hero-illustration --}}
+
+        <div class="detailnews-main-content">
+            <div class="detailnews-header">News</div>
+            <div class="detailnews-hero-section">
+                <div class="detailnews-hero-content">
+                    <div class="detailnews-hero-illustration">
                         @if($news->image)
                             <img src="{{ $news->image }}" alt="{{ $news->title }}">
                         @else
-                            {{-- Placeholder if no image --}}
                             <img src="https://via.placeholder.com/450x300?text=News+Image" alt="Placeholder News Image">
                         @endif
                     </div>
 
-                    <div class="detailnews-hero-text"> {{-- Changed from .hero-text --}}
-                        <h1 class="detailnews-hero-title">{{ $news->title }}</h1> {{-- Changed from .hero-title --}}
-                        <p class="detailnews-hero-subtitle">{{ $news->subtitle }}</p> {{-- Changed from .hero-subtitle
-                        --}}
-                        <div class="detailnews-author-date"> {{-- Changed from .author-date --}}
-                            <span>By Alex House</span>
+                    <div class="detailnews-hero-text">
+                        <h1 class="detailnews-hero-title">{{ $news->title }}</h1>
+                        <p class="detailnews-hero-subtitle">{{ $news->subtitle }}</p>
+                        <div class="detailnews-author-date">
+                            {{-- MODIFIKASI INI: Akses nama penulis melalui relasi 'user' --}}
+                            <span>By {{ $news->user->name ?? 'Unknown' }}</span>
                             <span>|</span>
                             <span>{{ \Carbon\Carbon::parse($news->created_at)->format('F d, Y') }}</span>
                         </div>
@@ -318,77 +298,37 @@
                 </div>
             </div>
 
-            <div class="detailnews-content-section"> {{-- Changed from .content-section --}}
-                <div class="detailnews-article-content"> {{-- Changed from .article-content --}}
-                    {{-- The image does not have a "Deskripsi Berita" title in the main content --}}
-                    {{-- <h2 class="section-title">Deskripsi Berita</h2> --}}
-                    <div class="detailnews-article-text"> {{-- Changed from .article-text --}}
+            <div class="detailnews-content-section">
+                <div class="detailnews-article-content">
+                    <div class="detailnews-article-text">
                         <p>{{ $news->description }}</p>
-                        {{-- If you have a full content field, you can use it here --}}
-                        {{-- <p>{{ $news->full_content }}</p> --}}
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="detailnews-more-news-section"> {{-- Changed from .more-news-section --}}
-            <h2 class="detailnews-more-news-title">More News</h2> {{-- Changed from .more-news-title --}}
-            <ul class="detailnews-news-list"> {{-- Changed from .news-list --}}
-                <li class="detailnews-news-item"> {{-- Changed from .news-item --}}
-                    <img src="https://via.placeholder.com/80x60?text=News1" alt="News Image 1">
-                    <div class="detailnews-news-item-content"> {{-- Changed from .news-item-content --}}
-                        <div class="detailnews-news-item-title">U.S. downs suspected Chinese spy balloon</div> {{--
-                        Changed from .news-item-title --}}
-                        <div class="detailnews-news-item-author">By Craig Balon</div> {{-- Changed from
-                        .news-item-author --}}
-                    </div>
-
-
-
-                </li>
-                <div class="detailberita-accent-bar1"></div>
-
-
-                <li class="detailnews-news-item"> {{-- Changed from .news-item --}}
-                    <img src="https://via.placeholder.com/80x60?text=News1" alt="News Image 1">
-                    <div class="detailnews-news-item-content"> {{-- Changed from .news-item-content --}}
-                        <div class="detailnews-news-item-title">U.S. downs suspected Chinese spy balloon</div> {{--
-                        Changed from .news-item-title --}}
-                        <div class="detailnews-news-item-author">By Craig Balon</div> {{-- Changed from
-                        .news-item-author --}}
-                    </div>
-
-                </li>
-                <div class="detailberita-accent-bar1"></div>
-
-
-                <li class="detailnews-news-item"> {{-- Changed from .news-item --}}
-                    <img src="https://via.placeholder.com/80x60?text=News1" alt="News Image 1">
-                    <div class="detailnews-news-item-content"> {{-- Changed from .news-item-content --}}
-                        <div class="detailnews-news-item-title">U.S. downs suspected Chinese spy balloon</div> {{--
-                        Changed from .news-item-title --}}
-                        <div class="detailnews-news-item-author">By Craig Balon</div> {{-- Changed from
-                        .news-item-author --}}
-                    </div>
-
-
-
-                </li>
-                <div class="detailberita-accent-bar1"></div>
-
-
-                <li class="detailnews-news-item"> {{-- Changed from .news-item --}}
-                    <img src="https://via.placeholder.com/80x60?text=News1" alt="News Image 1">
-                    <div class="detailnews-news-item-content"> {{-- Changed from .news-item-content --}}
-                        <div class="detailnews-news-item-title">U.S. downs suspected Chinese spy balloon</div> {{--
-                        Changed from .news-item-title --}}
-                        <div class="detailnews-news-item-author">By Craig Balon</div> {{-- Changed from
-                        .news-item-author --}}
-                    </div>
-
-                </li>
-
-
+        <div class="detailnews-more-news-section">
+            <h2 class="detailnews-more-news-title">More News</h2>
+            <ul class="detailnews-news-list">
+                @forelse($moreNews as $item)
+                    <li class="detailnews-news-item">
+                        @if($item->image)
+                            <img src="{{ $item->image }}" alt="{{ $item->title }}">
+                        @else
+                            <img src="https://via.placeholder.com/80x60?text=News" alt="Placeholder News Image">
+                        @endif
+                        <div class="detailnews-news-item-content">
+                            <a href="{{ route('news.show', $item->id) }}" class="detailnews-news-item-title">{{ $item->title }}</a>
+                            {{-- MODIFIKASI INI: Akses nama penulis melalui relasi 'user' untuk setiap item --}}
+                            <div class="detailnews-news-item-author">By {{ $item->user->name ?? 'Unknown' }}</div>
+                        </div>
+                    </li>
+                    @if(!$loop->last)
+                        <div class="detailberita-accent-bar1"></div>
+                    @endif
+                @empty
+                    <p style="color: #555; font-size: 14px;">No other news available.</p>
+                @endforelse
             </ul>
         </div>
     </div>

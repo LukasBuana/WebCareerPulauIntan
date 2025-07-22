@@ -17,7 +17,15 @@ class News extends Model
         'subtitle',
         'description',
         'image',
+        'user_id',
     ];
+    public function user()
+    {
+        // Hubungan Many-to-One: Berita ini dimiliki oleh satu user.
+        // Asumsi: foreign key di tabel 'news' adalah 'user_id'
+        // dan primary key di tabel 'users' adalah 'id'
+        return $this->belongsTo(User::class);
+    }
 
   
 }
