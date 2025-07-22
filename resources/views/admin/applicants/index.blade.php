@@ -87,7 +87,7 @@
                                         <tr>
                                             <th scope="row">{{ $loop->iteration + ($applicants->currentPage() - 1) * $applicants->perPage() }}</th>
                                             <td>
-                                                <img src="{{ $applicant->profile_image ?: 'https://placehold.co/50x50/cccccc/333333?text=N/A' }}"
+                                                <img src={{ Storage::url($applicant->profile_image) }}
                                                      alt="Foto Profil" class="table-profile-image">
                                             </td>
                                             <td>{{ $applicant->full_name }}</td>
