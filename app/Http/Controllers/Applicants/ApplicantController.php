@@ -906,7 +906,7 @@ if (!Auth::check()) {
 
             // Determine the 'type' based on index (0, 1 for Keluarga; 2, 3 for Teman)
             $type = ($i < 2) ? 'Keluarga' : 'Teman';
-            $data['type'] = $type; // Ensure type is always set for the database
+            $data['relationship'] = $type; // Ensure type is always set for the database
 
             if ($hasData) {
                 // Try to find by ID if it exists in the request data
