@@ -15,7 +15,7 @@ class WordProcessorController extends Controller
     public function printApplicationWord(Applicant $applicant) // Gunakan Route Model Binding
     {
         // Path ke template .docx Anda
-        $templatePath = public_path('templates/testing1.docx'); // Pastikan nama file template sesuai
+        $templatePath = public_path('templates/testing2.docx'); // Pastikan nama file template sesuai
 
         // Pastikan template processor dapat memuat template
         try {
@@ -61,6 +61,8 @@ class WordProcessorController extends Controller
             'sim' => $applicant->license_number ?? '',
             'sim_expired_date' => $applicant->license_expiry_date ? Carbon::parse($applicant->license_expiry_date)->format('d/m/Y') : '',
             'information' => strtoupper($applicant->job_vacancy_source ?? ''),
+
+
         ];
 
         // --- Isi Placeholder Sederhana ---
