@@ -248,29 +248,45 @@
                                             <div class="accordion-body">
                                                 <div class="row mb-4">
                                                     <div class="col-md-6">
-                                                        <div class="mb-3 d-flex align-items-start">
-                                                            <div class="image-display-container me-3">
+                                                        {{-- Updated Profile Image HTML Block --}}
+                                                        <div
+                                                            class="mb-3 d-flex align-items-start flex-column flex-md-row">
+                                                            <div class="image-display-container me-3 mb-3 mb-md-0">
+                                                                {{-- The upload area for when no image is displayed or clicked to change --}}
                                                                 <div class="upload-area" id="uploadAreaContainer"
-                                                                    onclick="document.getElementById('profileImage').click();">
+                                                                    onclick="document.getElementById('profileImage').click();"
+                                                                    style="display: none;"> {{-- Initially hidden, JS will manage its display --}}
                                                                     <i class="fas fa-upload"></i>
-                                                                    <div class="text-overlay">.jpg</div>
+                                                                    <div class="text-overlay">Unggah Foto</div>
                                                                 </div>
-                                                                <img id="profilePreview"
-                                                                    src="{{ old('profile_image', $applicant->profile_image) ? old('profile_image', $applicant->profile_image) : 'https://via.placeholder.com/80x80?text=?' }}"
-                                                                    alt="Profile" class="profile-image"
-                                                                    onclick="document.getElementById('profileImage').click();">
+
+                                                                {{-- The image preview element --}}
+                                                                <img id="profilePreview" src=""
+                                                                    alt="Foto Profil" class="profile-image"
+                                                                    onclick="document.getElementById('profileImage').click();"
+                                                                    {{-- Pass the actual stored image path via a data attribute --}}
+                                                                    data-original-src="{{ old('profile_image', $applicant->profile_image ?? '') }}"
+                                                                    style="display: none;"> {{-- Initially hidden, JS will manage its display --}}
                                                             </div>
-                                                            <input type="file" class="form-control d-none"
-                                                                id="profileImage" name="profile_image"
-                                                                accept="image/jpeg, image/png"
-                                                                onchange="previewImage(this)">
-                                                            <div>
-                                                                <label class="form-label">Foto Profil</label>
-                                                                <div class="file-info">
-                                                                    Syarat: format jpg / png maks. 2 MB<br>
-                                                                    Jika Anda ingin mengganti dokumen yg telah diunggah,
-                                                                    silakan hapus dokumen yg telah diunggah sebelumnya
+
+                                                            <div class="flex-grow-1">
+                                                                <input type="file" class="form-control d-none"
+                                                                    id="profileImage" name="profile_image"
+                                                                    accept="image/jpeg, image/png"
+                                                                    onchange="previewImage(this)">
+
+                                                                <label class="form-label">Foto Profil <span
+                                                                        class="required">*</span></label>
+                                                                <div class="file-info" id="profileFileInfo">
+                                                                    {{-- Text will be dynamically updated by JS --}}
                                                                 </div>
+                                                                <div class="error-message"></div>
+
+                                                                {{-- Hidden input to signal if the image should be cleared --}}
+                                                                <input type="hidden" name="profile_image_cleared"
+                                                                    id="profile_image_cleared_flag" value="0">
+
+                                                                
                                                             </div>
                                                         </div>
                                                         <div class="mb-3">
@@ -739,74 +755,108 @@
             const profilePreview = document.getElementById('profilePreview');
             const uploadAreaContainer = document.getElementById('uploadAreaContainer');
             const fileInfo = document.querySelector('#accordionInformasiUtama .file-info');
+            const clearProfileImageFlag = document.getElementById('profile_image_cleared_flag');
+            const clearProfileImageButton = document.getElementById('clearProfileImageButton'); // Get the clear button
 
             if (input.files && input.files[0]) {
+                // A new file is selected, show its preview
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    profilePreview.src = e.target.result;
+                    profilePreview.src = e.target.result; // Data URL for preview
                     profilePreview.style.display = 'block';
                     uploadAreaContainer.style.display = 'none';
 
                     const fileName = input.files[0].name;
                     const fileSize = (input.files[0].size / 1024 / 1024).toFixed(2); // MB
                     fileInfo.innerHTML = `
-                    Syarat: format jpg / png maks. 2 MB<br>
-                `;
+                Syarat: format jpg / png / jpeg maks. 2 MB<br>
+                File: <strong>${fileName}</strong> (Ukuran: ${fileSize} MB)
+            `;
+                    // If a new image is selected, ensure the 'cleared' flag is reset to 0
+                    if (clearProfileImageFlag) {
+                        clearProfileImageFlag.value = '0';
+                    }
+                    // Show clear button when a new file is loaded
+                    if (clearProfileImageButton) {
+                        clearProfileImageButton.style.display = 'block';
+                    }
                 };
                 reader.readAsDataURL(input.files[0]);
             } else {
-                // Ensure the correct default image is shown if no file is selected and there's no old image
-                const existingProfileImage = "{{ old('profile_image', $applicant->profile_image) }}";
-                if (existingProfileImage && existingProfileImage !== 'https://via.placeholder.com/80x80?text=?') {
-                    profilePreview.src = existingProfileImage;
+                // No new file selected. Check if there's an existing image path to display.
+                // Use the data-original-src for initial display or fallback when input is cleared.
+                const existingProfileImagePath = profilePreview.dataset.originalSrc;
+
+                if (existingProfileImagePath) {
+                    // Display the existing image from its URL
+                    profilePreview.src = "{{ Storage::url('') }}" + existingProfileImagePath;
                     profilePreview.style.display = 'block';
                     uploadAreaContainer.style.display = 'none';
 
-                    // Extract file name if possible, or just indicate existing
-                    const oldFileName = existingProfileImage.substring(existingProfileImage.lastIndexOf('/') +
-                        1); // Simple extraction
+                    const oldFileName = existingProfileImagePath.substring(existingProfileImagePath.lastIndexOf('/') + 1);
                     fileInfo.innerHTML = `
-                    Syarat: format jpg / png maks. 2 MB<br>
-                    File: <strong>${oldFileName}</strong> (Ukuran: N/A - existing file)<br>
-                    Jika Anda ingin mengganti dokumen yg telah diunggah, silakan hapus dokumen yg telah diunggah sebelumnya
-                `;
+                Syarat: format jpg / png / jpeg maks. 2 MB<br>
+                File: <strong>${oldFileName}</strong> (Ukuran: N/A - existing file)
+            `;
+                    // Show clear button if an existing image is present
+                    if (clearProfileImageButton) {
+                        clearProfileImageButton.style.display = 'block';
+                    }
                 } else {
-                    profilePreview.src = "https://via.placeholder.com/80x80?text=?";
-                    profilePreview.style.display = 'none'; // Hide if no image
+                    // No new file, and no existing file in DB or explicitly cleared
+                    profilePreview.src = "https://via.placeholder.com/80x80?text=?"; // Placeholder image
+                    profilePreview.style.display = 'block'; // Keep placeholder visible
                     uploadAreaContainer.style.display = 'flex'; // Show upload area
+
                     fileInfo.innerHTML = `
-                    Syarat: format jpg / png maks. 2 MB<br>
-                    Jika Anda ingin mengganti dokumen yg telah diunggah, silakan hapap dokumen yg telah diunggah sebelumnya
-                `;
+                Syarat: format jpg / png / jpeg maks. 2 MB<br>
+                Belum ada foto profil.
+            `;
+                    // Hide clear button if no image
+                    if (clearProfileImageButton) {
+                        clearProfileImageButton.style.display = 'none';
+                    }
                 }
             }
         }
 
-
+        // Call on page load to set the initial state of the profile image display
         // Call on page load to set the initial state of the profile image display
         function updateProfileImageDisplay() {
             const profilePreview = document.getElementById('profilePreview');
             const uploadAreaContainer = document.getElementById('uploadAreaContainer');
-            const profileImageInput = document.getElementById('profileImage');
             const fileInfo = document.querySelector('#accordionInformasiUtama .file-info');
+            const clearProfileImageButton = document.getElementById('clearProfileImageButton'); // Get the clear button
 
-            const existingProfileImage = "{{ old('profile_image', $applicant->profile_image) }}";
-            if (existingProfileImage && existingProfileImage !== 'https://via.placeholder.com/80x80?text=?') {
-                profilePreview.src = existingProfileImage;
+            // Get the initial image path from the data-original-src attribute
+            const initialProfileImagePath = profilePreview.dataset.originalSrc;
+
+            if (initialProfileImagePath) {
+                profilePreview.src = "{{ Storage::url('') }}" + initialProfileImagePath;
                 profilePreview.style.display = 'block';
                 uploadAreaContainer.style.display = 'none';
 
-                // Extract file name if possible, or just indicate existing
-                const oldFileName = existingProfileImage.substring(existingProfileImage.lastIndexOf('/') + 1);
+                const oldFileName = initialProfileImagePath.substring(initialProfileImagePath.lastIndexOf('/') + 1);
                 fileInfo.innerHTML = `
-                Syarat: format jpg / png maks. 2 MB<br>
-            `;
+            Syarat: format jpg / png / jpeg maks. 2 MB<br>
+            File saat ini: <strong>${oldFileName}</strong>
+        `;
+                // Show clear button if an image path exists on load
+                if (clearProfileImageButton) {
+                    clearProfileImageButton.style.display = 'block';
+                }
             } else {
-                profilePreview.style.display = 'none';
+                profilePreview.src = "https://via.placeholder.com/80x80?text=?";
+                profilePreview.style.display = 'block';
                 uploadAreaContainer.style.display = 'flex';
                 fileInfo.innerHTML = `
-                Syarat: format jpg / png maks. 2 MB<br>
-            `;
+            Syarat: format jpg / png / jpeg maks. 2 MB<br>
+            Belum ada foto profil.
+        `;
+                // Hide clear button if no image on load
+                if (clearProfileImageButton) {
+                    clearProfileImageButton.style.display = 'none';
+                }
             }
         }
 
@@ -835,7 +885,8 @@
                     errorMessageElement.textContent = inputElement.validationMessage || 'Field ini wajib diisi.';
                     errorMessageElement.style.display = 'block';
                     console.log(
-                    `Error for ${inputElement.id || inputElement.name}: ${errorMessageElement.textContent}`); // Log the error message
+                        `Error for ${inputElement.id || inputElement.name}: ${errorMessageElement.textContent}`
+                    ); // Log the error message
                 }
             } else {
                 inputElement.classList.remove('is-invalid');
@@ -1043,7 +1094,8 @@
 
                     // Handle radio groups that are conditionally required but might not be caught by individual input validation
                     const radioGroupsInThisSection = ['gender', 'marital_status',
-                    'job_vacancy_source']; // Add more as needed
+                        'job_vacancy_source'
+                    ]; // Add more as needed
                     radioGroupsInThisSection.forEach(groupName => {
                         const radioElements = sectionAccordionBody.querySelectorAll(
                             `input[name="${groupName}"]`);
@@ -2085,9 +2137,52 @@
             document.querySelectorAll('.accordion-button').forEach(button => {
                 const targetCollapseId = button.dataset.bsTarget;
                 setupAccordionHeaderToggle(button.id, targetCollapseId.substring(
-                1)); // Pass button ID and collapse ID
+                    1)); // Pass button ID and collapse ID
             });
+            const profileImageInput = document.getElementById('profileImage');
+            const profilePreview = document.getElementById('profilePreview');
+            const uploadAreaContainer = document.getElementById('uploadAreaContainer');
+            const clearProfileImageFlag = document.getElementById('profile_image_cleared_flag');
+            const clearProfileImageButton = document.getElementById('clearProfileImageButton');
+            const fileInfo = document.querySelector('#accordionInformasiUtama .file-info');
 
+            if (clearProfileImageButton) {
+                clearProfileImageButton.addEventListener('click', function() {
+                    if (confirm('Apakah Anda yakin ingin menghapus foto profil ini?')) {
+                        // Clear the file input
+                        profileImageInput.value = '';
+
+                        // Change preview to placeholder and adjust visibility
+                        profilePreview.src = "https://via.placeholder.com/80x80?text=?";
+                        profilePreview.style.display = 'block';
+                        if (uploadAreaContainer) { // Ensure container exists
+                            uploadAreaContainer.style.display = 'flex';
+                        }
+
+                        // Set the hidden flag to signal backend to clear image
+                        if (clearProfileImageFlag) {
+                            clearProfileImageFlag.value = '1';
+                        }
+
+                        // Update file info text
+                        if (fileInfo) {
+                            fileInfo.innerHTML = `
+                        Syarat: format jpg / png / jpeg maks. 2 MB<br>
+                        Foto profil dihapus. Silakan unggah yang baru.
+                    `;
+                        }
+                        // Hide the clear button itself after clearing
+                        clearProfileImageButton.style.display = 'none';
+                    }
+                });
+            }
+
+            // Add event listener for the file input change (already in your code, but ensure its within DOMContentLoaded)
+            if (profileImageInput) {
+                profileImageInput.addEventListener('change', function() {
+                    previewImage(this); // Call preview function when a new file is selected
+                });
+            }
             // Initial call for full form validation to mark empty required fields
             validateAllRequiredInputs();
 

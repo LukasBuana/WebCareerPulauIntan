@@ -39,7 +39,7 @@ class WordProcessorController extends Controller
 
         $dataToFill = [
             'full_name' => strtoupper($applicant->full_name ?? ''),
-            'jk' => $applicant->gender == 'L' ? 'Laki-laki' : ($applicant->gender == 'P' ? 'Perempuan' : ''),
+            'jk' => $applicant->gender == 'L' ? 'L' : ($applicant->gender == 'P' ? 'P' : ''),
             'place_birth' => strtoupper($applicant->place_of_birth ?? ''),
             'date_birth' => $applicant->date_of_birth ? Carbon::parse($applicant->date_of_birth)->format('d M Y') : '',
             'address_ktp' => strtoupper($applicant->permanent_address_ktp ?? ''),
@@ -74,29 +74,32 @@ class WordProcessorController extends Controller
             $templateProcessor->setValue($key, $value);
         }
 
-        if ($applicant->profile_image) {
+         if ($applicant->profile_image) { // $applicant->profile_image now holds the file path
             try {
-                $base64Image = $applicant->profile_image;
-                $pos = strpos($base64Image, ';');
-                $type = explode(':', substr($base64Image, 0, $pos))[1];
-                $imageExtension = explode('/', $type)[1] ?? 'png';
-                $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $base64Image));
+                // Get the full path to the image in local storage
+                // The 'public' disk root is typically storage_path('app/public')
+                $fullLocalPath = Storage::disk('public')->path($applicant->profile_image);
 
-                if ($imageData === false || empty($imageData)) {
-                    throw new \Exception("Decoded image data is empty or invalid.");
+                // Check if the file actually exists on disk before trying to use it
+                if (!file_exists($fullLocalPath)) {
+                    throw new \Exception("Profile image file not found on disk: " . $fullLocalPath);
                 }
 
-                $tempImagePath = tempnam(sys_get_temp_dir(), 'img_') . '.' . $imageExtension;
-                file_put_contents($tempImagePath, $imageData);
-
-                $templateProcessor->setImageValue('foto_profil', ['path' => $tempImagePath, 'width' => 105, 'height' => 120, 'ratio' => true]);
-                unlink($tempImagePath);
+                $templateProcessor->setImageValue('foto_profil', [
+                    'path' => $fullLocalPath,
+                    'width' => 105,
+                    'height' => 120,
+                    'ratio' => true
+                ]);
+                // No need to unlink $tempImagePath as we are using the original stored file
             } catch (\Exception $e) {
                 \Log::warning('Failed to process profile image for applicant ' . ($applicant->id ?? 'N/A') . ': ' . $e->getMessage());
+                // If there's an error (e.g., file not found), set the placeholder text
                 $templateProcessor->setValue('foto_profil', 'Tidak ada foto');
             }
         } else {
-            $templateProcessor->setValue('foto_profil', '');
+            // If $applicant->profile_image is null or empty, set placeholder text
+            $templateProcessor->setValue('foto_profil', 'Tidak ada foto');
         }
 
         // --- Isi Fixed Rows for Dependent Data (Spouse and Children) ---

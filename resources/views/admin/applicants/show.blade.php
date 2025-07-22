@@ -102,8 +102,8 @@
                         <div class="detail-card">
                             {{-- Foto Profil --}}
                             <div class="text-center">
-                                <img src="{{ $applicant->profile_image ?: 'https://placehold.co/120x120/cccccc/333333?text=N/A' }}"
-                                    alt="Foto Profil" class="profile-image-display">
+                                <img src="{{ Storage::url($applicant->profile_image) }}"
+                                     class="profile-image-display">
                             </div>
 
                             <h3 class="section-header">I. Data Diri Pribadi</h3>

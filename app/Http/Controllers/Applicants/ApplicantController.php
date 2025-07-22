@@ -19,6 +19,7 @@ use App\Models\Applicants\WorkExperience;
 use App\Models\Applicants\WorkAchievement;
 use App\Models\Applicants\HealthDeclaration;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon; // Import Carbon for date formatting
 
@@ -210,12 +211,11 @@ class ApplicantController extends Controller
 
         DB::beginTransaction();
         try {
-            $profileImageBase64 = null;
+            $profileImagePath = null; // Changed from $profileImageBase64
             if ($request->hasFile('profile_image')) {
                 $file = $request->file('profile_image');
-                $mimeType = $file->getMimeType();
-                $base64Data = base64_encode(file_get_contents($file->getRealPath()));
-                $profileImageBase64 = "data:{$mimeType};base64,{$base64Data}";
+                $fileName = 'profile_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension(); // Unique name
+                $profileImagePath = $file->storeAs('profile_images', $fileName, 'public'); // Store in 'profile_images' directory on 'public' disk
             }
 
             $applicantData = $request->except([
@@ -263,7 +263,7 @@ class ApplicantController extends Controller
             $applicantData['user_id'] = $user->id;
             $applicantData['email_address'] = $user->email;
             $applicantData['full_name'] = $user->name; // Use user's name as initial value
-            $applicantData['profile_image'] = $profileImageBase64;
+            $applicantData['profile_image'] = $profileImagePath;
 
             $applicant = Applicant::create($applicantData);
 
@@ -302,12 +302,17 @@ class ApplicantController extends Controller
 
         DB::beginTransaction();
         try {
-            $profileImageBase64 = $applicant->profile_image; // Keep old image if no new one
+            $profileImagePath = $applicant->profile_image; // Keep old image path by default
+
             if ($request->hasFile('profile_image')) {
+                // Delete old profile image if it exists
+                if ($applicant->profile_image && Storage::disk('public')->exists($applicant->profile_image)) {
+                    Storage::disk('public')->delete($applicant->profile_image);
+                }
+
                 $file = $request->file('profile_image');
-                $mimeType = $file->getMimeType();
-                $base64Data = base64_encode(file_get_contents($file->getRealPath()));
-                $profileImageBase64 = "data:{$mimeType};base64,{$base64Data}";
+                $fileName = 'profile_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension(); // Unique name
+                $profileImagePath = $file->storeAs('profile_images', $fileName, 'public'); // Store new image
             }
 
             $applicantData = $request->except([
@@ -351,8 +356,27 @@ class ApplicantController extends Controller
             foreach ($booleanFields as $field) {
                 $applicantData[$field] = $request->has($field) ? 1 : 0;
             }
-            $applicantData['profile_image'] = $profileImageBase64;
+$profileImagePath = $applicant->profile_image; // Start with the current path
 
+            if ($request->hasFile('profile_image')) {
+                // A new file was uploaded
+                // Delete the old profile image if it exists in storage
+                if ($applicant->profile_image && Storage::disk('public')->exists($applicant->profile_image)) {
+                    Storage::disk('public')->delete($applicant->profile_image);
+                }
+                // Store the new image
+                $file = $request->file('profile_image');
+                $fileName = 'profile_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+                $profileImagePath = $file->storeAs('profile_images', $fileName, 'public');
+            } elseif ($request->input('profile_image_cleared') === '1') {
+                // User explicitly indicated to clear the image (e.g., via a checkbox/hidden input)
+                if ($applicant->profile_image && Storage::disk('public')->exists($applicant->profile_image)) {
+                    Storage::disk('public')->delete($applicant->profile_image);
+                }
+                $profileImagePath = null; // Set image path to null in DB
+            }
+            // If no new file and 'profile_image_cleared' is not '1', $profileImagePath remains the old one.
+            $applicantData['profile_image'] = $profileImagePath;
             $applicant->update($applicantData);
 
             $this->syncApplicantNestedData($request, $applicant);
@@ -380,10 +404,10 @@ class ApplicantController extends Controller
     {
         $user = Auth::user();
         $applicant = $user->applicant;
-if (!Auth::check()) {
-        // This response will be JSON, preventing the frontend SyntaxError
-        return response()->json(['message' => 'Unauthorized. Please log in again.'], 401);
-    }
+        if (!Auth::check()) {
+            // This response will be JSON, preventing the frontend SyntaxError
+            return response()->json(['message' => 'Unauthorized. Please log in again.'], 401);
+        }
         // Create applicant if not exists
         if (!$applicant) {
             $applicant = Applicant::create([
@@ -412,12 +436,20 @@ if (!Auth::check()) {
                     ]);
                     // Handle profile image separately as it's a file upload
                     if ($request->hasFile('profile_image')) {
+                        // Delete old profile image if it exists
+                        if ($applicant->profile_image && Storage::disk('public')->exists($applicant->profile_image)) {
+                            Storage::disk('public')->delete($applicant->profile_image);
+                        }
+
                         $file = $request->file('profile_image');
-                        $mimeType = $file->getMimeType();
-                        $base64Data = base64_encode(file_get_contents($file->getRealPath()));
-                        $applicantData['profile_image'] = "data:{$mimeType};base64,{$base64Data}";
+                        // Ensure unique file name, perhaps using applicant ID or user ID
+                        $fileName = 'profile_' . $applicant->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+                        $applicantData['profile_image'] = $file->storeAs('profile_images', $fileName, 'public');
                     } elseif ($request->has('profile_image_cleared') && $request->input('profile_image_cleared') === '1') {
-                        // Logic to clear image if user explicitly removes it
+                        // Logic to clear image if user explicitly removes it (e.g., clicks "Clear Image")
+                        if ($applicant->profile_image && Storage::disk('public')->exists($applicant->profile_image)) {
+                            Storage::disk('public')->delete($applicant->profile_image);
+                        }
                         $applicantData['profile_image'] = null;
                     }
                     $applicant->update($applicantData);
