@@ -17,7 +17,7 @@
                 {{-- Main Card Header for Data Keluarga --}}
                 <div class="card-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse"
                     data-bs-target="#{{ $section_prefix ?? '' }}DataKeluargaMainCollapse" {{-- Unique ID for main collapse --}}
-                    aria-expanded="false" {{-- Start collapsed by default --}} style="cursor: pointer;">
+                    aria-expanded="true" {{-- Start collapsed by default --}} style="cursor: pointer;">
                     <h5 class="mb-0">
                         <i class="fas fa-users me-2"></i>Data Keluarga<span class="required">*</span>
                     </h5>
@@ -530,35 +530,40 @@
 </div>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // --- Logic for Main Card Header Toggle (Data Keluarga) ---
-        const mainCardHeaderKeluarga = document.getElementById('{{ $section_prefix ?? '' }}DataKeluargaMainToggle');
-        const mainCollapseKeluarga = document.getElementById('{{ $section_prefix ?? '' }}DataKeluargaMainCollapse');
-        const mainCollapseIconKeluarga = mainCardHeaderKeluarga ? mainCardHeaderKeluarga.querySelector('.collapse-icon') : null;
+    // --- Logic for Main Card Header Toggle (Data Keluarga) ---
+    // Cara yang lebih tepat untuk mendapatkan elemen header utama:
+    const mainCollapseKeluarga = document.getElementById('{{ $section_prefix ?? '' }}DataKeluargaMainCollapse');
+    const mainCardHeaderKeluarga = document.querySelector(`[data-bs-target="#${mainCollapseKeluarga.id}"]`); // Dapatkan header yang menargetkan collapse ini
+    const mainCollapseIconKeluarga = mainCardHeaderKeluarga ? mainCardHeaderKeluarga.querySelector('.collapse-icon') : null;
 
-        if (mainCardHeaderKeluarga && mainCollapseKeluarga && mainCollapseIconKeluarga) {
-            mainCollapseKeluarga.addEventListener('show.bs.collapse', function () {
-                mainCardHeaderKeluarga.classList.add('active');
-                mainCollapseIconKeluarga.classList.remove('fa-chevron-up');
-                mainCollapseIconKeluarga.classList.add('fa-chevron-down');
-            });
-
-            mainCollapseKeluarga.addEventListener('hide.bs.collapse', function () {
-                mainCardHeaderKeluarga.classList.remove('active');
-                mainCollapseIconKeluarga.classList.remove('fa-chevron-down');
-                mainCollapseIconKeluarga.classList.add('fa-chevron-up');
-            });
-
-            // Initial state for main card header
-            if (mainCollapseKeluarga.classList.contains('show')) {
-                mainCardHeaderKeluarga.classList.add('active');
-                mainCollapseIconKeluarga.classList.remove('fa-chevron-up');
-                mainCollapseIconKeluarga.classList.add('fa-chevron-down');
-            } else {
-                mainCardHeaderKeluarga.classList.remove('active');
-                mainCollapseIconKeluarga.classList.remove('fa-chevron-down');
-                mainCollapseIconKeluarga.classList.add('fa-chevron-up');
-            }
+    if (mainCardHeaderKeluarga && mainCollapseKeluarga && mainCollapseIconKeluarga) {
+        // Initial state
+        if (mainCollapseKeluarga.classList.contains('show')) {
+            mainCardHeaderKeluarga.classList.add('active');
+            mainCollapseIconKeluarga.classList.remove('fa-chevron-up');
+            mainCollapseIconKeluarga.classList.add('fa-chevron-down');
+        } else {
+            // Ini adalah kondisi default, pastikan kelas 'active' dihapus
+            mainCardHeaderKeluarga.classList.remove('active');
+            mainCollapseIconKeluarga.classList.remove('fa-chevron-down');
+            mainCollapseIconKeluarga.classList.add('fa-chevron-up');
         }
+
+        // Event listeners for Bootstrap collapse events
+        mainCollapseKeluarga.addEventListener('show.bs.collapse', function () {
+            mainCardHeaderKeluarga.classList.add('active');
+            mainCollapseIconKeluarga.classList.remove('fa-chevron-up');
+            mainCollapseIconKeluarga.classList.add('fa-chevron-down');
+        });
+
+        mainCollapseKeluarga.addEventListener('hide.bs.collapse', function () {
+            mainCardHeaderKeluarga.classList.remove('active');
+            mainCollapseIconKeluarga.classList.remove('fa-chevron-down');
+            mainCollapseIconKeluarga.classList.add('fa-chevron-up');
+        });
+    }
+
+    // ... (rest of your JavaScript code remains the same)
 
         // --- Dynamic Form Fields Logic (Tanggungan & Susunan Keluarga - already there) ---
         let dependentCount = 0;
