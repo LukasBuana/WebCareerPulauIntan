@@ -119,6 +119,8 @@
         @include('applicant.profile.data_organisasi')
         @include('applicant.profile.data_kursus')
         @include('applicant.profile.data_bahasa_asing')
+        @include('applicant.profile.data_keterampilan_komputer')
+        @include('applicant.profile.data_karya_ilmiah')
 
         <div class="submit-button-wrapper">
             <button type="button" class="submit-button">Print</button>
