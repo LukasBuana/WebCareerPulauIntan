@@ -665,19 +665,14 @@ Unlock your full potential with opportunities for training, mentorship, and adva
             {{-- Anda bisa menambahkan konten dinamis untuk berita di sini --}}
         </section>
 
+                    @include('beranda.footer_user')
+
 
 
 
        
 
-        <section class="stats-section">
-            <div class="container">
-                <div class="stats-content">
-                    <div class="stats-number">{{ $statsNumber ?? '90.000' }}<span class="plus-sign">+</span></div>
-                    <div class="stats-text">{{ $statsText ?? 'Pegawai Telah Bergabung Bersama Kami' }}</div>
-                </div>
-            </div>
-        </section>
+
     </main>
 
     <script>
@@ -751,5 +746,6 @@ Unlock your full potential with opportunities for training, mentorship, and adva
         });
     });
     </script>
+    
 </body>
 </html>
