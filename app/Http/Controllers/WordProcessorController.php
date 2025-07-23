@@ -13,7 +13,7 @@ class WordProcessorController extends Controller
 {
     public function printApplicationWord(Applicant $applicant)
     {
-        $templatePath = public_path('templates/testing3.docx');
+        $templatePath = public_path('templates/testing5.docx');
 
         try {
             $templateProcessor = new TemplateProcessor($templatePath);
@@ -74,7 +74,7 @@ class WordProcessorController extends Controller
             $templateProcessor->setValue($key, $value);
         }
 
-         if ($applicant->profile_image) { // $applicant->profile_image now holds the file path
+        if ($applicant->profile_image) { // $applicant->profile_image now holds the file path
             try {
                 // Get the full path to the image in local storage
                 // The 'public' disk root is typically storage_path('app/public')
@@ -180,9 +180,9 @@ class WordProcessorController extends Controller
         $father = $applicant->familyMembers->firstWhere('relationship', 'Ayah');
         $mother = $applicant->familyMembers->firstWhere('relationship', 'Ibu');
         $sibling1 = $applicant->familyMembers->firstWhere('relationship', 'Anak1');
-    $sibling2 = $applicant->familyMembers->firstWhere('relationship', 'Anak2');
-    $sibling3 = $applicant->familyMembers->firstWhere('relationship', 'Anak3');
-    $sibling4 = $applicant->familyMembers->firstWhere('relationship', 'Anak4');
+        $sibling2 = $applicant->familyMembers->firstWhere('relationship', 'Anak2');
+        $sibling3 = $applicant->familyMembers->firstWhere('relationship', 'Anak3');
+        $sibling4 = $applicant->familyMembers->firstWhere('relationship', 'Anak4');
 
 
         // Father
@@ -213,23 +213,23 @@ class WordProcessorController extends Controller
         $templateProcessor->setValue("pdobk2", strtoupper($formatPdob($sibling2?->place_of_birth, $sibling2?->date_of_birth)));
         $templateProcessor->setValue("eduk2", strtoupper($sibling2?->education ?? ''));
         $templateProcessor->setValue("workk2", strtoupper($sibling2?->occupation ?? ''));
-       
-       
+
+
         $templateProcessor->setValue("kid3", strtoupper($sibling3?->name ?? ''));
         $templateProcessor->setValue("jkk3", ($sibling3?->gender ?? '') == 'L' ? 'L' : (($sibling3?->gender ?? '') == 'P' ? 'P' : ''));
         $templateProcessor->setValue("pdobk3", strtoupper($formatPdob($sibling3?->place_of_birth, $sibling3?->date_of_birth)));
         $templateProcessor->setValue("eduk3", strtoupper($sibling3?->education ?? ''));
         $templateProcessor->setValue("workk3", strtoupper($sibling3?->occupation ?? ''));
 
-        
+
         $templateProcessor->setValue("kid4", strtoupper($sibling4?->name ?? ''));
         $templateProcessor->setValue("jkk4", ($sibling4?->gender ?? '') == 'L' ? 'L' : (($sibling4?->gender ?? '') == 'P' ? 'P' : ''));
-       $templateProcessor->setValue("pdobk4", strtoupper($formatPdob($sibling4?->place_of_birth, $sibling4?->date_of_birth)));
+        $templateProcessor->setValue("pdobk4", strtoupper($formatPdob($sibling4?->place_of_birth, $sibling4?->date_of_birth)));
         $templateProcessor->setValue("eduk4", strtoupper($sibling4?->education ?? ''));
         $templateProcessor->setValue("workk4", strtoupper($sibling4?->occupation ?? ''));
-       
-       
-       
+
+
+
         // --- Kontak Person (Fixed 4 entries) ---
         $fixedContacts = $applicant->contactPersons->values();
 
@@ -265,54 +265,49 @@ class WordProcessorController extends Controller
             return $period;
         };
 
-        $templateProcessor->setValue('sma', strtoupper($sma->institution ?? '')); 
-        $templateProcessor->setValue('psma', $formatPeriod($sma->period_start_year ?? '', $sma->period_end_year ?? '')); 
-        $templateProcessor->setValue('msma', strtoupper($sma->major ?? '')); 
-        $templateProcessor->setValue('gsma', strtoupper($sma->grade ?? '')); 
+        $templateProcessor->setValue('sma', strtoupper($sma->institution ?? ''));
+        $templateProcessor->setValue('psma', $formatPeriod($sma->period_start_year ?? '', $sma->period_end_year ?? ''));
+        $templateProcessor->setValue('msma', strtoupper($sma->major ?? ''));
+        $templateProcessor->setValue('gsma', strtoupper($sma->grade ?? ''));
 
-        $templateProcessor->setValue('diploma', strtoupper($diploma->institution ?? '')); 
-        $templateProcessor->setValue('pdiploma', $formatPeriod($diploma->period_start_year ?? '', $diploma->period_end_year ?? '')); 
-        $templateProcessor->setValue('mdiploma', strtoupper($diploma->major ?? '')); 
-        $templateProcessor->setValue('gdiploma', strtoupper($diploma->grade ?? '')); 
+        $templateProcessor->setValue('diploma', strtoupper($diploma->institution ?? ''));
+        $templateProcessor->setValue('pdiploma', $formatPeriod($diploma->period_start_year ?? '', $diploma->period_end_year ?? ''));
+        $templateProcessor->setValue('mdiploma', strtoupper($diploma->major ?? ''));
+        $templateProcessor->setValue('gdiploma', strtoupper($diploma->grade ?? ''));
 
-        $templateProcessor->setValue('universitas', strtoupper($universitas->institution ?? '')); 
-        $templateProcessor->setValue('puniversitas', $formatPeriod($universitas->period_start_year ?? '', $universitas->period_end_year ?? '')); 
-        $templateProcessor->setValue('muniversitas', strtoupper($universitas->major ?? '')); 
-        $templateProcessor->setValue('guniversitas', strtoupper($universitas->grade ?? '')); 
+        $templateProcessor->setValue('universitas', strtoupper($universitas->institution ?? ''));
+        $templateProcessor->setValue('puniversitas', $formatPeriod($universitas->period_start_year ?? '', $universitas->period_end_year ?? ''));
+        $templateProcessor->setValue('muniversitas', strtoupper($universitas->major ?? ''));
+        $templateProcessor->setValue('guniversitas', strtoupper($universitas->grade ?? ''));
 
-        $templateProcessor->setValue('master', strtoupper($master->institution ?? '')); 
-        $templateProcessor->setValue('pmaster', $formatPeriod($master->period_start_year ?? '', $master->period_end_year ?? '')); 
-        $templateProcessor->setValue('mmaster', strtoupper($master->major ?? '')); 
-        $templateProcessor->setValue('gmaster', strtoupper($master->grade ?? '')); 
+        $templateProcessor->setValue('master', strtoupper($master->institution ?? ''));
+        $templateProcessor->setValue('pmaster', $formatPeriod($master->period_start_year ?? '', $master->period_end_year ?? ''));
+        $templateProcessor->setValue('mmaster', strtoupper($master->major ?? ''));
+        $templateProcessor->setValue('gmaster', strtoupper($master->grade ?? ''));
 
 
-        // --- Dynamic Section: Organizational Experience ---
-        if ($applicant->organizationalExperience->isNotEmpty()) {
-            $orgDataForWord = $applicant->organizationalExperience->map(function ($org) {
-                return [
-                    'org_name' => strtoupper($org->organization_name ?? ''),
-                    'org_title' => strtoupper($org->title_in_organization ?? ''),
-                    'org_period' => strtoupper($org->period ?? ''),
-                ];
-            })->toArray();
-            $templateProcessor->cloneRowAndSetValues('organization_row', $orgDataForWord);
-        } else {
-            $templateProcessor->deleteBlock('organization_row');
+        $organization = $applicant->organizationalExperience->values();
+
+        for ($i = 0; $i < 4; $i++) {
+            $organisasi = $organization->get($i);
+            $suffix = ($i + 1);
+
+            $templateProcessor->setValue("organization{$suffix}", strtoupper($organisasi?->organization_name ?? ''));
+            $templateProcessor->setValue("titleorganization{$suffix}", strtoupper($organisasi?->title_in_organization ?? ''));
+            $templateProcessor->setValue("periodorganization{$suffix}", strtoupper($organisasi?->period ?? ''));
         }
 
-        // --- Dynamic Section: Training Courses ---
-        if ($applicant->trainingCourses->isNotEmpty()) {
-            $trainingDataForWord = $applicant->trainingCourses->map(function ($training) {
-                return [
-                    'train_name' => strtoupper($training->training_course_name ?? ''),
-                    'train_year' => $training->year ?? '',
-                    'train_held_by' => strtoupper($training->held_by ?? ''),
-                    'train_grade' => strtoupper($training->grade ?? ''),
-                ];
-            })->toArray();
-            $templateProcessor->cloneRowAndSetValues('training_row', $trainingDataForWord);
-        } else {
-            $templateProcessor->deleteBlock('training_row');
+        $course = $applicant->trainingCourses->values();
+
+        for ($i = 0; $i < 4; $i++) {
+            $kursus = $course->get($i);
+            $suffix = ($i + 1);
+
+            $templateProcessor->setValue("course{$suffix}", strtoupper($kursus?->training_course_name ?? ''));
+            $templateProcessor->setValue("cyear{$suffix}", strtoupper($kursus?->year	 ?? ''));
+            $templateProcessor->setValue("held{$suffix}", strtoupper($kursus?->held_by ?? ''));
+            $templateProcessor->setValue("gc{$suffix}", strtoupper($kursus?->grade ?? ''));
+
         }
 
         // --- Dynamic Section: Languages ---

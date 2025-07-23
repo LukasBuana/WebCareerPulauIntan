@@ -42,7 +42,7 @@
                                             <div class="row mt-4">
                                                 <div class="col-md-12 text-end">
                                                     <button type="submit" class="btn btn-primary px-4 save-section-btn"
-                                                        data-section="training_course"
+                                                        data-section="training_courses"
                                                         data-prefix="{{ $section_prefix ?? '' }}">
                                                         <i class="fas fa-save me-2"></i>Simpan Kursus dan Training
                                                     </button>
@@ -107,17 +107,17 @@
         const addTrainingCourseButton = document.getElementById(`${sectionPrefix}add-training-course`);
 
         function addTrainingCourseField(prefix, index, data = {}) {
-            const training_name = data.training_name || '';
+            const training_course_name = data.training_course_name || '';
             const year = data.year || '';
-            const organizer = data.organizer || '';
-            const ranking = data.ranking || '';
+            const held_by = data.held_by || '';
+            const grade = data.grade || '';
 
             const trainingCourseHtml = `
                 <div class="training-course-item border p-3 mb-3 rounded" id="${prefix}training-course-${index}">
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="${prefix}training_name_${index}" class="form-label">Nama Training <span class="required">*</span></label>
-                            <input type="text" class="form-control" id="${prefix}training_name_${index}" name="training_courses[${index}][training_name]" value="${training_name}" required>
+                            <label for="${prefix}training_course_name_${index}" class="form-label">Nama Training <span class="required">*</span></label>
+                            <input type="text" class="form-control" id="${prefix}training_course_name_${index}" name="training_courses[${index}][training_course_name]" value="${training_course_name}" required>
                             <div class="error-message text-danger small mt-1"></div>
                         </div>
                         <div class="col-md-6 mb-3">
@@ -128,13 +128,13 @@
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="${prefix}organizer_${index}" class="form-label">Penyelenggara <span class="required">*</span></label>
-                            <input type="text" class="form-control" id="${prefix}organizer_${index}" name="training_courses[${index}][organizer]" value="${organizer}" required>
+                            <label for="${prefix}held_by_${index}" class="form-label">Penyelenggara <span class="required">*</span></label>
+                            <input type="text" class="form-control" id="${prefix}held_by_${index}" name="training_courses[${index}][held_by]" value="${held_by}" required>
                             <div class="error-message text-danger small mt-1"></div>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="${prefix}ranking_${index}" class="form-label">Peringkat <span class="required">*</span></label>
-                            <input type="text" class="form-control" id="${prefix}ranking_${index}" name="training_courses[${index}][ranking]" value="${ranking}" placeholder="Contoh: Terbaik / A / Lulus" required>
+                            <label for="${prefix}grade_${index}" class="form-label">Peringkat <span class="required">*</span></label>
+                            <input type="text" class="form-control" id="${prefix}grade_${index}" name="training_courses[${index}][grade]" value="${grade}" placeholder="Contoh: Terbaik / A / Lulus" required>
                             <div class="error-message text-danger small mt-1"></div>
                         </div>
                     </div>
@@ -184,8 +184,8 @@
                 const prefix = this.dataset.prefix;
                 let formElement;
 
-                // Only handle 'training_course' section as per requirement
-                if (sectionId === 'training_course') {
+                // Only handle 'training_courses' section as per requirement
+                if (sectionId === 'training_courses') {
                     formElement = document.getElementById(`${prefix}formTrainingCourse`);
                 } else {
                     console.error(`Attempted to save an unhandled section: ${sectionId}`);
@@ -222,10 +222,10 @@
                 } else {
                     currentSectionItems.forEach((item, idx) => {
                         const fieldsToCheck = [
-                            { field: item.querySelector(`[name="training_courses[${idx}][training_name]"]`), msg: 'Nama Training harus diisi.' },
+                            { field: item.querySelector(`[name="training_courses[${idx}][training_course_name]"]`), msg: 'Nama Training harus diisi.' },
                             { field: item.querySelector(`[name="training_courses[${idx}][year]"]`), msg: 'Tahun harus diisi dan 4 digit.' },
-                            { field: item.querySelector(`[name="training_courses[${idx}][organizer]"]`), msg: 'Penyelenggara harus diisi.' },
-                            { field: item.querySelector(`[name="training_courses[${idx}][ranking]"]`), msg: 'Peringkat harus diisi.' }
+                            { field: item.querySelector(`[name="training_courses[${idx}][held_by]"]`), msg: 'Penyelenggara harus diisi.' },
+                            { field: item.querySelector(`[name="training_courses[${idx}][grade]"]`), msg: 'Peringkat harus diisi.' }
                         ];
 
                         fieldsToCheck.forEach(f => {
@@ -255,12 +255,12 @@
                     const formData = new FormData(formElement);
                     const allFormData = {};
                     formData.forEach((value, key) => {
-                        // This regex handles array inputs like training_courses[0][training_name]
+                        // This regex handles array inputs like training_courses[0][training_course_name]
                         const match = key.match(/(\w+)\[(\d+)\]\[(\w+)\]/);
                         if (match) {
                             const parentKey = match[1]; // e.g., 'training_courses'
                             const index = match[2]; // e.g., '0'
-                            const fieldKey = match[3]; // e.g., 'training_name'
+                            const fieldKey = match[3]; // e.g., 'training_course_name'
 
                             if (!allFormData[parentKey]) {
                                 allFormData[parentKey] = [];

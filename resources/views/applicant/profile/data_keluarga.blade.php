@@ -1,14 +1,4 @@
-{{-- File: resources/views/applicant/profile/data_keluarga.blade.php --}}
 
-{{-- Pastikan Anda memanggil file ini dari `index.blade.php` atau file master lainnya seperti ini:
-@include('applicant.profile.data_keluarga', [
-    'section_prefix' => 'keluarga_',
-    'dependentsData' => $dependentsData ?? [],
-    'familyMembersData' => $familyMembersData ?? [],
-    'contactPersonsData' => $contactPersonsData ?? [], // Keep this for existing data
-    'fixedContactPersonsData' => $fixedContactPersonsData ?? [] // NEW: Pass fixed contact data
-])
---}}
 
 <div class="container-fluid mt-4"> {{-- Added mt-4 for spacing from Data Pribadi --}}
     <div class="row">
@@ -1189,47 +1179,6 @@
         }
 
 
-        // IMPORTANT: Add validation logic for other dynamic sections like education_history, organizational_experience, etc.
-        // Similar structure to 'dependents' and 'family_members' for iterating over items and checking fields.
-        // Example structure for other dynamic sections:
-        if (sectionId === 'education_history') {
-            const eduContainer = document.getElementById('educationHistoryContainer'); // Assuming you have this container
-            if (!eduContainer) {
-                console.error('Education History container not found!');
-                isValid = false;
-                alert('Error: Education History container not found.');
-                return;
-            }
-            const eduItems = eduContainer.querySelectorAll('.education-item'); // Assuming a class 'education-item' for each entry
-            if (eduItems.length === 0) {
-                isValid = false;
-                alert('Mohon tambahkan setidaknya satu Riwayat Pendidikan.');
-            } else {
-                eduItems.forEach((item, idx) => {
-                    const fieldsToCheck = [
-                        { field: item.querySelector(`[name="education_history[${idx}][level_of_education]"]`), msg: 'Jenjang pendidikan harus diisi' },
-                        { field: item.querySelector(`[name="education_history[${idx}][institution]"]`), msg: 'Nama institusi harus diisi' },
-                        { field: item.querySelector(`[name="education_history[${idx}][period_start_year]"]`), msg: 'Tahun mulai harus diisi' },
-                        { field: item.querySelector(`[name="education_history[${idx}][period_end_year]"]`), msg: 'Tahun selesai harus diisi' },
-                        // ... add other fields as required
-                    ];
-                    fieldsToCheck.forEach(f => {
-                        if (f.field && (f.field.tagName === 'SELECT' ? !f.field.value : !f.field.value.trim())) {
-                            f.field.classList.add('is-invalid');
-                            const errorMsg = f.field.parentElement.querySelector('.error-message');
-                            if (errorMsg) {
-                                errorMsg.textContent = f.msg;
-                                errorMsg.style.display = 'block';
-                            }
-                            isValid = false;
-                        }
-                    });
-                });
-            }
-        }
-        // ... repeat for organizational_experience, training_courses, languages, computer_skills, publications, work_experience, work_achievements, health_declaration
-
-        // --- END Dynamic Fields Validation ---
 
 
         if (isValid) {

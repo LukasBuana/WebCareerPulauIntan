@@ -214,8 +214,9 @@ class ApplicantController extends Controller
             $profileImagePath = null; // Changed from $profileImageBase64
             if ($request->hasFile('profile_image')) {
                 $file = $request->file('profile_image');
-                $fileName = 'profile_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension(); // Unique name
-                $profileImagePath = $file->storeAs('profile_images', $fileName, 'public'); // Store in 'profile_images' directory on 'public' disk
+                // Generate UUID for unique and unpredictable filename
+                $fileName = Str::uuid() . '.' . $file->getClientOriginalExtension();
+                $profileImagePath = $file->storeAs('profile_images', $fileName, 'public'); // Simpan di 'profile_images' directory pada 'public' disk
             }
 
             $applicantData = $request->except([
@@ -305,15 +306,11 @@ class ApplicantController extends Controller
             $profileImagePath = $applicant->profile_image; // Keep old image path by default
 
             if ($request->hasFile('profile_image')) {
-                // Delete old profile image if it exists
-                if ($applicant->profile_image && Storage::disk('public')->exists($applicant->profile_image)) {
-                    Storage::disk('public')->delete($applicant->profile_image);
-                }
-
-                $file = $request->file('profile_image');
-                $fileName = 'profile_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension(); // Unique name
-                $profileImagePath = $file->storeAs('profile_images', $fileName, 'public'); // Store new image
-            }
+    $file = $request->file('profile_image');
+    // Generate UUID for unique and unpredictable filename
+    $fileName = Str::uuid() . '.' . $file->getClientOriginalExtension(); 
+    $profileImagePath = $file->storeAs('profile_images', $fileName, 'public'); // Simpan di 'profile_images' directory pada 'public' disk
+}
 
             $applicantData = $request->except([
                 '_token',
@@ -356,7 +353,7 @@ class ApplicantController extends Controller
             foreach ($booleanFields as $field) {
                 $applicantData[$field] = $request->has($field) ? 1 : 0;
             }
-$profileImagePath = $applicant->profile_image; // Start with the current path
+            $profileImagePath = $applicant->profile_image; // Start with the current path
 
             if ($request->hasFile('profile_image')) {
                 // A new file was uploaded
@@ -366,7 +363,7 @@ $profileImagePath = $applicant->profile_image; // Start with the current path
                 }
                 // Store the new image
                 $file = $request->file('profile_image');
-                $fileName = 'profile_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+    $fileName = Str::uuid() . '.' . $file->getClientOriginalExtension(); 
                 $profileImagePath = $file->storeAs('profile_images', $fileName, 'public');
             } elseif ($request->input('profile_image_cleared') === '1') {
                 // User explicitly indicated to clear the image (e.g., via a checkbox/hidden input)
@@ -443,7 +440,8 @@ $profileImagePath = $applicant->profile_image; // Start with the current path
 
                         $file = $request->file('profile_image');
                         // Ensure unique file name, perhaps using applicant ID or user ID
-                        $fileName = 'profile_' . $applicant->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+                         $fileName = Str::uuid() . '.' . $file->getClientOriginalExtension(); 
+
                         $applicantData['profile_image'] = $file->storeAs('profile_images', $fileName, 'public');
                     } elseif ($request->has('profile_image_cleared') && $request->input('profile_image_cleared') === '1') {
                         // Logic to clear image if user explicitly removes it (e.g., clicks "Clear Image")
