@@ -13,7 +13,7 @@ class WordProcessorController extends Controller
 {
     public function printApplicationWord(Applicant $applicant)
     {
-        $templatePath = public_path('templates/testing5.docx');
+        $templatePath = public_path('templates/testing6.docx');
 
         try {
             $templateProcessor = new TemplateProcessor($templatePath);
@@ -310,22 +310,19 @@ class WordProcessorController extends Controller
 
         }
 
-        // --- Dynamic Section: Languages ---
-        if ($applicant->languages->isNotEmpty()) {
-            $languageDataForWord = $applicant->languages->map(function ($lang) {
-                return [
-                    'lang_name' => strtoupper($lang->language_name ?? ''),
-                    'lang_listen' => strtoupper($lang->listening_proficiency ?? ''),
-                    'lang_read' => strtoupper($lang->reading_proficiency ?? ''),
-                    'lang_speak' => strtoupper($lang->speaking_proficiency ?? ''),
-                    'lang_write' => strtoupper($lang->written_proficiency ?? ''),
-                ];
-            })->toArray();
-            $templateProcessor->cloneRowAndSetValues('language_row', $languageDataForWord);
-        } else {
-            $templateProcessor->deleteBlock('language_row');
-        }
+        $language = $applicant->languages->values();
 
+        for ($i = 0; $i < 4; $i++) {
+            $bahasa = $language->get($i);
+            $suffix = ($i + 1);
+
+            $templateProcessor->setValue("bahasa{$suffix}", strtoupper($bahasa?->language_name ?? ''));
+            $templateProcessor->setValue("listen{$suffix}", strtoupper($bahasa?->listening_proficiency	 ?? ''));
+            $templateProcessor->setValue("read{$suffix}", strtoupper($bahasa?->reading_proficiency ?? ''));
+            $templateProcessor->setValue("speak{$suffix}", strtoupper($bahasa?->speaking_proficiency ?? ''));
+            $templateProcessor->setValue("written{$suffix}", strtoupper($bahasa?->written_proficiency ?? ''));
+
+        }
         // --- Dynamic Section: Computer Skills ---
         if ($applicant->computerSkills->isNotEmpty()) {
             $skillDataForWord = $applicant->computerSkills->map(function ($skill) {

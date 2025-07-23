@@ -41,7 +41,7 @@
                                             <div class="row mt-4">
                                                 <div class="col-md-12 text-end">
                                                     <button type="submit" class="btn btn-primary px-4 save-section-btn"
-                                                        data-section="foreign_language"
+                                                        data-section="languages"
                                                         data-prefix="{{ $section_prefix ?? '' }}">
                                                         <i class="fas fa-save me-2"></i>Simpan Bahasa Asing
                                                     </button>
@@ -97,7 +97,7 @@
 
         // --- Dynamic Fields for Foreign Language Proficiency ---
         // Assuming $applicant->foreignLanguages holds existing data
-        const existingForeignLanguageData = @json($applicant->foreignLanguages ?? []);
+        const existingForeignLanguageData = @json($applicant->languages ?? []);
         let foreignLanguageCount = existingForeignLanguageData.length;
         const foreignLanguageContainer = document.getElementById(
             '{{ $section_prefix ?? '' }}foreign-language-container');
@@ -109,10 +109,10 @@
             const listening_proficiency = data.listening_proficiency || '';
             const reading_proficiency = data.reading_proficiency || '';
             const speaking_proficiency = data.speaking_proficiency || '';
-            const writing_proficiency = data.writing_proficiency || '';
+            const written_proficiency	 = data.written_proficiency	 || '';
 
             const proficiencyOptions = [
-                { value: 'Baik sekali', text: 'Baik sekali' },
+                { value: 'Baik Sekali', text: 'Baik Sekali' },
                 { value: 'Baik', text: 'Baik' },
                 { value: 'Cukup', text: 'Cukup' },
                 { value: 'Kurang', text: 'Kurang' }
@@ -131,36 +131,36 @@
                     <div class="row">
                         <div class="col-md-12 mb-3">
                             <label for="${prefix}language_name_${index}" class="form-label">Jenis Bahasa <span class="required">*</span></label>
-                            <input type="text" class="form-control" id="${prefix}language_name_${index}" name="foreign_languages[${index}][language_name]" value="${language_name}" required>
+                            <input type="text" class="form-control" id="${prefix}language_name_${index}" name="languages[${index}][language_name]" value="${language_name}" required>
                             <div class="error-message"></div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-3 mb-3">
                             <label for="${prefix}listening_proficiency_${index}" class="form-label">Mendengar <span class="required">*</span></label>
-                            <select class="form-select" id="${prefix}listening_proficiency_${index}" name="foreign_languages[${index}][listening_proficiency]" required>
+                            <select class="form-select" id="${prefix}listening_proficiency_${index}" name="languages[${index}][listening_proficiency]" required>
                                 ${createSelectOptions(listening_proficiency)}
                             </select>
                             <div class="error-message"></div>
                         </div>
                         <div class="col-md-3 mb-3">
                             <label for="${prefix}reading_proficiency_${index}" class="form-label">Membaca <span class="required">*</span></label>
-                            <select class="form-select" id="${prefix}reading_proficiency_${index}" name="foreign_languages[${index}][reading_proficiency]" required>
+                            <select class="form-select" id="${prefix}reading_proficiency_${index}" name="languages[${index}][reading_proficiency]" required>
                                 ${createSelectOptions(reading_proficiency)}
                             </select>
                             <div class="error-message"></div>
                         </div>
                         <div class="col-md-3 mb-3">
                             <label for="${prefix}speaking_proficiency_${index}" class="form-label">Berbicara <span class="required">*</span></label>
-                            <select class="form-select" id="${prefix}speaking_proficiency_${index}" name="foreign_languages[${index}][speaking_proficiency]" required>
+                            <select class="form-select" id="${prefix}speaking_proficiency_${index}" name="languages[${index}][speaking_proficiency]" required>
                                 ${createSelectOptions(speaking_proficiency)}
                             </select>
                             <div class="error-message"></div>
                         </div>
                         <div class="col-md-3 mb-3">
-                            <label for="${prefix}writing_proficiency_${index}" class="form-label">Menulis <span class="required">*</span></label>
-                            <select class="form-select" id="${prefix}writing_proficiency_${index}" name="foreign_languages[${index}][writing_proficiency]" required>
-                                ${createSelectOptions(writing_proficiency)}
+                            <label for="${prefix}written_proficiency_${index}" class="form-label">Menulis <span class="required">*</span></label>
+                            <select class="form-select" id="${prefix}written_proficiency_${index}" name="languages[${index}][written_proficiency]" required>
+                                ${createSelectOptions(written_proficiency)}
                             </select>
                             <div class="error-message"></div>
                         </div>
@@ -229,72 +229,20 @@
                     input.classList.remove('is-invalid');
                 });
 
-                // --- Validation for Education History ---
-                if (sectionId === 'education_history') {
-                    const educationItems = sectionElement.querySelectorAll('.education-item');
-                    if (educationItems.length === 0) {
-                        isValid = false;
-                        alert('Mohon tambahkan setidaknya satu Riwayat Pendidikan.');
-                    } else {
-                        educationItems.forEach((item, idx) => {
-                            const jenjangField = item.querySelector(`[name="education_history[${idx}][level_of_education]"]`);
-                            const institusiField = item.querySelector(`[name="education_history[${idx}][institution]"]`);
-                            const jurusanField = item.querySelector(`[name="education_history[${idx}][major]"]`);
-                            const tahunMulaiField = item.querySelector(`[name="education_history[${idx}][period_start_year]"]`);
-                            const tahunSelesaiField = item.querySelector(`[name="education_history[${idx}][period_end_year]"]`);
-
-                            const fieldsToCheck = [
-                                { field: jenjangField, msg: 'Jenjang harus diisi' },
-                                { field: institusiField, msg: 'Nama institusi harus diisi' },
-                                { field: jurusanField, msg: 'Jurusan harus diisi' },
-                                { field: tahunMulaiField, msg: 'Tahun mulai harus diisi' },
-                                { field: tahunSelesaiField, msg: 'Tahun selesai harus diisi' }
-                            ];
-
-                            fieldsToCheck.forEach(f => {
-                                if (f.field && (f.field.type === 'select-one' ? !f.field.value : !f.field.value.trim())) {
-                                    f.field.classList.add('is-invalid');
-                                    const errorMsg = f.field.parentElement.querySelector('.error-message');
-                                    if (errorMsg) {
-                                        errorMsg.textContent = f.msg;
-                                        errorMsg.style.display = 'block';
-                                    }
-                                    isValid = false;
-                                }
-                            });
-
-                            if (tahunMulaiField && tahunSelesaiField && tahunMulaiField.value && tahunSelesaiField.value) {
-                                const startYear = parseInt(tahunMulaiField.value);
-                                const endYear = parseInt(tahunSelesaiField.value);
-                                if (startYear > endYear) {
-                                    tahunSelesaiField.classList.add('is-invalid');
-                                    const errorMsg = tahunSelesaiField.parentElement.querySelector('.error-message');
-                                    if (errorMsg) {
-                                        errorMsg.textContent = 'Tahun selesai tidak boleh sebelum tahun mulai.';
-                                        errorMsg.style.display = 'block';
-                                    }
-                                    isValid = false;
-                                }
-                            }
-                        });
-                    }
-                }
-
-              
-
+               
                 // --- Validation for Foreign Language --- (NEW)
-                if (sectionId === 'foreign_language') {
+                if (sectionId === 'languages') {
                     const foreignLanguageItems = sectionElement.querySelectorAll('.foreign-language-item');
                     if (foreignLanguageItems.length === 0) {
                         isValid = false;
                         alert('Mohon tambahkan setidaknya satu Bahasa Asing yang dikuasai.');
                     } else {
                         foreignLanguageItems.forEach((item, idx) => {
-                            const languageNameField = item.querySelector(`[name="foreign_languages[${idx}][language_name]"]`);
-                            const listeningField = item.querySelector(`[name="foreign_languages[${idx}][listening_proficiency]"]`);
-                            const readingField = item.querySelector(`[name="foreign_languages[${idx}][reading_proficiency]"]`);
-                            const speakingField = item.querySelector(`[name="foreign_languages[${idx}][speaking_proficiency]"]`);
-                            const writingField = item.querySelector(`[name="foreign_languages[${idx}][writing_proficiency]"]`);
+                            const languageNameField = item.querySelector(`[name="languages[${idx}][language_name]"]`);
+                            const listeningField = item.querySelector(`[name="languages[${idx}][listening_proficiency]"]`);
+                            const readingField = item.querySelector(`[name="languages[${idx}][reading_proficiency]"]`);
+                            const speakingField = item.querySelector(`[name="languages[${idx}][speaking_proficiency]"]`);
+                            const writingField = item.querySelector(`[name="languages[${idx}][written_proficiency]"]`);
 
                             const fieldsToCheck = [
                                 { field: languageNameField, msg: 'Jenis Bahasa harus diisi' },
