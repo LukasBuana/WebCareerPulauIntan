@@ -658,6 +658,16 @@ Unlock your full potential with opportunities for training, mentorship, and adva
 
         </section>
 
+        <section id="1" class="container" style="padding: 80px 0; margin-top: 20px;">
+            
+                        <h2 style="font-size: 2.5rem; color: #2563eb; text-align: center; margin-bottom: 40px;">What They Said</h2>
+              @include('beranda.testimonial')
+
+
+
+
+        </section>
+
          <section id="faq">
             <!-- <h2 style="font-size: 2.5rem; color: #2563eb; text-align: center; margin-bottom: 40px;">Pertanyaan yang Sering Diajukan</h2> -->
             @include('beranda.faq')
