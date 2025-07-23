@@ -622,6 +622,8 @@
             </div>
         </div>
     </div>
+                        @include('beranda.footer_user')
+
 </body>
 
 </html>

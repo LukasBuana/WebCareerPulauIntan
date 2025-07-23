@@ -295,6 +295,8 @@
             });
         });
     </script>
+                        @include('beranda.footer_user')
+
 </body>
 
 </html>
