@@ -367,4 +367,6 @@
             renderJobListings(allJobsFromBackend); 
         });
     </script>
+                        @include('beranda.footer_user')
+
 </body>
