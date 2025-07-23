@@ -52,6 +52,9 @@
             font-weight: 700;
             color: #2563eb;
             text-decoration: none;
+            height: 50px;
+            margin-top: 17px;
+
         }
 
         .logo-text {
@@ -120,7 +123,8 @@
 
         /* Style for Logout button (make it look similar to btn-masuk) */
         .btn-keluar {
-            background: #dc2626; /* A red color for "Keluar" */
+            background: #dc2626;
+            /* A red color for "Keluar" */
             border: 2px solid #dc2626;
             color: white;
             padding: 8px 20px;
@@ -128,11 +132,13 @@
             font-weight: 500;
             text-decoration: none;
             transition: all 0.3s ease;
-            cursor: pointer; /* Ensure it looks clickable */
+            cursor: pointer;
+            /* Ensure it looks clickable */
         }
 
         .btn-keluar:hover {
-            background: #b01c1c; /* Darker red on hover */
+            background: #b01c1c;
+            /* Darker red on hover */
             border-color: #b01c1c;
         }
 
@@ -234,17 +240,17 @@
         <div class="container">
             <div class="header-content">
                 @if(Request::is('/'))
-                    <a href="" class="logo">
+                    <a href="{{route("home")}}" class="logo">
                         <div>
-                            <div class="logo-text">Pulau</div>
-                            <div class="logo-subtitle">INTAN</div>
+                            <img src="/images/pulauintanbajaperkasalogo.png" alt="Pulau Intan Logo"
+                                style="max-width: 250px; height: 90px;">
                         </div>
                     </a>
                 @else {{-- Jika rute saat ini BUKAN halaman landing --}}
                     <a href="{{route("home")}}" class="logo">
                         <div>
-                            <div class="logo-text">Pulau</div>
-                            <div class="logo-subtitle">INTAN</div>
+                            <img src="/images/pulauintanbajaperkasalogo.png" alt="Pulau Intan Logo"
+                                style="max-width: 250px; height: 90px;">
                         </div>
                     </a>
                 @endif
@@ -260,35 +266,35 @@
                         </li>
                         <li class="nav-item">
                             @if(Request::is(patterns: '/'))
-                            <a href="#tentang" class="nav-link">Tentang</a>
+                                <a href="#tentang" class="nav-link">Tentang</a>
                             @else {{-- Jika rute saat ini BUKAN halaman landing --}}
                                 <a href="{{ route('home') }}" class="nav-link">Tentang</a>
                             @endif
                         </li>
                         <li class="nav-item">
                             @if(Request::is('/'))
-                            <a href="#berita" class="nav-link">Berita</a>
+                                <a href="#berita" class="nav-link">Berita</a>
                             @else {{-- Jika rute saat ini BUKAN halaman landing --}}
                                 <a href="{{ route('home') }}" class="nav-link">Berita</a>
                             @endif
                         </li>
                         <li class="nav-item">
                             @if(Request::is('/'))
-                            <a href="#lowongan" class="nav-link">Lowongan</a>
+                                <a href="#lowongan" class="nav-link">Lowongan</a>
                             @else {{-- Jika rute saat ini BUKAN halaman landing --}}
                                 <a href="{{ route('home') }}" class="nav-link">Lowongan</a>
                             @endif
                         </li>
                         <li class="nav-item">
                             @if(Request::is('/'))
-                            <a href="#bursa-kerja" class="nav-link">Bursa Kerja</a>
+                                <a href="#bursa-kerja" class="nav-link">Bursa Kerja</a>
                             @else {{-- Jika rute saat ini BUKAN halaman landing --}}
                                 <a href="{{ route('home') }}" class="nav-link">Bursa Kerja</a>
                             @endif
                         </li>
                         <li class="nav-item">
                             @if(Request::is('/'))
-                            <a href="#faq" class="nav-link">Tanya Jawab</a>
+                                <a href="#faq" class="nav-link">Tanya Jawab</a>
                             @else {{-- Jika rute saat ini BUKAN halaman landing --}}
                                 <a href="{{ route('home') }}" class="nav-link">Tanya Jawab</a>
                             @endif
