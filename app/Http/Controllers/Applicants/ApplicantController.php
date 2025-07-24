@@ -32,12 +32,14 @@ class ApplicantController extends Controller
     {
         $user = Auth::user();
         $applicant = $user->applicant;
+   
 
         if (!$applicant) {
             $applicant = new Applicant();
             $applicant->user_id = $user->id;
             $applicant->email_address = $user->email;
             $applicant->full_name = $user->name;
+            
         } else {
             // Load all necessary relationships for dynamic forms
             $applicant->load([
@@ -64,6 +66,7 @@ class ApplicantController extends Controller
 
         $dependentsData = $applicant->dependents->map(function ($dep) {
             return [
+                'id' => $dep->id,
                 'name' => $dep->name,
                 'relationship' => $dep->relationship,
                 'gender' => $dep->gender,
@@ -76,6 +79,7 @@ class ApplicantController extends Controller
 
         $familyMembersData = $applicant->familyMembers->map(function ($fm) {
             return [
+                'id' => $fm->id,
                 'name' => $fm->name,
                 'relationship' => $fm->relationship,
                 'gender' => $fm->gender,
@@ -124,30 +128,31 @@ class ApplicantController extends Controller
             }
         }
         $educationHistoryData = $applicant->educationHistory->map(function ($eh) {
-            return $eh->only(['level_of_education', 'institution', 'period_start_year', 'period_end_year', 'major', 'grade']);
+            return $eh->only(['id','level_of_education', 'institution', 'period_start_year', 'period_end_year', 'major', 'grade']);
         })->toArray();
         $organizationalExperienceData = $applicant->organizationalExperience->map(function ($oe) {
-            return $oe->only(['organization_name', 'title_in_organization', 'period']);
+            return $oe->only(['id','organization_name', 'title_in_organization', 'period']);
         })->toArray();
         $trainingCoursesData = $applicant->trainingCourses->map(function ($tc) {
-            return $tc->only(['training_course_name', 'year', 'held_by', 'grade']);
+            return $tc->only(['id','training_course_name', 'year', 'held_by', 'grade']);
         })->toArray();
         $languagesData = $applicant->languages->map(function ($lang) {
-            return $lang->only(['language_name', 'listening_proficiency', 'reading_proficiency', 'speaking_proficiency', 'written_proficiency']);
+            return $lang->only(['id','language_name', 'listening_proficiency', 'reading_proficiency', 'speaking_proficiency', 'written_proficiency']);
         })->toArray();
         $computerSkillsData = $applicant->computerSkills->map(function ($cs) {
-            return $cs->only(['skill_name', 'proficiency']);
+            return $cs->only(['id','skill_name', 'proficiency']);
         })->toArray();
         $publicationsData = $applicant->publications->map(function ($pub) {
-            return $pub->only(['title', 'type']);
+            return $pub->only(['id','publication_title', 'publication_type']);
         })->toArray();
         $workExperienceData = $applicant->workExperience->map(function ($we) {
-            return $we->only(['company_name', 'period_start_date', 'period_end_date', 'company_address', 'company_phone_number', 'first_role_title', 'last_role_title', 'direct_supervisor_name', 'resignation_reason', 'last_salary']);
+            return $we->only(['id','company_name', 'period_start_date', 'period_end_date', 'company_address', 'company_phone_number', 'first_role_title', 'last_role_title', 'direct_supervisor_name', 'resignation_reason', 'last_salary']);
         })->toArray();
         $workAchievementsData = $applicant->workAchievements->map(function ($wa) {
-            return $wa->only(['achievement_description', 'year']);
+            return $wa->only(['id','achievement_description', 'year']);
         })->toArray();
         $healthDeclarationData = $applicant->healthDeclaration ? $applicant->healthDeclaration->only([
+            'id',
             'weight_kg',
             'height_cm',
             'has_medical_condition',
@@ -198,201 +203,10 @@ class ApplicantController extends Controller
     /**
      * Store a newly created biodata for the authenticated user.
      */
-    public function storeMyBiodata(Request $request)
-    {
-        $user = Auth::user();
-        if ($user->applicant) {
-            // If applicant data exists, delegate to update method
-            return $this->updateMyBiodata($request);
-        }
-
-        $rules = $this->validationRules($user->id);
-        $request->validate($rules);
-
-        DB::beginTransaction();
-        try {
-            $profileImagePath = null; // Changed from $profileImageBase64
-            if ($request->hasFile('profile_image')) {
-                $file = $request->file('profile_image');
-                // Generate UUID for unique and unpredictable filename
-                $fileName = Str::uuid() . '.' . $file->getClientOriginalExtension();
-                $profileImagePath = $file->storeAs('profile_images', $fileName, 'public'); // Simpan di 'profile_images' directory pada 'public' disk
-            }
-
-            $applicantData = $request->except([
-                '_token',
-                '_method',
-                'profile_image',
-                'dependents',
-                'family_members',
-                'contact_persons',
-                'education_history',
-                'organizational_experience',
-                'training_courses',
-                'languages',
-                'computer_skills',
-                'publications',
-                'work_experience',
-                'work_achievements',
-                'health_declaration'
-            ]);
-
-            // Handle boolean fields from checkboxes/radios explicitly for main applicant data
-            $booleanFields = [
-                'applied_before',
-                'applying_other_company',
-                'under_contract',
-                'has_part_time_job',
-                'object_previous_employer_contact',
-                'has_acquaintance_in_company',
-                'undergone_psych_exam',
-                'involved_police_case',
-                'willing_to_be_located_as_needed',
-                'accept_company_salary_standard',
-                'comply_company_rules',
-                'willing_to_take_psych_exam',
-                'willing_to_take_medical_checkup',
-                'willing_to_work_out_of_town',
-                'willing_to_transfer',
-                'willing_to_be_demoted',
-                'declaration_agreement' // Assuming this is part of main applicant data
-            ];
-            foreach ($booleanFields as $field) {
-                $applicantData[$field] = $request->has($field) ? 1 : 0;
-            }
-
-            $applicantData['user_id'] = $user->id;
-            $applicantData['email_address'] = $user->email;
-            $applicantData['full_name'] = $user->name; // Use user's name as initial value
-            $applicantData['profile_image'] = $profileImagePath;
-
-            $applicant = Applicant::create($applicantData);
-
-            $this->syncApplicantNestedData($request, $applicant);
-
-            DB::commit();
-            return response()->json(['message' => 'Biodata berhasil disimpan!', 'redirect' => route('my_biodata.form')]);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            DB::rollBack();
-            return response()->json([
-                'message' => 'Validasi gagal.',
-                'errors' => $e->errors()
-            ], 422);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            \Log::error('Error storing biodata: ' . $e->getMessage());
-            return response()->json(['message' => 'Terjadi kesalahan saat menyimpan biodata. Silakan coba lagi.'], 500);
-        }
-    }
-
+    
     /**
      * Update existing biodata for the authenticated user.
      */
-    public function updateMyBiodata(Request $request)
-    {
-        $user = Auth::user();
-        $applicant = $user->applicant;
-
-        if (!$applicant) {
-            // If no applicant data exists, delegate to store method
-            return $this->storeMyBiodata($request);
-        }
-
-        $rules = $this->validationRules($user->id, $applicant->id);
-        $request->validate($rules); // This will throw ValidationException on failure
-
-        DB::beginTransaction();
-        try {
-            $profileImagePath = $applicant->profile_image; // Keep old image path by default
-
-            if ($request->hasFile('profile_image')) {
-    $file = $request->file('profile_image');
-    // Generate UUID for unique and unpredictable filename
-    $fileName = Str::uuid() . '.' . $file->getClientOriginalExtension(); 
-    $profileImagePath = $file->storeAs('profile_images', $fileName, 'public'); // Simpan di 'profile_images' directory pada 'public' disk
-}
-
-            $applicantData = $request->except([
-                '_token',
-                '_method',
-                'profile_image',
-                'dependents',
-                'family_members',
-                'contact_persons',
-                'education_history',
-                'organizational_experience',
-                'training_courses',
-                'languages',
-                'computer_skills',
-                'publications',
-                'work_experience',
-                'work_achievements',
-                'health_declaration'
-            ]);
-
-            // Handle boolean fields from checkboxes/radios explicitly for main applicant data
-            $booleanFields = [
-                'applied_before',
-                'applying_other_company',
-                'under_contract',
-                'has_part_time_job',
-                'object_previous_employer_contact',
-                'has_acquaintance_in_company',
-                'undergone_psych_exam',
-                'involved_police_case',
-                'willing_to_be_located_as_needed',
-                'accept_company_salary_standard',
-                'comply_company_rules',
-                'willing_to_take_psych_exam',
-                'willing_to_take_medical_checkup',
-                'willing_to_work_out_of_town',
-                'willing_to_transfer',
-                'willing_to_be_demoted',
-                'declaration_agreement'
-            ];
-            foreach ($booleanFields as $field) {
-                $applicantData[$field] = $request->has($field) ? 1 : 0;
-            }
-            $profileImagePath = $applicant->profile_image; // Start with the current path
-
-            if ($request->hasFile('profile_image')) {
-                // A new file was uploaded
-                // Delete the old profile image if it exists in storage
-                if ($applicant->profile_image && Storage::disk('public')->exists($applicant->profile_image)) {
-                    Storage::disk('public')->delete($applicant->profile_image);
-                }
-                // Store the new image
-                $file = $request->file('profile_image');
-    $fileName = Str::uuid() . '.' . $file->getClientOriginalExtension(); 
-                $profileImagePath = $file->storeAs('profile_images', $fileName, 'public');
-            } elseif ($request->input('profile_image_cleared') === '1') {
-                // User explicitly indicated to clear the image (e.g., via a checkbox/hidden input)
-                if ($applicant->profile_image && Storage::disk('public')->exists($applicant->profile_image)) {
-                    Storage::disk('public')->delete($applicant->profile_image);
-                }
-                $profileImagePath = null; // Set image path to null in DB
-            }
-            // If no new file and 'profile_image_cleared' is not '1', $profileImagePath remains the old one.
-            $applicantData['profile_image'] = $profileImagePath;
-            $applicant->update($applicantData);
-
-            $this->syncApplicantNestedData($request, $applicant);
-
-            DB::commit();
-            return response()->json(['message' => 'Biodata berhasil diperbarui!', 'redirect' => route('my_biodata.form')]);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            DB::rollBack();
-            return response()->json([
-                'message' => 'Validasi gagal.',
-                'errors' => $e->errors()
-            ], 422);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            \Log::error('Error updating biodata: ' . $e->getMessage());
-            return response()->json(['message' => 'Terjadi kesalahan saat memperbarui biodata. Silakan coba lagi.'], 500);
-        }
-    }
-
 
     /**
      * Saves data for a specific section via AJAX.
@@ -401,17 +215,22 @@ class ApplicantController extends Controller
     {
         $user = Auth::user();
         $applicant = $user->applicant;
+        
+        
         if (!Auth::check()) {
             // This response will be JSON, preventing the frontend SyntaxError
             return response()->json(['message' => 'Unauthorized. Please log in again.'], 401);
         }
         // Create applicant if not exists
         if (!$applicant) {
+            
             $applicant = Applicant::create([
                 'user_id' => $user->id,
                 'email_address' => $user->email,
                 'full_name' => $user->name,
             ]);
+            
+            
         }
 
         $rules = $this->getSectionValidationRules($sectionName, $applicant->id);
@@ -424,6 +243,7 @@ class ApplicantController extends Controller
 
             switch ($sectionName) {
                 case 'informasiUtama':
+                    
                     $applicantData = $request->only([
                         'full_name',
                         'mobile_phone_number',
@@ -440,7 +260,7 @@ class ApplicantController extends Controller
 
                         $file = $request->file('profile_image');
                         // Ensure unique file name, perhaps using applicant ID or user ID
-                         $fileName = Str::uuid() . '.' . $file->getClientOriginalExtension(); 
+                        $fileName = Str::uuid() . '.' . $file->getClientOriginalExtension();
 
                         $applicantData['profile_image'] = $file->storeAs('profile_images', $fileName, 'public');
                     } elseif ($request->has('profile_image_cleared') && $request->input('profile_image_cleared') === '1') {
@@ -462,6 +282,7 @@ class ApplicantController extends Controller
                         'parents_address',
                         'parents_postal_code'
                     ]));
+                    
                     break;
 
                 case 'nomorIdentitas':
@@ -496,9 +317,6 @@ class ApplicantController extends Controller
                     $applicant->update($request->only(['job_vacancy_source']));
                     break;
 
-                // --- Add cases for other sections that might have specific saving logic or dynamic inputs ---
-                // For dynamic sections, you would typically delete existing and re-create.
-                // Example for dependents:
                 case 'dependents':
                     $this->syncSectionHasMany($applicant, 'dependents', $request->input('dependents'), [
                         'name',
@@ -574,8 +392,8 @@ class ApplicantController extends Controller
                     break;
                 case 'publications':
                     $this->syncSectionHasMany($applicant, 'publications', $request->input('publications'), [
-                        'title',
-                        'type'
+                        'publication_title',
+                        'publication_type'
                     ]);
                     break;
                 case 'work_experience':
@@ -818,8 +636,8 @@ class ApplicantController extends Controller
             case 'publications':
                 $sectionRules = [
                     'publications' => $allRules['publications'],
-                    'publications.*.title' => 'required|string', // Changed to required
-                    'publications.*.type' => 'nullable|string|max:100',
+                    'publications.*.publication_title' => 'required|string', // Changed to required
+                    'publications.*.publication_type' => 'nullable|string|max:100',
                 ];
                 break;
             case 'work_experience':
@@ -880,35 +698,82 @@ class ApplicantController extends Controller
      * This will DELETE all existing records for the relationship and RECREATE them
      * based on the provided request data.
      */
-    protected function syncSectionHasMany($applicant, $relationName, $requestData, $fieldsToCreate)
+     protected function syncSectionHasMany($applicant, $relationName, $requestData, $fieldsToCreate)
     {
-        $applicant->$relationName()->delete(); // Delete all existing records for this relation
+        \Log::info("syncSectionHasMany: Processing relation '{$relationName}' for Applicant ID: {$applicant->id}");
+        \Log::info("syncSectionHasMany: Request Data for '{$relationName}': " . json_encode($requestData));
 
-        if ($requestData && is_array($requestData)) {
-            foreach ($requestData as $index => $data) {
-                // Ensure there's at least one non-empty field to consider it a valid entry
-                if (!empty(array_filter($data))) {
-                    $createData = [];
-                    foreach ($fieldsToCreate as $field) {
-                        $createData[$field] = $data[$field] ?? null;
+        // Pastikan $applicant adalah objek model yang valid
+        if (!$applicant || !$applicant->exists) {
+            \Log::error("syncSectionHasMany: Applicant object is invalid or does not exist for relation: " . $relationName);
+            return;
+        }
+
+        // Ambil semua record yang sudah ada untuk relasi ini, diindeks berdasarkan ID
+        $existingRecords = $applicant->$relationName->keyBy('id');
+        $updatedOrCreatedIds = collect(); // Untuk melacak ID yang sudah diupdate/dibuat
+
+        // Pastikan $requestData adalah array yang valid
+        $requestData = is_array($requestData) ? array_values($requestData) : [];
+
+        foreach ($requestData as $index => $data) {
+            $recordId = $data['id'] ?? null; // Dapatkan ID dari data request
+            
+            // Filter data yang akan digunakan untuk create/update
+            $filteredData = array_intersect_key($data, array_flip($fieldsToCreate));
+            
+            // Jangan proses item yang kosong (tidak ada data berarti user tidak mengisinya)
+            if (empty(array_filter($filteredData))) {
+                \Log::info("syncSectionHasMany: Skipping empty item for '{$relationName}' at index {$index}.");
+                continue;
+            }
+
+            // Tambahkan 'order' jika fieldnya ada
+            if (in_array('order', $fieldsToCreate)) {
+                $filteredData['order'] = $index + 1;
+            }
+
+            // Special handling for date and year fields (tetap perlu)
+            foreach ($filteredData as $key => $val) {
+                if (Str::endsWith($key, '_date') && $val) {
+                    try {
+                        $filteredData[$key] = Carbon::parse($val)->format('Y-m-d');
+                    } catch (\Exception $e) {
+                        \Log::warning("syncSectionHasMany: Failed to parse date '{$val}' for '{$key}'. Error: " . $e->getMessage());
+                        $filteredData[$key] = null;
                     }
-
-                    // Add 'order' to maintain insertion order if needed
-                    $createData['order'] = $index + 1;
-
-                    // Special handling for date and year fields
-                    foreach ($createData as $key => $val) {
-                        if (Str::endsWith($key, '_date') && $val) {
-                            $createData[$key] = Carbon::parse($val)->format('Y-m-d');
-                        }
-                        if (Str::endsWith($key, '_year') && $val) {
-                            $createData[$key] = intval($val);
-                        }
-                    }
-                    $applicant->$relationName()->create($createData);
+                }
+                if (Str::endsWith($key, '_year') && $val) {
+                    $filteredData[$key] = intval($val);
                 }
             }
+
+            try {
+                if ($recordId && $existingRecords->has($recordId)) {
+                    // Jika record sudah ada dan ID-nya valid, update
+                    $record = $existingRecords->pull($recordId); // Ambil dari koleksi yang ada
+                    $record->update($filteredData);
+                    \Log::info("syncSectionHasMany: Updated existing record for '{$relationName}' ID: {$record->id}");
+                    $updatedOrCreatedIds->push($record->id);
+                } else {
+                    // Jika record baru atau ID tidak valid/tidak ada di DB, buat record baru
+                    $newRecord = $applicant->$relationName()->create($filteredData);
+                    \Log::info("syncSectionHasMany: Created new record for '{$relationName}'. New ID: {$newRecord->id}");
+                    $updatedOrCreatedIds->push($newRecord->id);
+                }
+            } catch (\Exception $e) {
+                \Log::error("syncSectionHasMany: FAILED to save record for '{$relationName}' at index {$index}. Data: " . json_encode($filteredData) . " Error: " . $e->getMessage() . ' Stack: ' . $e->getTraceAsString());
+                // Throw exception agar transaksi rollback jika gagal menyimpan satu item
+                throw $e; 
+            }
         }
+
+        // Hapus record lama yang tidak ada dalam requestData yang baru
+        // yaitu record yang ada di $existingRecords tapi tidak ada di $updatedOrCreatedIds
+        $existingRecords->whereNotIn('id', $updatedOrCreatedIds)->each(function ($oldRecord) use ($relationName) {
+            $oldRecord->delete();
+            \Log::info("syncSectionHasMany: Deleted old record for '{$relationName}' ID: {$oldRecord->id} (not present in new request).");
+        });
     }
 
     protected function syncFixedContactPersons($applicant, $requestData)
@@ -1095,8 +960,8 @@ class ApplicantController extends Controller
             'computer_skills.*.proficiency' => 'nullable|in:Baik Sekali,Baik,Cukup,Kurang',
 
             'publications' => 'nullable|array',
-            'publications.*.title' => 'nullable|string', // Kolom ini TEXT di DB
-            'publications.*.type' => 'nullable|string|max:100',
+            'publications.*.publication_title' => 'nullable|string', // Kolom ini TEXT di DB
+            'publications.*.publication_type' => 'nullable|string|max:100',
 
             'work_experience' => 'nullable|array',
             'work_experience.*.company_name' => 'nullable|string|max:255',
@@ -1243,7 +1108,7 @@ class ApplicantController extends Controller
             ],
             'publications' => [
                 'relation' => 'publications',
-                'fields' => ['title', 'type']
+                'fields' => ['publication_title', 'publication_type']
             ],
             'work_experience' => [
                 'relation' => 'workExperience',

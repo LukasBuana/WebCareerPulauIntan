@@ -62,23 +62,26 @@
 
         /* Upload Area Styles */
         .upload-area {
-    border: 2px dashed #dee2e6;
-    border-radius: 50%;
-    padding: 20px;
-    text-align: center;
-    background-color: #f8f9fa;
-    cursor: pointer;
-    transition: border-color 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 100%; /* Agar memenuhi image-display-container */
-    height: 100%; /* Agar memenuhi image-display-container */
-    position: absolute; /* Posisikan di dalam container */
-    top: 0;
-    left: 0;
-}
+            border: 2px dashed #dee2e6;
+            border-radius: 50%;
+            padding: 20px;
+            text-align: center;
+            background-color: #f8f9fa;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            /* Agar memenuhi image-display-container */
+            height: 100%;
+            /* Agar memenuhi image-display-container */
+            position: absolute;
+            /* Posisikan di dalam container */
+            top: 0;
+            left: 0;
+        }
 
 
         .upload-area:hover {
@@ -111,25 +114,31 @@
 
         /* Profile Image Styles */
         .profile-image {
-    width: 100%; /* Agar memenuhi image-display-container */
-    height: 100%; /* Agar memenuhi image-display-container */
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid #dee2e6;
-    position: absolute; /* Posisikan di dalam container */
-    top: 0;
-    left: 0;
-}
+            width: 100%;
+            /* Agar memenuhi image-display-container */
+            height: 100%;
+            /* Agar memenuhi image-display-container */
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #dee2e6;
+            position: absolute;
+            /* Posisikan di dalam container */
+            top: 0;
+            left: 0;
+        }
 
 
         .image-display-container {
-    width: 80px;  /* Lebar fixed */
-    height: 80px; /* Tinggi fixed */
-    position: relative;
-    flex-shrink: 0;
-    /* Menambahkan margin-bottom untuk jarak dari elemen di bawahnya saat flex-column */
-    margin-bottom: 1rem; /* Sesuaikan sesuai kebutuhan, contoh: 1rem = 16px */
-}
+            width: 80px;
+            /* Lebar fixed */
+            height: 80px;
+            /* Tinggi fixed */
+            position: relative;
+            flex-shrink: 0;
+            /* Menambahkan margin-bottom untuk jarak dari elemen di bawahnya saat flex-column */
+            margin-bottom: 1rem;
+            /* Sesuaikan sesuai kebutuhan, contoh: 1rem = 16px */
+        }
 
         /* File Information Text */
         .file-info {
@@ -215,9 +224,7 @@
                     <div class="collapse show" id="dataPribadiCollapse">
                         <div class="card-body">
                             {{-- Form action dan method dinamis --}}
-                            <form id="biodataForm"
-                                action="{{ $applicant->exists ? route('my_biodata.update_final') : route('my_biodata.store_final') }}"
-                                method="POST" enctype="multipart/form-data">
+                            <form id="biodataForm">
                                 @csrf
                                 @if ($applicant->exists)
                                     @method('PUT') {{-- Gunakan PUT untuk update --}}
@@ -255,43 +262,47 @@
                                                 <div class="row mb-4">
                                                     <div class="col-md-6">
                                                         {{-- Updated Profile Image HTML Block --}}
-                                                        <div class="mb-3 d-flex align-items-start flex-column flex-md-row">
-    {{-- Container untuk area gambar/upload. --}}
-    {{-- Ini akan memiliki dimensi fixed dan isinya diatur oleh JS. --}}
-    <div class="image-display-container me-3 mb-3 mb-md-0">
-        {{-- Area untuk icon upload saat belum ada foto --}}
-        <div class="upload-area" id="uploadAreaContainer"
-            onclick="document.getElementById('profileImage').click();"
-            style="display: none;"> {{-- Awalnya disembunyikan, JS yang akan menampilkannya --}}
-            <i class="fas fa-upload"></i>
-            <div class="text-overlay">Unggah Foto</div>
-        </div>
+                                                        <div
+                                                            class="mb-3 d-flex align-items-start flex-column flex-md-row">
+                                                            {{-- Container untuk area gambar/upload. --}}
+                                                            {{-- Ini akan memiliki dimensi fixed dan isinya diatur oleh JS. --}}
+                                                            <div class="image-display-container me-3 mb-3 mb-md-0">
+                                                                {{-- Area untuk icon upload saat belum ada foto --}}
+                                                                <div class="upload-area" id="uploadAreaContainer"
+                                                                    onclick="document.getElementById('profileImage').click();"
+                                                                    style="display: none;"> {{-- Awalnya disembunyikan, JS yang akan menampilkannya --}}
+                                                                    <i class="fas fa-upload"></i>
+                                                                    <div class="text-overlay">Unggah Foto</div>
+                                                                </div>
 
-        {{-- Element <img> untuk menampilkan preview foto --}}
-        <img id="profilePreview" src="" alt="Foto Profil" class="profile-image"
-            onclick="document.getElementById('profileImage').click();"
-            data-original-src="{{ old('profile_image', $applicant->profile_image ?? '') }}"
-            style="display: none;"> {{-- Awalnya disembunyikan, JS yang akan menampilkannya --}}
-    </div>
+                                                                {{-- Element <img> untuk menampilkan preview foto --}}
+                                                                <img id="profilePreview" src=""
+                                                                    alt="Foto Profil" class="profile-image"
+                                                                    onclick="document.getElementById('profileImage').click();"
+                                                                    data-original-src="{{ old('profile_image', $applicant->profile_image ?? '') }}"
+                                                                    style="display: none;"> {{-- Awalnya disembunyikan, JS yang akan menampilkannya --}}
+                                                            </div>
 
-    {{-- Kontainer untuk label, info file, error, dan input file tersembunyi --}}
-    <div class="flex-grow-1">
-        <label for="profileImage" class="form-label">Foto Profil <span class="required">*</span></label>
-        <div class="file-info" id="profileFileInfo">
-            Syarat: format jpg / png / jpeg maks. 2 MB<br>
-            Belum ada foto profil. {{-- Teks awal, JS akan mengubahnya jika ada gambar --}}
-        </div>
-        <div class="error-message"></div>
+                                                            {{-- Kontainer untuk label, info file, error, dan input file tersembunyi --}}
+                                                            <div class="flex-grow-1">
+                                                                <label for="profileImage" class="form-label">Foto Profil
+                                                                    <span class="required">*</span></label>
+                                                                <div class="file-info" id="profileFileInfo">
+                                                                    Syarat: format jpg / png / jpeg maks. 2 MB<br>
+                                                                    Belum ada foto profil. {{-- Teks awal, JS akan mengubahnya jika ada gambar --}}
+                                                                </div>
+                                                                <div class="error-message"></div>
 
-        <input type="file" class="form-control d-none"
-            id="profileImage" name="profile_image"
-            accept="image/jpeg, image/png, image/jpg"
-            onchange="previewImage(this)">
+                                                                <input type="file" class="form-control d-none"
+                                                                    id="profileImage" name="profile_image"
+                                                                    accept="image/jpeg, image/png, image/jpg"
+                                                                    onchange="previewImage(this)">
 
-        <input type="hidden" name="profile_image_cleared" id="profile_image_cleared_flag" value="0">
+                                                                <input type="hidden" name="profile_image_cleared"
+                                                                    id="profile_image_cleared_flag" value="0">
 
-    </div>
-</div>
+                                                            </div>
+                                                        </div>
                                                         <div class="mb-3">
                                                             <label for="full_name" class="form-label">
                                                                 Nama Lengkap <span class="required">*</span>
@@ -825,50 +836,50 @@
 
         // Call on page load to set the initial state of the profile image display
         // Call on page load to set the initial state of the profile image display
-      function updateProfileImageDisplay() {
-    const profilePreview = document.getElementById('profilePreview');
-    const uploadAreaContainer = document.getElementById('uploadAreaContainer');
-    const fileInfo = document.querySelector('#accordionInformasiUtama .file-info'); // Atau gunakan ID yang Anda tambahkan sebelumnya
-    const clearProfileImageButton = document.getElementById('clearProfileImageButton');
+        function updateProfileImageDisplay() {
+            const profilePreview = document.getElementById('profilePreview');
+            const uploadAreaContainer = document.getElementById('uploadAreaContainer');
+            const fileInfo = document.querySelector(
+                '#accordionInformasiUtama .file-info'); // Atau gunakan ID yang Anda tambahkan sebelumnya
+            const clearProfileImageButton = document.getElementById('clearProfileImageButton');
 
-    // Ambil path gambar dari data-original-src, yang diisi Blade saat page load
-    const initialProfileImagePath = profilePreview.dataset.originalSrc;
+            // Ambil path gambar dari data-original-src, yang diisi Blade saat page load
+            const initialProfileImagePath = profilePreview.dataset.originalSrc;
 
-    if (initialProfileImagePath) {
-        // Jika ada gambar lama yang tersimpan (path tidak kosong)
-        profilePreview.src = "{{ Storage::url('') }}" + initialProfileImagePath; // Buat URL public
-        profilePreview.style.display = 'block'; // Tampilkan gambar preview
-        uploadAreaContainer.style.display = 'none'; // Sembunyikan area upload
+            if (initialProfileImagePath) {
+                // Jika ada gambar lama yang tersimpan (path tidak kosong)
+                profilePreview.src = "{{ Storage::url('') }}" + initialProfileImagePath; // Buat URL public
+                profilePreview.style.display = 'block'; // Tampilkan gambar preview
+                uploadAreaContainer.style.display = 'none'; // Sembunyikan area upload
 
-        const oldFileName = initialProfileImagePath.substring(initialProfileImagePath.lastIndexOf('/') + 1);
-        fileInfo.innerHTML = `
+                const oldFileName = initialProfileImagePath.substring(initialProfileImagePath.lastIndexOf('/') + 1);
+                fileInfo.innerHTML = `
             Syarat: format jpg / png / jpeg maks. 2 MB<br>
             File saat ini: <strong>${oldFileName}</strong>
         `;
-        if (clearProfileImageButton) {
-            clearProfileImageButton.style.display = 'block'; // Tampilkan tombol hapus
-        }
-    } else {
-        // Jika tidak ada gambar lama (initialProfileImagePath kosong)
-        // Maka kita hanya menampilkan area upload dan placeholder
-        profilePreview.src = ""; // Pastikan src gambar kosong agar tidak ada icon gambar rusak
-        profilePreview.style.display = 'none'; // Sembunyikan elemen <img> preview
-        uploadAreaContainer.style.display = 'flex'; // Tampilkan area upload
+                if (clearProfileImageButton) {
+                    clearProfileImageButton.style.display = 'block'; // Tampilkan tombol hapus
+                }
+            } else {
+                // Jika tidak ada gambar lama (initialProfileImagePath kosong)
+                // Maka kita hanya menampilkan area upload dan placeholder
+                profilePreview.src = ""; // Pastikan src gambar kosong agar tidak ada icon gambar rusak
+                profilePreview.style.display = 'none'; // Sembunyikan elemen <img> preview
+                uploadAreaContainer.style.display = 'flex'; // Tampilkan area upload
 
-        fileInfo.innerHTML = `
+                fileInfo.innerHTML = `
             Syarat: format jpg / png / jpeg maks. 2 MB<br>
             Belum ada foto profil.
         `;
-        if (clearProfileImageButton) {
-            clearProfileImageButton.style.display = 'none'; // Sembunyikan tombol hapus
+                if (clearProfileImageButton) {
+                    clearProfileImageButton.style.display = 'none'; // Sembunyikan tombol hapus
+                }
+            }
         }
-    }
-}
 
 
         // Fungsi untuk validasi satu field (menambah/menghapus kelas is-invalid)
         function validateField(inputElement) {
-            console.log(`Validating field: ${inputElement.id || inputElement.name}`); // Log which field is being validated
             let isValid = true;
             const errorMessageElement = inputElement.parentElement.querySelector('.error-message');
 
@@ -897,7 +908,6 @@
                 inputElement.classList.remove('is-invalid');
                 if (errorMessageElement) {
                     errorMessageElement.style.display = 'none';
-                    console.log(`Field ${inputElement.id || inputElement.name} is valid.`); // Log if valid
                 }
             }
             return isValid;
@@ -1146,6 +1156,9 @@
 
                     // Kirim melalui AJAX hanya jika validasi client-side sukses
                     if (sectionValid) {
+                        console.log('Validation passed. Calling window.showLoading()...'); // New log
+                        window.showLoading(); // <--- Panggil fungsi global di sini
+
                         try {
                             const url =
                                 `{{ url('/dashboard/save-section') }}/${sectionName}`; // Corrected URL
@@ -1157,8 +1170,11 @@
                             const result = await response.json();
 
                             if (response.ok) {
+
                                 alert(result.message);
-                                // Optional: Tutup accordion ini dan buka yang berikutnya
+                                                                window.location.reload(); // Fallback
+
+
                                 const currentCollapseElement = this.closest('.accordion-collapse');
                                 const nextAccordionItem = this.closest('.accordion-item')
                                     .nextElementSibling;
@@ -1245,6 +1261,8 @@
                         } catch (error) {
                             console.error('Error saving section:', error);
                             alert('Terjadi kesalahan jaringan atau server.');
+                        } finally {
+                            window.hideLoading();
                         }
                     } else {
                         // If client-side validation fails, scroll to the first invalid field
@@ -1988,6 +2006,7 @@
 
                 if (response.ok) {
                     alert(result.message || 'Biodata berhasil disimpan!');
+
                     if (result.redirect) {
                         window.location.href = result.redirect;
                     } else {
@@ -2151,7 +2170,7 @@
             const clearProfileImageButton = document.getElementById('clearProfileImageButton');
             const fileInfo = document.querySelector('#accordionInformasiUtama .file-info');
 
-           
+
 
             // Add event listener for the file input change (already in your code, but ensure its within DOMContentLoaded)
             if (profileImageInput) {

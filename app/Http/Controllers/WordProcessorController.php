@@ -8,12 +8,13 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\Applicants\Applicant;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use PhpOffice\PhpWord\Element\TextRun; // Pastikan ini di-import
 
 class WordProcessorController extends Controller
 {
     public function printApplicationWord(Applicant $applicant)
     {
-        $templatePath = public_path('templates/testing6.docx');
+        $templatePath = public_path('templates/testing8.docx');
 
         try {
             $templateProcessor = new TemplateProcessor($templatePath);
@@ -323,32 +324,64 @@ class WordProcessorController extends Controller
             $templateProcessor->setValue("written{$suffix}", strtoupper($bahasa?->written_proficiency ?? ''));
 
         }
-        // --- Dynamic Section: Computer Skills ---
-        if ($applicant->computerSkills->isNotEmpty()) {
-            $skillDataForWord = $applicant->computerSkills->map(function ($skill) {
-                return [
-                    'skill_name' => strtoupper($skill->skill_name ?? ''),
-                    'skill_proficiency' => strtoupper($skill->proficiency ?? ''),
-                ];
-            })->toArray();
-            $templateProcessor->cloneRowAndSetValues('skill_row', $skillDataForWord);
-        } else {
-            $templateProcessor->deleteBlock('skill_row');
+         $skills = $applicant->computerSkills->values();
+
+        for ($i = 0; $i < 9; $i++) {
+            $skill = $skills->get($i);
+            $suffix = ($i + 1);
+
+            $templateProcessor->setValue("skill{$suffix}", strtoupper($skill?->proficiency ?? ''));
+            $templateProcessor->setValue("nama_skill{$suffix}", strtoupper($skill?->skill_name	 ?? ''));
+
         }
 
-        // --- Dynamic Section: Publications ---
-        if ($applicant->publications->isNotEmpty()) {
-            $pubDataForWord = $applicant->publications->map(function ($pub) {
-                return [
-                    'pub_title' => strtoupper($pub->title ?? ''),
-                    'pub_type' => strtoupper($pub->type ?? ''),
-                ];
-            })->toArray();
-            $templateProcessor->cloneRowAndSetValues('publication_row', $pubDataForWord);
-        } else {
-            $templateProcessor->deleteBlock('publication_row');
-        }
 
+        $publications = $applicant->publications->values();
+
+for ($i = 0; $i < 2; $i++) { // Loop untuk 2 publikasi
+    $publikasi = $publications->get($i);
+    $suffix = ($i + 1); // Untuk nama placeholder: publikasiLengkap1, publikasiLengkap2
+
+    $fullPublicationTextRun = new TextRun(); // Membuat SATU TextRun untuk judul + tipe
+
+    // Ambil judul publikasi
+    $publicationTitle = $publikasi?->publication_title ?? '';
+    // Ambil tipe publikasi
+    $publicationType = $publikasi?->publication_type ?? ''; // Pastikan string kosong jika null
+
+    // --- Logika Pengisian TextRun ---
+
+    // 1. Tambahkan judul (selalu dengan underline)
+    if (!empty($publicationTitle)) {
+        $fullPublicationTextRun->addText(strtoupper($publicationTitle), ['underline' => 'single']);
+    } else {
+        // Jika judul kosong, tambahkan spasi non-breaking agar underline tetap berpotensi menyambung
+        // (ini opsional, tergantung seberapa Anda ingin underline muncul jika judul kosong)
+        // Jika tidak ingin ada underline sama sekali jika judul kosong, cukup addText('')
+        $fullPublicationTextRun->addText('');
+    }
+
+    // 2. Tambahkan spasi pemisah antara judul dan tipe (jika tipe ada)
+    // Ini penting agar ada pemisah visual
+    if (!empty($publicationTitle) && !empty($publicationType)) {
+        // Tambahkan spasi di antara judul dan tipe. Perhatikan style:
+        // Jika Anda ingin spasi ini juga di-underline, tambahkan style 'underline' => 'single'
+        // Jika tidak, biarkan kosong. Untuk "menyambung", spasi juga harus di-underline.
+        $fullPublicationTextRun->addText(' ', ['underline' => 'single']); // Spasi dengan underline
+    }
+
+    // 3. Tambahkan tipe publikasi (dengan kurung, tanpa underline)
+    if (!empty($publicationType)) {
+        $fullPublicationTextRun->addText('(' . strtoupper($publicationType) . ')',['underline' => 'single']); // Tanpa style underline
+    }
+
+
+    // --- Mengisi placeholder tunggal di template Word ---
+    // Pastikan nama placeholder ini sesuai dengan yang Anda buat di Langkah 1
+    $templateProcessor->setComplexValue("publikasilengkap{$suffix}", $fullPublicationTextRun);
+}
+
+      
         // --- Dynamic Section: Work Experience ---
         if ($applicant->workExperience->isNotEmpty()) {
             $workExpDataForWord = $applicant->workExperience->map(function ($work) {

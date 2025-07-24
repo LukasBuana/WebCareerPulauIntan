@@ -47,7 +47,7 @@
                                             <div class="row mt-4">
                                                 <div class="col-md-12 text-end">
                                                     <button type="submit" class="btn btn-primary px-4 save-section-btn"
-                                                        data-section="publication"
+                                                        data-section="publications"
                                                         data-prefix="{{ $section_prefix ?? '' }}">
                                                         <i class="fas fa-save me-2"></i>Simpan Karya Ilmiah
                                                     </button>
@@ -116,11 +116,15 @@
 
         // Helper function to add a new publication field
         function addPublicationField(prefix, index, data = {}) {
+                                    const id = data.id || '';
+
             const publication_title = data.publication_title || '';
             const publication_type = data.publication_type || '';
 
             const publicationHtml = `
                 <div class="publication-item border p-3 mb-3 rounded" id="${prefix}publication-${index}">
+                                                        <input type="hidden" name="publications[${index}][id]" value="${id}"> 
+
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="${prefix}publication_title_${index}" class="form-label">Publication Title <span class="required">*</span></label>
@@ -234,121 +238,5 @@
         }
 
 
-        // --- Validation and Submission Logic for this specific section ---
-        // This 'save-section-btn' targets the publication form
-        const saveButton = document.querySelector(`[data-section="publication"][data-prefix="${sectionPrefix}"]`);
-
-        if (saveButton) {
-            saveButton.addEventListener('click', function(e) {
-                e.preventDefault(); // Prevent default form submission
-
-                const formElement = document.getElementById(`${sectionPrefix}formPublication`);
-                const sectionElement = document.querySelector(`#${sectionPrefix}collapsePublication`);
-                let isValid = true; // Assume valid initially
-
-                // Reset error messages and invalid class for this section's fields
-                sectionElement.querySelectorAll('.error-message').forEach(msg => {
-                    msg.style.display = 'none';
-                });
-                sectionElement.querySelectorAll('.form-control, .form-select').forEach(input => {
-                    input.classList.remove('is-invalid');
-                });
-
-                const noPublicationCheckboxForSection = document.getElementById(`${sectionPrefix}no_publication_checkbox`);
-
-                if (noPublicationCheckboxForSection && noPublicationCheckboxForSection.checked) {
-                    // If the checkbox is checked, no fields are required, so the section is valid.
-                    isValid = true;
-                } else {
-                    // If the checkbox is NOT checked, then publication fields ARE required.
-                    const publicationItems = sectionElement.querySelectorAll('.publication-item');
-                    if (publicationItems.length === 0) {
-                        isValid = false; // No items, and checkbox not checked
-                        alert('Mohon tambahkan setidaknya satu Karya Tulis/Karya Ilmiah atau centang "Saya tidak memiliki Karya Tulis/Karya Ilmiah".');
-                    } else {
-                        // Validate each dynamically added publication item
-                        publicationItems.forEach((item, idx) => {
-                            const titleField = item.querySelector(`[name="publications[${idx}][publication_title]"]`);
-                            const typeField = item.querySelector(`[name="publications[${idx}][publication_type]"]`);
-
-                            const fieldsToCheck = [
-                                { field: titleField, msg: 'Publication Title harus diisi' },
-                                { field: typeField, msg: 'Publication Type harus diisi' }
-                            ];
-
-                            fieldsToCheck.forEach(f => {
-                                if (f.field && !f.field.value.trim()) {
-                                    f.field.classList.add('is-invalid');
-                                    const errorMsg = f.field.parentElement.querySelector('.error-message');
-                                    if (errorMsg) {
-                                        errorMsg.textContent = f.msg;
-                                        errorMsg.style.display = 'block';
-                                    }
-                                    isValid = false; // Mark overall validation as failed
-                                }
-                            });
-                        });
-                    }
-                }
-
-                // If validation passes, prepare and send data via AJAX
-                if (isValid) {
-                    const formData = new FormData(formElement);
-                    const allFormData = {};
-
-                    // Manually collect data from all form fields
-                    formData.forEach((value, key) => {
-                        const match = key.match(/(\w+)\[(\d+)\]\[(\w+)\]/); // For array inputs like publications[0][title]
-                        if (match) {
-                            const parentKey = match[1];
-                            const index = match[2];
-                            const fieldKey = match[3];
-
-                            if (!allFormData[parentKey]) {
-                                allFormData[parentKey] = [];
-                            }
-                            if (!allFormData[parentKey][index]) {
-                                allFormData[parentKey][index] = {};
-                            }
-                            allFormData[parentKey][index][fieldKey] = value;
-                        } else {
-                            allFormData[key] = value; // For single fields (like the checkbox value if you want to send it)
-                        }
-                    });
-
-                    // Crucially, if the "no publication" checkbox is checked,
-                    // ensure the 'publications' array is explicitly empty in the data sent.
-                    if (noPublicationCheckboxForSection && noPublicationCheckboxForSection.checked) {
-                        allFormData['publications'] = [];
-                    }
-
-                    // Send data using Fetch API
-                    fetch(formElement.action, { // formElement.action should be set to your backend endpoint
-                        method: 'POST', // Or PATCH/PUT for updates
-                        headers: {
-                            'Content-Type': 'application/json',
-                            // IMPORTANT: Include CSRF token for security in web applications (e.g., Laravel)
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        },
-                        body: JSON.stringify(allFormData)
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.redirect) {
-                            // If backend sends a redirect URL
-                            window.location.href = data.redirect;
-                        } else {
-                            // Otherwise, show an alert message from the backend
-                            alert(data.message);
-                            // You might want to refresh part of the page or update UI here
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Terjadi kesalahan saat menyimpan data. Silakan coba lagi.');
-                    });
-                }
-            });
-        }
     });
 </script>

@@ -539,12 +539,12 @@
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="detail-item"><strong>Judul:</strong>
-                                                    <p>{{ $publication->title ?? '-' }}</p>
+                                                    <p>{{ $publication->publication_title ?? '-' }}</p>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="detail-item"><strong>Tipe:</strong>
-                                                    <p>{{ $publication->type ?? '-' }}</p>
+                                                    <p>{{ $publication->publication_type ?? '-' }}</p>
                                                 </div>
                                             </div>
                                         </div>

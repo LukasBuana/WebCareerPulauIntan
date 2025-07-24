@@ -59,7 +59,6 @@
         </div>
     </div>
 </div>
-
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // --- Logic for Main Card Header Toggle (Riwayat Organisasi) ---
@@ -128,12 +127,16 @@
 
         function addOrganizationField(prefix, index, data = {}) {
             // Pastikan nama variabel sesuai dengan yang ada di database/backend
+                const id = data.id || '';
+
             const organization_name = data.organization_name || '';
             const title_in_organization = data.title_in_organization || ''; // Menggunakan title_in_organization
             const period = data.period || ''; // Menggunakan period
 
             const organizationHtml = `
                 <div class="organization-item border p-3 mb-3 rounded" id="${prefix}organization-${index}">
+                                <input type="hidden" name="organizational_experience[${index}][id]" value="${id}"> 
+
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="${prefix}organization_name_${index}" class="form-label">Nama Organisasi <span class="required">*</span></label>
@@ -335,56 +338,7 @@
                 }
 
                 // If validation passes, you'd typically submit the form via AJAX
-                if (isValid) {
-                    const form = document.getElementById(`${prefix}formRiwayatOrganisasi`);
-                    const formData = new FormData(form);
-                    const allFormData = {};
-                    formData.forEach((value, key) => {
-                        // Handle array inputs correctly
-                        const match = key.match(/(\w+)\[(\d+)\]\[(\w+)\]/);
-                        if (match) {
-                            const parentKey = match[1];
-                            const index = match[2];
-                            const fieldKey = match[3];
-
-                            if (!allFormData[parentKey]) {
-                                allFormData[parentKey] = [];
-                            }
-                            if (!allFormData[parentKey][index]) {
-                                allFormData[parentKey][index] = {};
-                            }
-                            allFormData[parentKey][index][fieldKey] = value;
-                        } else {
-                            allFormData[key] = value;
-                        }
-                    });
-
-                    // Convert to JSON and send with Fetch API or Axios
-                    fetch(form.action, {
-                            method: 'POST', // Or PATCH/PUT for updates
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector(
-                                        'meta[name="csrf-token"]').getAttribute(
-                                    'content') // Add CSRF token
-                            },
-                            body: JSON.stringify(allFormData)
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.redirect) {
-                                window.location.href = data.redirect;
-                            } else {
-                                alert(data.message);
-                                // Handle success (e.g., refresh part of the page or show success message)
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            alert('Terjadi kesalahan saat menyimpan data.');
-                            // Handle errors (e.g., display specific error messages from backend)
-                        });
-                }
+              
             });
         });
     });

@@ -189,10 +189,6 @@ Route::middleware(['auth'])->group(function () {
     // Route::put('/dashboard/update-section/{sectionName}', [ApplicantController::class, 'saveSectionData'])->name('my_biodata.update_section');
 
 
-    // Rute untuk FINAL submit form biodata (akan mengumpulkan semua data dari sesi/input form)
-    // Ini adalah rute target dari <form id="biodataForm"> di Blade
-    Route::post('/dashboard-final', [ApplicantController::class, 'storeMyBiodata'])->name('my_biodata.store_final');
-    Route::put('/dashboard-final', [ApplicantController::class, 'updateMyBiodata'])->name('my_biodata.update_final'); // Jika mode update
 
 });
 

@@ -4,10 +4,11 @@
             <div class="card">
                 {{-- Main Card Header for Pengalaman Kursus dan Training --}}
                 <div class="card-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse"
-                    data-bs-target="#{{ $section_prefix ?? '' }}TrainingCourseMainCollapse"
-                    aria-expanded="false" style="cursor: pointer;">
+                    data-bs-target="#{{ $section_prefix ?? '' }}TrainingCourseMainCollapse" aria-expanded="false"
+                    style="cursor: pointer;">
                     <h5 class="mb-0">
-                        <i class="fas fa-chalkboard-teacher me-2"></i>Pengalaman Kursus dan Training<span class="required">*</span>
+                        <i class="fas fa-chalkboard-teacher me-2"></i>Pengalaman Kursus dan Training<span
+                            class="required">*</span>
                     </h5>
                     {{-- Initial state: down for collapsed. Will be updated by JS --}}
                     <i class="fas fa-chevron-down collapse-icon"></i>
@@ -38,7 +39,8 @@
                                                 {{-- Dynamic training/course fields will be added here by JS --}}
                                             </div>
                                             <button type="button" class="btn btn-info btn-sm mt-2"
-                                                id="{{ $section_prefix ?? '' }}add-training-course">Tambah Kursus/Training</button>
+                                                id="{{ $section_prefix ?? '' }}add-training-course">Tambah
+                                                Kursus/Training</button>
                                             <div class="row mt-4">
                                                 <div class="col-md-12 text-end">
                                                     <button type="submit" class="btn btn-primary px-4 save-section-btn"
@@ -61,10 +63,12 @@
     </div>
 </div>
 
+
 <script>
+        console.log('--- data_kursus.blade.php SCRIPT LOADING ---'); // New log
+
     document.addEventListener('DOMContentLoaded', function() {
         const sectionPrefix = '{{ $section_prefix ?? '' }}';
-
         // Helper function to handle main card header collapse icons
         function setupMainCollapseIcon(headerElement, collapseElement, iconElement) {
             if (headerElement && collapseElement && iconElement) {
@@ -94,10 +98,13 @@
         }
 
         // Setup for Pengalaman Kursus dan Training main collapse
-        const mainCardHeaderTrainingCourse = document.querySelector(`#${sectionPrefix}TrainingCourseMainCollapse`).previousElementSibling;
-        const mainCollapseTrainingCourse = document.getElementById(`${sectionPrefix}TrainingCourseMainCollapse`);
+        const mainCardHeaderTrainingCourse = document.querySelector(
+            `#${sectionPrefix}TrainingCourseMainCollapse`).previousElementSibling;
+        const mainCollapseTrainingCourse = document.getElementById(
+        `${sectionPrefix}TrainingCourseMainCollapse`);
         const mainCollapseIconTrainingCourse = mainCardHeaderTrainingCourse.querySelector('.collapse-icon');
-        setupMainCollapseIcon(mainCardHeaderTrainingCourse, mainCollapseTrainingCourse, mainCollapseIconTrainingCourse);
+        setupMainCollapseIcon(mainCardHeaderTrainingCourse, mainCollapseTrainingCourse,
+            mainCollapseIconTrainingCourse);
 
         // --- Dynamic Fields for Training and Course History ---
         // Assuming $applicant->trainingCourses holds existing data. If not, it will be an empty array.
@@ -107,6 +114,7 @@
         const addTrainingCourseButton = document.getElementById(`${sectionPrefix}add-training-course`);
 
         function addTrainingCourseField(prefix, index, data = {}) {
+            const id = data.id || '';
             const training_course_name = data.training_course_name || '';
             const year = data.year || '';
             const held_by = data.held_by || '';
@@ -114,6 +122,8 @@
 
             const trainingCourseHtml = `
                 <div class="training-course-item border p-3 mb-3 rounded" id="${prefix}training-course-${index}">
+                                    <input type="hidden" name="training_courses[${index}][id]" value="${id}"> 
+
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="${prefix}training_course_name_${index}" class="form-label">Nama Training <span class="required">*</span></label>
@@ -176,147 +186,6 @@
         }
 
         // --- Validation Logic for Saving Sections ---
-        document.querySelectorAll('.save-section-btn').forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-
-                const sectionId = this.dataset.section;
-                const prefix = this.dataset.prefix;
-                let formElement;
-
-                // Only handle 'training_courses' section as per requirement
-                if (sectionId === 'training_courses') {
-                    formElement = document.getElementById(`${prefix}formTrainingCourse`);
-                } else {
-                    console.error(`Attempted to save an unhandled section: ${sectionId}`);
-                    return;
-                }
-
-                if (!formElement) {
-                    console.error(`Form element not found for section: ${sectionId}`);
-                    return;
-                }
-
-                let isValid = true;
-                const itemsContainer = formElement.querySelector(`#${prefix}${sectionId.replace('_', '-')}-container`);
-                if (!itemsContainer) {
-                    console.error(`Items container not found for section: ${sectionId}`);
-                    return;
-                }
-
-                // Reset error messages and invalid class for the specific section
-                itemsContainer.querySelectorAll('.error-message').forEach(msg => {
-                    msg.style.display = 'none';
-                    msg.textContent = ''; // Clear previous messages
-                });
-                itemsContainer.querySelectorAll('.form-control, .form-select').forEach(input => {
-                    input.classList.remove('is-invalid');
-                });
-
-                const currentSectionItems = itemsContainer.querySelectorAll('.training-course-item');
-                const minItemsMessage = 'Mohon tambahkan setidaknya satu Pengalaman Kursus/Training.';
-
-                if (currentSectionItems.length === 0) {
-                    isValid = false;
-                    alert(minItemsMessage);
-                } else {
-                    currentSectionItems.forEach((item, idx) => {
-                        const fieldsToCheck = [
-                            { field: item.querySelector(`[name="training_courses[${idx}][training_course_name]"]`), msg: 'Nama Training harus diisi.' },
-                            { field: item.querySelector(`[name="training_courses[${idx}][year]"]`), msg: 'Tahun harus diisi dan 4 digit.' },
-                            { field: item.querySelector(`[name="training_courses[${idx}][held_by]"]`), msg: 'Penyelenggara harus diisi.' },
-                            { field: item.querySelector(`[name="training_courses[${idx}][grade]"]`), msg: 'Peringkat harus diisi.' }
-                        ];
-
-                        fieldsToCheck.forEach(f => {
-                            if (f.field) {
-                                let hasError = false;
-                                if (f.field.type === 'select-one' ? !f.field.value : !f.field.value.trim()) {
-                                    hasError = true;
-                                } else if (f.field.type === 'number' && (isNaN(parseInt(f.field.value)) || f.field.value.length !== 4)) {
-                                    hasError = true;
-                                }
-
-                                if (hasError) {
-                                    f.field.classList.add('is-invalid');
-                                    const errorMsgElement = f.field.parentElement.querySelector('.error-message');
-                                    if (errorMsgElement) {
-                                        errorMsgElement.textContent = f.msg;
-                                        errorMsgElement.style.display = 'block';
-                                    }
-                                    isValid = false;
-                                }
-                            }
-                        });
-                    });
-                }
-
-                if (isValid) {
-                    const formData = new FormData(formElement);
-                    const allFormData = {};
-                    formData.forEach((value, key) => {
-                        // This regex handles array inputs like training_courses[0][training_course_name]
-                        const match = key.match(/(\w+)\[(\d+)\]\[(\w+)\]/);
-                        if (match) {
-                            const parentKey = match[1]; // e.g., 'training_courses'
-                            const index = match[2]; // e.g., '0'
-                            const fieldKey = match[3]; // e.g., 'training_course_name'
-
-                            if (!allFormData[parentKey]) {
-                                allFormData[parentKey] = [];
-                            }
-                            if (!allFormData[parentKey][index]) {
-                                allFormData[parentKey][index] = {};
-                            }
-                            allFormData[parentKey][index][fieldKey] = value;
-                        } else {
-                            allFormData[key] = value;
-                        }
-                    });
-
-                    // Example AJAX call (replace with your actual endpoint and method)
-                    // You'll need to configure the form's action attribute to your API endpoint
-                    fetch(formElement.action, {
-                        method: 'POST', // Or PATCH/PUT for updates
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') // Add CSRF token for Laravel
-                        },
-                        body: JSON.stringify(allFormData)
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            // If response is not OK (e.g., 4xx or 5xx), parse JSON and throw error
-                            return response.json().then(err => { throw err; });
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.redirect) {
-                            window.location.href = data.redirect;
-                        } else {
-                            alert(data.message || 'Data berhasil disimpan!');
-                            // You might want to refresh the section or update UI here
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        // Display error messages from the backend if available
-                        if (error.errors) {
-                            let errorMessages = 'Terjadi kesalahan validasi:\n';
-                            for (const field in error.errors) {
-                                error.errors[field].forEach(msg => {
-                                    errorMessages += `- ${msg}\n`;
-                                });
-                            }
-                            alert(errorMessages);
-                        } else {
-                            alert('Terjadi kesalahan saat menyimpan data.');
-                        }
-                    });
-                }
-            });
-        });
+       
     });
 </script>
-
