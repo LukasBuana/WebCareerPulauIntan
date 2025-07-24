@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title ?? 'Pulau Intan Career' }}</title>
@@ -655,6 +656,16 @@ Unlock your full potential with opportunities for training, mentorship, and adva
 
         <section id = "tentang">
               @include('beranda.tentang')
+
+        </section>
+
+        <section id="1" class="container" style="padding: 80px 0; margin-top: 20px;">
+            
+                        <h2 style="font-size: 2.5rem; color: #DA251C; text-align: center; margin-bottom: 40px;">Cerita Mereka</h2>
+              @include('beranda.testimonial')
+
+
+
 
         </section>
 
