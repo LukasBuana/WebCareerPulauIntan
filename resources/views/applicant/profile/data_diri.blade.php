@@ -253,145 +253,141 @@
 
                                 {{-- --- I. DATA DIRI KANDIDAT KARYAWAN (PERSONAL DATA) --- --}}
 
-                                <div class="accordion" id="accordionInformasiUtama">
-                                    <div class="accordion-item">
-                                        <div id="collapseInformasiUtama" class="accordion-collapse collapse show"
-                                            aria-labelledby="headingInformasiUtama"
-                                            data-bs-parent="#accordionInformasiUtama">
-                                            <div class="accordion-body">
-                                                <div class="row mb-4">
-                                                    <div class="col-md-6">
-                                                        {{-- Updated Profile Image HTML Block --}}
-                                                        <div
-                                                            class="mb-3 d-flex align-items-start flex-column flex-md-row">
-                                                            {{-- Container untuk area gambar/upload. --}}
-                                                            {{-- Ini akan memiliki dimensi fixed dan isinya diatur oleh JS. --}}
-                                                            <div class="image-display-container me-3 mb-3 mb-md-0">
-                                                                {{-- Area untuk icon upload saat belum ada foto --}}
-                                                                <div class="upload-area" id="uploadAreaContainer"
-                                                                    onclick="document.getElementById('profileImage').click();"
-                                                                    style="display: none;"> {{-- Awalnya disembunyikan, JS yang akan menampilkannya --}}
-                                                                    <i class="fas fa-upload"></i>
-                                                                    <div class="text-overlay">Unggah Foto</div>
-                                                                </div>
-
-                                                                {{-- Element <img> untuk menampilkan preview foto --}}
-                                                                <img id="profilePreview" src=""
-                                                                    alt="Foto Profil" class="profile-image"
-                                                                    onclick="document.getElementById('profileImage').click();"
-                                                                    data-original-src="{{ old('profile_image', $applicant->profile_image ?? '') }}"
-                                                                    style="display: none;"> {{-- Awalnya disembunyikan, JS yang akan menampilkannya --}}
-                                                            </div>
-
-                                                            {{-- Kontainer untuk label, info file, error, dan input file tersembunyi --}}
-                                                            <div class="flex-grow-1">
-                                                                <label for="profileImage" class="form-label">Foto Profil
-                                                                    <span class="required">*</span></label>
-                                                                <div class="file-info" id="profileFileInfo">
-                                                                    Syarat: format jpg / png / jpeg maks. 2 MB<br>
-                                                                    Belum ada foto profil. {{-- Teks awal, JS akan mengubahnya jika ada gambar --}}
-                                                                </div>
-                                                                <div class="error-message"></div>
-
-                                                                <input type="file" class="form-control d-none"
-                                                                    id="profileImage" name="profile_image"
-                                                                    accept="image/jpeg, image/png, image/jpg"
-                                                                    onchange="previewImage(this)">
-
-                                                                <input type="hidden" name="profile_image_cleared"
-                                                                    id="profile_image_cleared_flag" value="0">
-
-                                                            </div>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="full_name" class="form-label">
-                                                                Nama Lengkap <span class="required">*</span>
-                                                            </label>
-                                                            <input type="text" class="form-control" id="full_name"
-                                                                name="full_name"
-                                                                value="{{ old('full_name', $applicant->full_name) }}"
-                                                                required>
-                                                            <div class="error-message"></div>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="email_address" class="form-label">
-                                                                Alamat Email <span class="required">*</span>
-                                                            </label>
-                                                            <input type="email" class="form-control"
-                                                                id="email_address" name="email_address"
-                                                                value="{{ old('email_address', $applicant->email_address) }}"
-                                                                required readonly>
-                                                            <div class="error-message"></div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <div class="mb-3">
-                                                            <label for="mobile_phone_number" class="form-label">
-                                                                No. Telepon <span class="required">*</span>
-                                                            </label>
-                                                            <input type="tel" class="form-control"
-                                                                id="mobile_phone_number" name="mobile_phone_number"
-                                                                value="{{ old('mobile_phone_number', $applicant->mobile_phone_number) }}"
-                                                                placeholder="Contoh: 628123924843" required>
-                                                            <div class="error-message"></div>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="place_of_birth" class="form-label">
-                                                                Tempat Lahir <span class="required">*</span>
-                                                            </label>
-                                                            <input type="text" class="form-control"
-                                                                id="place_of_birth" name="place_of_birth"
-                                                                value="{{ old('place_of_birth', $applicant->place_of_birth) }}"
-                                                                placeholder="Masukkan Tempat lahir" required>
-                                                            <div class="error-message"></div>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="date_of_birth" class="form-label">
-                                                                Tanggal Lahir <span class="required">*</span>
-                                                            </label>
-                                                            <input type="date" class="form-control"
-                                                                id="date_of_birth" name="date_of_birth"
-                                                                value="{{ old('date_of_birth', $applicant->date_of_birth ? $applicant->date_of_birth->format('Y-m-d') : '') }}"
-                                                                required>
-                                                            <div class="error-message"></div>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="blood_type" class="form-label">
-                                                                Golongan Darah <span class="required">*</span>
-                                                            </label>
-                                                            <select class="form-select" id="blood_type"
-                                                                name="blood_type" required>
-                                                                <option value="">Pilih Golongan Darah</option>
-                                                                <option value="O"
-                                                                    {{ old('blood_type', $applicant->blood_type) == 'O' ? 'selected' : '' }}>
-                                                                    O</option>
-                                                                <option value="A"
-                                                                    {{ old('blood_type', $applicant->blood_type) == 'A' ? 'selected' : '' }}>
-                                                                    A</option>
-                                                                <option value="B"
-                                                                    {{ old('blood_type', $applicant->blood_type) == 'B' ? 'selected' : '' }}>
-                                                                    B</option>
-                                                                <option value="AB"
-                                                                    {{ old('blood_type', $applicant->blood_type) == 'AB' ? 'selected' : '' }}>
-                                                                    AB</option>
-                                                            </select>
-                                                            <div class="error-message"></div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="row mt-4">
-                                                    <div class="col-md-12 text-end">
-                                                        <button type="button"
-                                                            class="btn btn-primary px-4 save-section-btn"
-                                                            data-section="informasiUtama">
-                                                            <i class="fas fa-save me-2"></i>Simpan Informasi Utama
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                               <div class="accordion" id="accordionInformasiUtama">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingInformasiUtama">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapseInformasiUtama" aria-expanded="true"
+                aria-controls="collapseInformasiUtama">
+                Informasi Utama
+            </button>
+        </h2>
+        <div id="collapseInformasiUtama" class="accordion-collapse collapse show"
+            aria-labelledby="headingInformasiUtama"
+            data-bs-parent="#accordionInformasiUtama">
+            <div class="accordion-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        {{-- Updated Profile Image HTML Block --}}
+                        <div class="mb-3 d-flex align-items-start flex-column flex-md-row">
+                            <div class="image-display-container me-3 mb-3 mb-md-0">
+                                <div class="upload-area" id="uploadAreaContainer"
+                                    onclick="document.getElementById('profileImage').click();"
+                                    style="display: none;">
+                                    <i class="fas fa-upload"></i>
+                                    <div class="text-overlay">Unggah Foto</div>
                                 </div>
+                                <img id="profilePreview" src=""
+                                    alt="Foto Profil" class="profile-image"
+                                    onclick="document.getElementById('profileImage').click();"
+                                    data-original-src="{{ old('profile_image', $applicant->profile_image ?? '') }}"
+                                    style="display: none;">
+                            </div>
+                            <div class="flex-grow-1">
+                                <label for="profileImage" class="form-label">Foto Profil
+                                    <span class="required">*</span></label>
+                                <div class="file-info" id="profileFileInfo">
+                                    Syarat: format jpg / png / jpeg maks. 2 MB<br>
+                                    Belum ada foto profil.
+                                </div>
+                                <div class="error-message"></div>
+                                <input type="file" class="form-control d-none"
+                                    id="profileImage" name="profile_image"
+                                    accept="image/jpeg, image/png, image/jpg"
+                                    onchange="previewImage(this)">
+                                <input type="hidden" name="profile_image_cleared"
+                                    id="profile_image_cleared_flag" value="0">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="full_name" class="form-label">
+                                Nama Lengkap <span class="required">*</span>
+                            </label>
+                            <input type="text" class="form-control" id="full_name"
+                                name="full_name"
+                                value="{{ old('full_name', $applicant->full_name) }}"
+                                required>
+                            <div class="error-message"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email_address" class="form-label">
+                                Alamat Email <span class="required">*</span>
+                            </label>
+                            <input type="email" class="form-control"
+                                id="email_address" name="email_address"
+                                value="{{ old('email_address', $applicant->email_address) }}"
+                                required readonly>
+                            <div class="error-message"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="mobile_phone_number" class="form-label">
+                                No. Telepon <span class="required">*</span>
+                            </label>
+                            <input type="tel" class="form-control"
+                                id="mobile_phone_number" name="mobile_phone_number"
+                                value="{{ old('mobile_phone_number', $applicant->mobile_phone_number) }}"
+                                placeholder="Contoh: 628123924843" required>
+                            <div class="error-message"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="place_of_birth" class="form-label">
+                                Tempat Lahir <span class="required">*</span>
+                            </label>
+                            <input type="text" class="form-control"
+                                id="place_of_birth" name="place_of_birth"
+                                value="{{ old('place_of_birth', $applicant->place_of_birth) }}"
+                                placeholder="Masukkan Tempat lahir" required>
+                            <div class="error-message"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="date_of_birth" class="form-label">
+                                Tanggal Lahir <span class="required">*</span>
+                            </label>
+                            <input type="date" class="form-control"
+                                id="date_of_birth" name="date_of_birth"
+                                value="{{ old('date_of_birth', $applicant->date_of_birth ? $applicant->date_of_birth->format('Y-m-d') : '') }}"
+                                required>
+                            <div class="error-message"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="blood_type" class="form-label">
+                                Golongan Darah <span class="required">*</span>
+                            </label>
+                            <select class="form-select" id="blood_type"
+                                name="blood_type" required>
+                                <option value="">Pilih Golongan Darah</option>
+                                <option value="O"
+                                    {{ old('blood_type', $applicant->blood_type) == 'O' ? 'selected' : '' }}>
+                                    O</option>
+                                <option value="A"
+                                    {{ old('blood_type', $applicant->blood_type) == 'A' ? 'selected' : '' }}>
+                                    A</option>
+                                <option value="B"
+                                    {{ old('blood_type', $applicant->blood_type) == 'B' ? 'selected' : '' }}>
+                                    B</option>
+                                <option value="AB"
+                                    {{ old('blood_type', $applicant->blood_type) == 'AB' ? 'selected' : '' }}>
+                                    AB</option>
+                            </select>
+                            <div class="error-message"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-md-12 text-end">
+                        <button type="button"
+                            class="btn btn-primary px-4 save-section-btn"
+                            data-section="informasiUtama">
+                            <i class="fas fa-save me-2"></i>Simpan Informasi Utama
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
                                 {{-- SECTION 2: INFORMASI ALAMAT --}}
                                 <div class="accordion mt-3" id="accordionInformasiAlamat">
