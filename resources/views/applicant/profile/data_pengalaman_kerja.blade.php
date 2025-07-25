@@ -19,12 +19,14 @@
 
                             {{-- Work Experience Entries --}}
                             <div class="accordion-item">
-                                <h2 class="accordion-header" id="{{ $section_prefix ?? '' }}headingWorkExperience">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                <h2 class="accordion-header"
+                                    id="{{ $section_prefix ?? '' }}headingWorkExperience">
+                                    <button class="accordion-button collapsed" type="button"
+                                        data-bs-toggle="collapse"
                                         data-bs-target="#{{ $section_prefix ?? '' }}collapseWorkExperience"
                                         aria-expanded="false"
                                         aria-controls="{{ $section_prefix ?? '' }}collapseWorkExperience">
-                                        Daftar Pengalaman Kerja (mulai dari pengalaman kerja yang terakhir)
+                                        Daftar Pengalaman Kerja (mulai dari pengalaman kerja yang)
                                     </button>
                                 </h2>
                                 <div id="{{ $section_prefix ?? '' }}collapseWorkExperience"
@@ -32,7 +34,7 @@
                                     aria-labelledby="{{ $section_prefix ?? '' }}headingWorkExperience"
                                     data-bs-parent="#{{ $section_prefix ?? '' }}accordionWorkExperience">
                                     <div class="accordion-body">
-                                        {{-- Checkbox for "No Work Experience" --}}
+                                        {{-- Checkbox moved inside accordion-body --}}
                                         <div class="form-check mb-3">
                                             <input class="form-check-input" type="checkbox" value="1"
                                                 id="{{ $section_prefix ?? '' }}noWorkExperienceCheckbox"
@@ -43,8 +45,6 @@
                                             </label>
                                         </div>
 
-                                        {{-- This div contains the dynamic fields and the "Tambah Pengalaman Kerja"
-                                        button. It will be hidden/shown. --}}
                                         <div id="{{ $section_prefix ?? '' }}workExperienceFieldsContainer">
                                             <form id="{{ $section_prefix ?? '' }}formWorkExperience" method="POST">
                                                 <div id="{{ $section_prefix ?? '' }}work-experience-container">
@@ -53,71 +53,23 @@
                                                 <button type="button" class="btn btn-info btn-sm mt-2"
                                                     id="{{ $section_prefix ?? '' }}add-work-experience">Tambah
                                                     Pengalaman Kerja</button>
+                                                <div class="row mt-4">
+                                                    <div class="col-md-12 text-end">
+                                                        <button type="submit"
+                                                            class="btn btn-primary px-4 save-section-btn"
+                                                            data-section="work_experience"
+                                                            data-prefix="{{ $section_prefix ?? '' }}">
+                                                            <i class="fas fa-save me-2"></i>Simpan Pengalaman Kerja
+                                                        </button>
+                                                    </div>
+                                                </div>
                                             </form>
                                         </div> {{-- End of workExperienceFieldsContainer --}}
                                     </div>
                                 </div>
                             </div>
 
-                            {{-- New Accordion Section: Uraian Tugas dan Tanggung Jawab --}}
-                            <div class="accordion-item" id="{{ $section_prefix ?? '' }}essayAccordionItem">
-                                <h2 class="accordion-header" id="{{ $section_prefix ?? '' }}headingEssay">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                        data-bs-target="#{{ $section_prefix ?? '' }}collapseEssay" aria-expanded="false"
-                                        aria-controls="{{ $section_prefix ?? '' }}collapseEssay">
-                                        Uraikan secara singkat dan jelas tugas dan tanggung jawab Anda pada jabatan yang terakhir
-                                    </button>
-                                </h2>
-                                <div id="{{ $section_prefix ?? '' }}collapseEssay" class="accordion-collapse collapse"
-                                    aria-labelledby="{{ $section_prefix ?? '' }}headingEssay"
-                                    data-bs-parent="#{{ $section_prefix ?? '' }}accordionWorkExperience">
-                                    <div class="accordion-body">
-                                        <div class="mb-3">
-                                            <label for="{{ $section_prefix ?? '' }}essay" class="form-label">Uraian Tugas dan Tanggung Jawab <span class="required">*</span></label>
-                                            <textarea class="form-control" id="{{ $section_prefix ?? '' }}essay" name="essay" rows="5" required>{{ $applicant->essay ?? '' }}</textarea>
-                                            <div class="error-message"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {{-- New Accordion Section: Struktur Organisasi --}}
-                            <div class="accordion-item" id="{{ $section_prefix ?? '' }}structureAccordionItem">
-                                <h2 class="accordion-header" id="{{ $section_prefix ?? '' }}headingStructure">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                        data-bs-target="#{{ $section_prefix ?? '' }}collapseStructure" aria-expanded="false"
-                                        aria-controls="{{ $section_prefix ?? '' }}collapseStructure">
-                                        Struktur organisasi pada posisi jabatan pekerjaan Anda yang terakhir
-                                    </button>
-                                </h2>
-                                <div id="{{ $section_prefix ?? '' }}collapseStructure" class="accordion-collapse collapse"
-                                    aria-labelledby="{{ $section_prefix ?? '' }}headingStructure"
-                                    data-bs-parent="#{{ $section_prefix ?? '' }}accordionWorkExperience">
-                                    <div class="accordion-body">
-                                        <div class="mb-3">
-                                            <label for="{{ $section_prefix ?? '' }}structure_file" class="form-label">Unggah File Struktur Organisasi (PDF, JPG, PNG)</label>
-                                            <input class="form-control" type="file" id="{{ $section_prefix ?? '' }}structure_file" name="structure_file" accept=".pdf,.jpg,.jpeg,.png">
-                                            <div class="error-message"></div>
-                                            @if (isset($applicant->structure_file_path) && $applicant->structure_file_path)
-                                                <p class="mt-2">File saat ini: <a href="{{ asset('storage/' . $applicant->structure_file_path) }}" target="_blank">{{ basename($applicant->structure_file_path) }}</a></p>
-                                            @endif
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
                         </div> {{-- End of accordionWorkExperience --}}
-
-                        {{-- Save button is now OUTSIDE workExperienceFieldsContainer but inside
-                        accordion-body --}}
-                        {{-- This ensures it's always visible when the accordion is open --}}
-                        <div class="col-md-12 text-end mt-4">
-                            <button type="submit" class="btn btn-primary px-4 save-section-btn"
-                                data-section="work_experience"
-                                data-prefix="{{ $section_prefix ?? '' }}">
-                                <i class="fas fa-save me-2"></i>Simpan Pengalaman Kerja
-                            </button>
-                        </div>
                     </div> {{-- End of card-body --}}
                 </div> {{-- End of main collapse for Pengalaman Kerja --}}
             </div> {{-- End of card --}}
@@ -126,7 +78,7 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
         // --- Logic for Main Card Header Toggle (Pengalaman Kerja) ---
         const mainCardHeaderWorkExperience = document.querySelector(
                 '#{{ $section_prefix ?? '' }}WorkExperienceMainCollapse')
@@ -136,13 +88,13 @@
         const mainCollapseIconWorkExperience = mainCardHeaderWorkExperience.querySelector('.collapse-icon');
 
         if (mainCardHeaderWorkExperience && mainCollapseWorkExperience && mainCollapseIconWorkExperience) {
-            mainCollapseWorkExperience.addEventListener('show.bs.collapse', function () {
+            mainCollapseWorkExperience.addEventListener('show.bs.collapse', function() {
                 mainCardHeaderWorkExperience.classList.add('active');
                 mainCollapseIconWorkExperience.classList.remove('fa-chevron-down');
                 mainCollapseIconWorkExperience.classList.add('fa-chevron-up');
             });
 
-            mainCollapseWorkExperience.addEventListener('hide.bs.collapse', function () {
+            mainCollapseWorkExperience.addEventListener('hide.bs.collapse', function() {
                 mainCardHeaderWorkExperience.classList.remove('active');
                 mainCollapseIconWorkExperience.classList.remove('fa-chevron-up');
                 mainCollapseIconWorkExperience.classList.add('fa-chevron-down');
@@ -173,9 +125,6 @@
         const workExperienceFieldsContainer = document.getElementById(
             '{{ $section_prefix ?? '' }}workExperienceFieldsContainer');
 
-        // New elements for the essay and structure accordion items
-        const essayAccordionItem = document.getElementById(`${sectionPrefix}essayAccordionItem`);
-        const structureAccordionItem = document.getElementById(`${sectionPrefix}structureAccordionItem`);
 
         function addWorkExperienceField(prefix, index, data = {}) {
             const id = data.id || '';
@@ -267,16 +216,6 @@
             }
         }
 
-        // Function to toggle visibility of essay and structure accordion items
-        function toggleEssayAndStructureVisibility(show) {
-            if (essayAccordionItem) {
-                essayAccordionItem.style.display = show ? 'block' : 'none';
-            }
-            if (structureAccordionItem) {
-                structureAccordionItem.style.display = show ? 'block' : 'none';
-            }
-        }
-
         // Load existing work experience data
         if (existingWorkExperienceData && existingWorkExperienceData.length > 0) {
             existingWorkExperienceData.forEach((data, index) => {
@@ -286,7 +225,7 @@
 
         // Event listener for "Tambah Pengalaman Kerja" button
         if (addWorkExperienceButton) {
-            addWorkExperienceButton.addEventListener('click', function () {
+            addWorkExperienceButton.addEventListener('click', function() {
                 addWorkExperienceField(sectionPrefix, workExperienceCount);
                 workExperienceCount++;
             });
@@ -294,20 +233,12 @@
 
         // Event listener for "Hapus" button on dynamic work experience fields
         if (workExperienceContainer) {
-            workExperienceContainer.addEventListener('click', function (e) {
+            workExperienceContainer.addEventListener('click', function(e) {
                 if (e.target.classList.contains('remove-work-experience')) {
                     const targetId = e.target.dataset.targetId;
                     const elementToRemove = document.getElementById(targetId);
                     if (elementToRemove) {
                         elementToRemove.remove();
-                        // Re-evaluate workExperienceCount after removal
-                        workExperienceCount = workExperienceContainer.children.length;
-                        // If no more work experiences, check the "no work experience" checkbox
-                        if (workExperienceCount === 0) {
-                            noWorkExperienceCheckbox.checked = true;
-                            workExperienceFieldsContainer.style.display = 'none';
-                            toggleEssayAndStructureVisibility(false);
-                        }
                     }
                 }
             });
@@ -315,7 +246,7 @@
 
         // Logic for "Saya tidak memiliki Pengalaman Kerja" checkbox
         if (noWorkExperienceCheckbox && workExperienceFieldsContainer) {
-            noWorkExperienceCheckbox.addEventListener('change', function () {
+            noWorkExperienceCheckbox.addEventListener('change', function() {
                 if (this.checked) {
                     workExperienceFieldsContainer.style.display = 'none';
                     // Clear existing fields if any
@@ -323,7 +254,6 @@
                         workExperienceContainer.removeChild(workExperienceContainer.firstChild);
                     }
                     workExperienceCount = 0; // Reset count
-                    toggleEssayAndStructureVisibility(false); // Hide essay and structure
                 } else {
                     workExperienceFieldsContainer.style.display = 'block';
                     // If unchecked and no fields exist, add one default field
@@ -331,7 +261,6 @@
                         addWorkExperienceField(sectionPrefix, workExperienceCount);
                         workExperienceCount++;
                     }
-                    toggleEssayAndStructureVisibility(true); // Show essay and structure
                 }
             });
 
@@ -339,11 +268,9 @@
             if (existingWorkExperienceData.length === 0) {
                 noWorkExperienceCheckbox.checked = true;
                 workExperienceFieldsContainer.style.display = 'none';
-                toggleEssayAndStructureVisibility(false); // Hide on initial load if no data
             } else {
                 noWorkExperienceCheckbox.checked = false;
                 workExperienceFieldsContainer.style.display = 'block';
-                toggleEssayAndStructureVisibility(true); // Show on initial load if data exists
             }
         }
     });
