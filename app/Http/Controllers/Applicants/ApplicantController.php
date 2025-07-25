@@ -407,7 +407,9 @@ class ApplicantController extends Controller
                         'last_role_title',
                         'direct_supervisor_name',
                         'resignation_reason',
-                        'last_salary'
+                        'last_salary',
+                        'essay',
+                        'structure'
                     ]);
                     break;
                 case 'work_achievements':
@@ -653,6 +655,8 @@ class ApplicantController extends Controller
                     'work_experience.*.direct_supervisor_name' => 'nullable|string|max:255',
                     'work_experience.*.resignation_reason' => 'nullable|string',
                     'work_experience.*.last_salary' => 'nullable|string|max:100',
+                    'work_experience.*.essay' => 'nullable|string',
+                    'work_experience.*.structure' => 'nullable|string|max:100',
                 ];
                 break;
             case 'work_achievements':
@@ -974,6 +978,8 @@ class ApplicantController extends Controller
             'work_experience.*.direct_supervisor_name' => 'nullable|string|max:255',
             'work_experience.*.resignation_reason' => 'nullable|string',
             'work_experience.*.last_salary' => 'nullable|string|max:100',
+            'work_experience.*.essat' => 'nullable|string',
+            'work_experience.*.structure' => 'nullable|string|max:100',
 
             'work_achievements' => 'nullable|array',
             'work_achievements.*.achievement_description' => 'nullable|string',
@@ -1112,7 +1118,7 @@ class ApplicantController extends Controller
             ],
             'work_experience' => [
                 'relation' => 'workExperience',
-                'fields' => ['company_name', 'period_start_date', 'period_end_date', 'company_address', 'company_phone_number', 'first_role_title', 'last_role_title', 'direct_supervisor_name', 'resignation_reason', 'last_salary']
+                'fields' => ['company_name', 'period_start_date', 'period_end_date', 'company_address', 'company_phone_number', 'first_role_title', 'last_role_title', 'direct_supervisor_name', 'resignation_reason', 'last_salary','essay','structure']
             ],
             'work_achievements' => [
                 'relation' => 'workAchievements',

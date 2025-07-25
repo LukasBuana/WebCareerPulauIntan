@@ -7,7 +7,7 @@
                     data-bs-target="#{{ $section_prefix ?? '' }}RiwayatOrganisasiMainCollapse" aria-expanded="false"
                     style="cursor: pointer;">
                     <h5 class="mb-0">
-                        <i class="fas fa-sitemap me-2"></i>Riwayat Organisasi<span class="required">*</span>
+                        <i class="fas fa-sitemap me-2"></i>Riwayat Organisasi<span class="required" id="{{ $section_prefix ?? '' }}riwayatOrganisasiRequired">*</span>
                     </h5>
                     <i class="fas fa-chevron-up collapse-icon"></i>
                 </div>
@@ -103,24 +103,25 @@
         const addOrganizationButton = document.getElementById('{{ $section_prefix ?? '' }}add-organization');
         const sectionPrefix = '{{ $section_prefix ?? '' }}';
 
-        function calculateDuration(itemElement, prefix, index) {
-            const startYearField = itemElement.querySelector(`#${prefix}period_start_year_org_${index}`);
-            const endYearField = itemElement.querySelector(`#${prefix}period_end_year_org_${index}`);
-            const durationField = itemElement.querySelector(`#${prefix}duration_years_org_${index}`);
+ const riwayatOrganisasiRequiredAsterisk = document.getElementById(`${sectionPrefix}riwayatOrganisasiRequired`);
 
-            if (startYearField && endYearField && durationField) {
-                const startYear = parseInt(startYearField.value);
-                const endYear = parseInt(endYearField.value);
 
-                if (!isNaN(startYear) && !isNaN(endYear)) {
-                    if (endYear >= startYear) {
-                        durationField.value = endYear - startYear;
-                    } else {
-                        durationField.value = ''; // Clear if end year is before start year
-                    }
-                } else {
-                    durationField.value = ''; // Clear if inputs are not valid numbers
-                }
+        // Fungsi baru untuk memeriksa dan menghapus/menambahkan tanda bintang wajib
+        function checkAndRemoveRiwayatOrganisasiRequiredAsterisk() {
+            // Cek apakah ada data organisasi yang sudah ada atau yang baru ditambahkan
+            const hasExistingData = existingOrganizationData && existingOrganizationData.length > 0;
+            const hasDynamicFields = organizationHistoryContainer.children.length > 0;
+
+            if ((hasExistingData || hasDynamicFields) && riwayatOrganisasiRequiredAsterisk) {
+                // Jika ada data (dari DB atau yang baru ditambahkan), dan tanda bintang ada, hapus tanda bintang
+                riwayatOrganisasiRequiredAsterisk.remove();
+            } else if (!hasExistingData && !hasDynamicFields && !riwayatOrganisasiRequiredAsterisk) {
+                // Jika tidak ada data sama sekali (baik dari DB maupun dinamis), dan tanda bintang tidak ada, tambahkan kembali tanda bintang
+                const h5Element = mainCardHeaderOrganisasi.querySelector('h5');
+                h5Element.insertAdjacentHTML('beforeend',
+                    `<span class="required" id="${sectionPrefix}riwayatOrganisasiRequired">*</span>`);
+                // Perbarui referensi ke elemen tanda bintang yang baru ditambahkan
+                riwayatOrganisasiRequiredAsterisk = document.getElementById(`${sectionPrefix}riwayatOrganisasiRequired`);
             }
         }
 
@@ -162,6 +163,8 @@
             if (organizationHistoryContainer) {
                 organizationHistoryContainer.insertAdjacentHTML('beforeend', organizationHtml);
                 // Tidak ada lagi logic calculateDuration karena 'period' adalah satu field
+                                checkAndRemoveRiwayatOrganisasiRequiredAsterisk();
+
             }
         }
 
@@ -170,11 +173,12 @@
             existingOrganizationData.forEach((data, index) => {
                 addOrganizationField(sectionPrefix, index, data);
             });
+            organizationCount = existingOrganizationData.length;
+            // Panggil fungsi untuk memeriksa tanda bintang setelah semua data dimuat
+            checkAndRemoveRiwayatOrganisasiRequiredAsterisk();
         } else {
-            // Opsional: Jika tidak ada data, tambahkan satu field kosong secara default
-            // Agar user langsung bisa mulai mengisi. Hapus baris ini jika tidak ingin default 1 field kosong.
-            // addOrganizationField(sectionPrefix, organizationCount);
-            // organizationCount++;
+                        checkAndRemoveRiwayatOrganisasiRequiredAsterisk();
+
         }
 
         // Event listener for "Tambah Organisasi" button
@@ -227,6 +231,8 @@
                     const elementToRemove = document.getElementById(targetId);
                     if (elementToRemove) {
                         elementToRemove.remove();
+                                                checkAndRemoveRiwayatOrganisasiRequiredAsterisk();
+
                         // Re-index inputs jika diperlukan (penting jika Anda mengandalkan indeks berurutan di backend)
                         // Karena Anda menggunakan `idx` di name attribute, re-indexing manual akan diperlukan
                         // untuk memastikan array di Laravel berurutan tanpa gaps.
@@ -256,90 +262,6 @@
         }
 
         // --- Validation Logic for Saving Sections (including the new organization_experience) ---
-        document.querySelectorAll('.save-section-btn').forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-
-                const sectionId = this.dataset.section;
-                const prefix = this.dataset.prefix;
-                const formElement = document.getElementById(
-                    `${prefix}form${sectionId.replace(/_([a-z])/g, (g) => g[1].toUpperCase())}`
-                    ); // Converts organization_experience to formOrganizationHistory
-                const sectionCollapseId =
-                    `#${prefix}collapse${sectionId.charAt(0).toUpperCase() + sectionId.slice(1)}`;
-                const sectionElement = document.querySelector(sectionCollapseId);
-                let isValid = true;
-
-                if (!sectionElement) {
-                    console.error(`Section element not found for ID: ${sectionCollapseId}`);
-                    return;
-                }
-
-                // Reset error messages and invalid class for the specific section
-                sectionElement.querySelectorAll('.error-message').forEach(msg => {
-                    msg.style.display = 'none';
-                });
-                sectionElement.querySelectorAll('.form-control, .form-select, textarea')
-                    .forEach(input => {
-                        input.classList.remove('is-invalid');
-                    });
-
-                // --- Validation for Organization History (new) ---
-                if (sectionId ===
-                    'organizational_experience') { // Ubah 'organization_history' menjadi 'organizational_experience'
-                    const organizationItems = sectionElement.querySelectorAll(
-                        '.organization-item');
-                    if (organizationItems.length === 0) {
-                        isValid = false;
-                        alert('Mohon tambahkan setidaknya satu Riwayat Organisasi.');
-                    } else {
-                        organizationItems.forEach((item, idx) => {
-                            // Ubah nama atribut 'name' agar sesuai dengan backend
-                            const organizationNameField = item.querySelector(
-                                `[name="organizational_experience[${idx}][organization_name]"]` // Sesuai backend
-                            );
-                            const titleInOrganizationField = item.querySelector(
-                                `[name="organizational_experience[${idx}][title_in_organization]"]` // Sesuai backend
-                            );
-                            const periodField = item.querySelector(
-                                `[name="organizational_experience[${idx}][period]"]` // Sesuai backend (satu field 'period')
-                            );
-
-                            const fieldsToCheck = [{
-                                    field: organizationNameField,
-                                    msg: 'Nama organisasi harus diisi'
-                                },
-                                {
-                                    field: titleInOrganizationField, // Gunakan nama field yang sudah diubah
-                                    msg: 'Jabatan harus diisi'
-                                },
-                                {
-                                    field: periodField, // Gunakan nama field yang sudah diubah
-                                    msg: 'Periode harus diisi'
-                                }
-                            ];
-
-                            fieldsToCheck.forEach(f => {
-                                if (f.field && !f.field.value.trim()) {
-                                    f.field.classList.add('is-invalid');
-                                    const errorMsg = f.field.parentElement
-                                        .querySelector('.error-message');
-                                    if (errorMsg) {
-                                        errorMsg.textContent = f.msg;
-                                        errorMsg.style.display = 'block';
-                                    }
-                                    isValid = false;
-                                }
-                            });
-
-
-                        });
-                    }
-                }
-
-                // If validation passes, you'd typically submit the form via AJAX
-              
-            });
-        });
+       
     });
 </script>

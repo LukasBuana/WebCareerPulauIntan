@@ -7,7 +7,7 @@
                     data-bs-target="#{{ $section_prefix ?? '' }}RiwayatPendidikanMainCollapse" {{-- Unique ID for main collapse --}}
                     aria-expanded="false" {{-- Start collapsed by default --}} style="cursor: pointer;">
                     <h5 class="mb-0">
-                        <i class="fas fa-graduation-cap me-2"></i>Riwayat Pendidikan<span class="required">*</span>
+                        <i class="fas fa-graduation-cap me-2"></i>Riwayat Pendidikan<span class="required"id="{{ $section_prefix ?? '' }}riwayatPendidikanRequired">*</span>
                     </h5>
                     {{-- Icon will be handled by custom JS below for this main header --}}
                     <i class="fas fa-chevron-up collapse-icon"></i> {{-- Changed to down for initial collapsed state --}}
@@ -179,7 +179,27 @@
             '{{ $section_prefix ?? '' }}education-history-container');
         const addEducationButton = document.getElementById('{{ $section_prefix ?? '' }}add-education');
         const sectionPrefix = '{{ $section_prefix ?? '' }}';
+ const riwayatPendidikanRequiredAsterisk = document.getElementById(`${sectionPrefix}riwayatPendidikanRequired`);
 
+
+        // Fungsi baru untuk memeriksa dan menghapus/menambahkan tanda bintang wajib
+        function checkAndRemoveRiwayatPendidikanRequiredAsterisk() {
+            // Cek apakah ada data pendidikan yang sudah ada atau yang baru ditambahkan
+            const hasExistingData = existingEducationData && existingEducationData.length > 0;
+            const hasDynamicFields = educationHistoryContainer.children.length > 0;
+
+            if ((hasExistingData || hasDynamicFields) && riwayatPendidikanRequiredAsterisk) {
+                // Jika ada data (dari DB atau yang baru ditambahkan), dan tanda bintang ada, hapus tanda bintang
+                riwayatPendidikanRequiredAsterisk.remove();
+            } else if (!hasExistingData && !hasDynamicFields && !riwayatPendidikanRequiredAsterisk) {
+                // Jika tidak ada data sama sekali (baik dari DB maupun dinamis), dan tanda bintang tidak ada, tambahkan kembali tanda bintang
+                const h5Element = mainCardHeaderPendidikan.querySelector('h5');
+                h5Element.insertAdjacentHTML('beforeend',
+                    `<span class="required" id="${sectionPrefix}riwayatPendidikanRequired">*</span>`);
+                // Perbarui referensi ke elemen tanda bintang yang baru ditambahkan
+                riwayatPendidikanRequiredAsterisk = document.getElementById(`${sectionPrefix}riwayatPendidikanRequired`);
+            }
+        }
         // --- Definisi fungsi addEducationField yang BENAR dan HANYA SATU ---
         function addEducationField(prefix, index, data = {}) {
             const id = data.id || ''; // Ambil ID dari data yang ada, jika ada
@@ -245,6 +265,8 @@
         `;
             if (educationHistoryContainer) {
                 educationHistoryContainer.insertAdjacentHTML('beforeend', educationHtml);
+                                checkAndRemoveRiwayatPendidikanRequiredAsterisk();
+
             }
         }
 
@@ -281,6 +303,11 @@
             existingEducationData.forEach((data, index) => {
                 addEducationField(sectionPrefix, index, data);
             });
+                            checkAndRemoveRiwayatPendidikanRequiredAsterisk();
+
+        }else{
+                            checkAndRemoveRiwayatPendidikanRequiredAsterisk();
+
         }
 
         // Event listener for "Tambah Pendidikan" button
@@ -308,6 +335,8 @@
                         elementToRemove.remove();
                         // Panggil fungsi untuk memperbarui nama atribut setelah penghapusan
                         updateEducationFieldNames(sectionPrefix, educationHistoryContainer);
+                                        checkAndRemoveRiwayatPendidikanRequiredAsterisk();
+
                     }
                 }
             });
@@ -315,116 +344,6 @@
 
 
         // --- Validation Logic for Individual Sections ---
-        document.querySelectorAll('.save-section-btn').forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-
-                const sectionId = this.dataset.section;
-                const prefix = this.dataset.prefix;
-                const sectionCollapseId =
-                    `#${prefix}collapse${sectionId.charAt(0).toUpperCase() + sectionId.slice(1)}`;
-                const sectionElement = document.querySelector(sectionCollapseId);
-                let isValid = true;
-
-                if (!sectionElement) {
-                    console.error(`Section element not found for ID: ${sectionCollapseId}`);
-                    return;
-                }
-
-                // Reset error messages and invalid class for the specific section
-                sectionElement.querySelectorAll('.error-message').forEach(msg => {
-                    msg.style.display = 'none';
-                });
-                sectionElement.querySelectorAll('.form-control, .form-select, textarea')
-                    .forEach(input => {
-                        input.classList.remove('is-invalid');
-                    });
-
-                // --- Dynamic Fields Validation ---
-                if (sectionId ===
-                    'education_history'
-                    ) { // Corrected sectionId to match data-section attribute
-                    const educationItems = educationHistoryContainer.querySelectorAll(
-                        '.education-item');
-                    if (educationItems.length === 0) {
-                        isValid = false;
-                        alert('Mohon tambahkan setidaknya satu Riwayat Pendidikan.');
-                    } else {
-                        educationItems.forEach((item, idx) => {
-                            // Corrected field selectors to match `name` attributes
-                            const jenjangField = item.querySelector(
-                                `[name="education_history[${idx}][level_of_education]"]`
-                            );
-                            const institusiField = item.querySelector(
-                                `[name="education_history[${idx}][institution]"]`);
-                            const jurusanField = item.querySelector(
-                                `[name="education_history[${idx}][major]"]`);
-                            const tahunMulaiField = item.querySelector(
-                                `[name="education_history[${idx}][period_start_year]"]`
-                            );
-                            const tahunSelesaiField = item.querySelector(
-                                `[name="education_history[${idx}][period_end_year]"]`
-                            );
-
-                            const fieldsToCheck = [{
-                                    field: jenjangField,
-                                    msg: 'Jenjang harus diisi'
-                                },
-                                {
-                                    field: institusiField,
-                                    msg: 'Nama institusi harus diisi'
-                                },
-                                {
-                                    field: jurusanField,
-                                    msg: 'Jurusan harus diisi'
-                                },
-                                {
-                                    field: tahunMulaiField,
-                                    msg: 'Tahun mulai harus diisi'
-                                },
-                                {
-                                    field: tahunSelesaiField,
-                                    msg: 'Tahun selesai harus diisi'
-                                }
-                            ];
-
-                            fieldsToCheck.forEach(f => {
-                                if (f.field && (f.field.type === 'select-one' ?
-                                        !f.field.value : !f.field.value.trim()
-                                    )) {
-                                    f.field.classList.add('is-invalid');
-                                    const errorMsg = f.field.parentElement
-                                        .querySelector('.error-message');
-                                    if (errorMsg) {
-                                        errorMsg.textContent = f.msg;
-                                        errorMsg.style.display = 'block';
-                                    }
-                                    isValid = false;
-                                }
-                            });
-
-                            if (tahunMulaiField && tahunSelesaiField && tahunMulaiField
-                                .value && tahunSelesaiField.value) {
-                                const startYear = parseInt(tahunMulaiField.value);
-                                const endYear = parseInt(tahunSelesaiField.value);
-                                if (startYear > endYear) {
-                                    tahunSelesaiField.classList.add('is-invalid');
-                                    const errorMsg = tahunSelesaiField.parentElement
-                                        .querySelector('.error-message');
-                                    if (errorMsg) {
-                                        errorMsg.textContent =
-                                            'Tahun selesai tidak boleh sebelum tahun mulai.';
-                                        errorMsg.style.display = 'block';
-                                    }
-                                    isValid = false;
-                                }
-                            }
-                        });
-                    }
-                }
-
-             
-            });
-        });
+     
     });
 </script>

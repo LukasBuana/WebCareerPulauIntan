@@ -8,7 +8,7 @@
                     style="cursor: pointer;">
                     <h5 class="mb-0">
                         <i class="fas fa-chalkboard-teacher me-2"></i>Pengalaman Kursus dan Training<span
-                            class="required">*</span>
+                            class="required"id="{{ $section_prefix ?? '' }}trainingCourseRequired">*</span>
                     </h5>
                     {{-- Initial state: down for collapsed. Will be updated by JS --}}
                     <i class="fas fa-chevron-down collapse-icon"></i>
@@ -65,7 +65,6 @@
 
 
 <script>
-        console.log('--- data_kursus.blade.php SCRIPT LOADING ---'); // New log
 
     document.addEventListener('DOMContentLoaded', function() {
         const sectionPrefix = '{{ $section_prefix ?? '' }}';
@@ -112,6 +111,24 @@
         let trainingCourseCount = 0;
         const trainingCourseContainer = document.getElementById(`${sectionPrefix}training-course-container`);
         const addTrainingCourseButton = document.getElementById(`${sectionPrefix}add-training-course`);
+        const trainingCourseRequiredAsterisk = document.getElementById(`${sectionPrefix}trainingCourseRequired`);
+ function checkAndRemoveTrainingCourseRequiredAsterisk() {
+            // Cek apakah ada data kursus/training yang sudah ada atau yang baru ditambahkan
+            const hasExistingData = existingTrainingCourseData && existingTrainingCourseData.length > 0;
+            const hasDynamicFields = trainingCourseContainer.children.length > 0;
+
+            if ((hasExistingData || hasDynamicFields) && trainingCourseRequiredAsterisk) {
+                // Jika ada data (dari DB atau yang baru ditambahkan), dan tanda bintang ada, hapus tanda bintang
+                trainingCourseRequiredAsterisk.remove();
+            } else if (!hasExistingData && !hasDynamicFields && !trainingCourseRequiredAsterisk) {
+                // Jika tidak ada data sama sekali (baik dari DB maupun dinamis), dan tanda bintang tidak ada, tambahkan kembali tanda bintang
+                const h5Element = mainCardHeaderTrainingCourse.querySelector('h5');
+                h5Element.insertAdjacentHTML('beforeend',
+                    `<span class="required" id="${sectionPrefix}trainingCourseRequired">*</span>`);
+                // Perbarui referensi ke elemen tanda bintang yang baru ditambahkan
+                trainingCourseRequiredAsterisk = document.getElementById(`${sectionPrefix}trainingCourseRequired`);
+            }
+        }
 
         function addTrainingCourseField(prefix, index, data = {}) {
             const id = data.id || '';
@@ -153,6 +170,7 @@
             `;
             if (trainingCourseContainer) {
                 trainingCourseContainer.insertAdjacentHTML('beforeend', trainingCourseHtml);
+                checkAndRemoveTrainingCourseRequiredAsterisk();
             }
         }
 
@@ -162,6 +180,11 @@
                 addTrainingCourseField(sectionPrefix, index, data);
             });
             trainingCourseCount = existingTrainingCourseData.length;
+                        checkAndRemoveTrainingCourseRequiredAsterisk();
+
+        }else{
+                        checkAndRemoveTrainingCourseRequiredAsterisk();
+
         }
 
         // Event listener for "Tambah Kursus/Training" button
@@ -180,6 +203,8 @@
                     const elementToRemove = document.getElementById(targetId);
                     if (elementToRemove) {
                         elementToRemove.remove();
+                                                checkAndRemoveTrainingCourseRequiredAsterisk();
+
                     }
                 }
             });

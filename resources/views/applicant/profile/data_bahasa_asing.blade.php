@@ -7,7 +7,7 @@
                     data-bs-target="#{{ $section_prefix ?? '' }}ForeignLanguageMainCollapse" aria-expanded="false"
                     style="cursor: pointer;">
                     <h5 class="mb-0">
-                        <i class="fas fa-language me-2"></i>Bahasa Asing yang Dikuasai<span class="required">*</span>
+                        <i class="fas fa-language me-2"></i>Bahasa Asing yang Dikuasai<span class="required"id="{{ $section_prefix ?? '' }}foreignLanguageRequired">*</span>
                     </h5>
                     <i class="fas fa-chevron-up collapse-icon"></i>
                 </div>
@@ -105,6 +105,8 @@
         const addForeignLanguageButton = document.getElementById(
             '{{ $section_prefix ?? '' }}add-foreign-language');
         const sectionPrefix = '{{ $section_prefix ?? '' }}';
+                const requiredAsterisk = document.getElementById(`${sectionPrefix}foreignLanguageRequired`);
+
 
         function addForeignLanguageField(prefix, index, data = {}) {
             const id = data.id || '';
@@ -189,6 +191,13 @@
             if (foreignLanguageContainer) {
                 foreignLanguageContainer.insertAdjacentHTML('beforeend', foreignLanguageHtml);
             }
+            checkAndRemoveRequiredAsterisk();
+        }
+
+        function checkAndRemoveRequiredAsterisk() {
+            if (foreignLanguageContainer && foreignLanguageContainer.children.length > 0 && requiredAsterisk) {
+                requiredAsterisk.remove();
+            }
         }
 
         // Load existing foreign language data
@@ -196,6 +205,8 @@
             existingForeignLanguageData.forEach((data, index) => {
                 addForeignLanguageField(sectionPrefix, index, data);
             });
+                        checkAndRemoveRequiredAsterisk();
+
         }
 
         // Event listener for "Tambah Bahasa" button
@@ -214,6 +225,11 @@
                     const elementToRemove = document.getElementById(targetId);
                     if (elementToRemove) {
                         elementToRemove.remove();
+                    }
+                    if (foreignLanguageContainer.children.length === 0 && !requiredAsterisk) {
+                        const h5Element = mainCardHeaderForeignLanguage.querySelector('h5');
+                        h5Element.insertAdjacentHTML('beforeend',
+                            `<span class="required" id="${sectionPrefix}foreignLanguageRequired">*</span>`);
                     }
                 }
             });

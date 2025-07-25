@@ -24,6 +24,9 @@ return new class extends Migration
             $table->string('direct_supervisor_name', 255)->nullable();
             $table->text('resignation_reason')->nullable();
             $table->string('last_salary', 100)->nullable();
+            $table->longText('essay')->nullable();
+            $table->string(column: 'structure', length: 100)->nullable();
+
             $table->timestamps();
         });
     }
