@@ -7,7 +7,8 @@
                     data-bs-target="#{{ $section_prefix ?? '' }}RiwayatOrganisasiMainCollapse" aria-expanded="false"
                     style="cursor: pointer;">
                     <h5 class="mb-0">
-                        <i class="fas fa-sitemap me-2"></i>Riwayat Organisasi<span class="required" id="{{ $section_prefix ?? '' }}riwayatOrganisasiRequired">*</span>
+                        <i class="fas fa-sitemap me-2"></i>Riwayat Organisasi<span class="required"
+                            id="{{ $section_prefix ?? '' }}riwayatOrganisasiRequired">*</span>
                     </h5>
                     <i class="fas fa-chevron-up collapse-icon"></i>
                 </div>
@@ -32,22 +33,36 @@
                                     aria-labelledby="{{ $section_prefix ?? '' }}headingOrganisasi"
                                     data-bs-parent="#{{ $section_prefix ?? '' }}accordionRiwayatOrganisasi">
                                     <div class="accordion-body">
-                                        <form id="{{ $section_prefix ?? '' }}formRiwayatOrganisasi" method="POST">
-                                            <div id="{{ $section_prefix ?? '' }}organization-experience-container">
-                                            </div>
-                                            <button type="button" class="btn btn-info btn-sm mt-2"
-                                                id="{{ $section_prefix ?? '' }}add-organization">Tambah
-                                                Organisasi</button>
-                                            <div class="row mt-4">
-                                                <div class="col-md-12 text-end">
-                                                    <button type="submit" class="btn btn-primary px-4 save-section-btn"
-                                                        data-section="organizational_experience"
-                                                        data-prefix="{{ $section_prefix ?? '' }}">
-                                                        <i class="fas fa-save me-2"></i>Simpan Riwayat Organisasi
-                                                    </button>
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" type="checkbox" value="1"
+                                                id="{{ $section_prefix ?? '' }}noOrganizationExperienceCheckbox"
+                                                name="no_organization_experience">
+                                            <label class="form-check-label"
+                                                for="{{ $section_prefix ?? '' }}noOrganizationExperienceCheckbox">
+                                                Saya tidak memiliki Pengalaman Organisasi
+                                            </label>
+                                        </div>
+                                        <div id="{{ $section_prefix ?? '' }}organizationFieldsContainer">
+                                            <form id="{{ $section_prefix ?? '' }}formRiwayatOrganisasi" method="POST">
+                                                <div id="{{ $section_prefix ?? '' }}organization-experience-container">
+                                                    {{-- Dynamic organization fields will be added here by JS --}}
                                                 </div>
+                                                <button type="button" class="btn btn-info btn-sm mt-2"
+                                                    id="{{ $section_prefix ?? '' }}add-organization">Tambah
+                                                    Organisasi</button>
+                                                {{-- The save button for this section is moved out of this form to
+                                                always be visible --}}
+                                            </form>
+                                        </div> {{-- End of organizationFieldsContainer --}}
+                                        <div class="row mt-4">
+                                            <div class="col-md-12 text-end">
+                                                <button type="submit" class="btn btn-primary px-4 save-section-btn"
+                                                    data-section="organizational_experience"
+                                                    data-prefix="{{ $section_prefix ?? '' }}">
+                                                    <i class="fas fa-save me-2"></i>Simpan Riwayat Organisasi
+                                                </button>
                                             </div>
-                                        </form>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -60,23 +75,23 @@
     </div>
 </div>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         // --- Logic for Main Card Header Toggle (Riwayat Organisasi) ---
         const mainCardHeaderOrganisasi = document.querySelector(
-                '#{{ $section_prefix ?? '' }}RiwayatOrganisasiMainCollapse')
+            '#{{ $section_prefix ?? '' }}RiwayatOrganisasiMainCollapse')
             .previousElementSibling; // Get the header
         const mainCollapseOrganisasi = document.getElementById(
             '{{ $section_prefix ?? '' }}RiwayatOrganisasiMainCollapse');
         const mainCollapseIconOrganisasi = mainCardHeaderOrganisasi.querySelector('.collapse-icon');
 
         if (mainCardHeaderOrganisasi && mainCollapseOrganisasi && mainCollapseIconOrganisasi) {
-            mainCollapseOrganisasi.addEventListener('show.bs.collapse', function() {
+            mainCollapseOrganisasi.addEventListener('show.bs.collapse', function () {
                 mainCardHeaderOrganisasi.classList.add('active');
                 mainCollapseIconOrganisasi.classList.remove('fa-chevron-down');
                 mainCollapseIconOrganisasi.classList.add('fa-chevron-up');
             });
 
-            mainCollapseOrganisasi.addEventListener('hide.bs.collapse', function() {
+            mainCollapseOrganisasi.addEventListener('hide.bs.collapse', function () {
                 mainCardHeaderOrganisasi.classList.remove('active');
                 mainCollapseIconOrganisasi.classList.remove('fa-chevron-up');
                 mainCollapseIconOrganisasi.classList.add('fa-chevron-down');
@@ -96,14 +111,14 @@
 
         // --- Dynamic Fields for Organizational History ---
         const existingOrganizationData =
-        @json($applicant->organizationalExperience ?? []); // Assuming $applicant->organizationHistory holds existing data
+            @json($applicant->organizationalExperience ?? []); // Assuming $applicant->organizationHistory holds existing data
         let organizationCount = existingOrganizationData.length;
         const organizationHistoryContainer = document.getElementById(
             '{{ $section_prefix ?? '' }}organization-experience-container');
         const addOrganizationButton = document.getElementById('{{ $section_prefix ?? '' }}add-organization');
         const sectionPrefix = '{{ $section_prefix ?? '' }}';
 
- const riwayatOrganisasiRequiredAsterisk = document.getElementById(`${sectionPrefix}riwayatOrganisasiRequired`);
+        const riwayatOrganisasiRequiredAsterisk = document.getElementById(`${sectionPrefix}riwayatOrganisasiRequired`);
 
 
         // Fungsi baru untuk memeriksa dan menghapus/menambahkan tanda bintang wajib
@@ -128,7 +143,7 @@
 
         function addOrganizationField(prefix, index, data = {}) {
             // Pastikan nama variabel sesuai dengan yang ada di database/backend
-                const id = data.id || '';
+            const id = data.id || '';
 
             const organization_name = data.organization_name || '';
             const title_in_organization = data.title_in_organization || ''; // Menggunakan title_in_organization
@@ -163,7 +178,7 @@
             if (organizationHistoryContainer) {
                 organizationHistoryContainer.insertAdjacentHTML('beforeend', organizationHtml);
                 // Tidak ada lagi logic calculateDuration karena 'period' adalah satu field
-                                checkAndRemoveRiwayatOrganisasiRequiredAsterisk();
+                checkAndRemoveRiwayatOrganisasiRequiredAsterisk();
 
             }
         }
@@ -177,13 +192,13 @@
             // Panggil fungsi untuk memeriksa tanda bintang setelah semua data dimuat
             checkAndRemoveRiwayatOrganisasiRequiredAsterisk();
         } else {
-                        checkAndRemoveRiwayatOrganisasiRequiredAsterisk();
+            checkAndRemoveRiwayatOrganisasiRequiredAsterisk();
 
         }
 
         // Event listener for "Tambah Organisasi" button
         if (addOrganizationButton) {
-            addOrganizationButton.addEventListener('click', function() {
+            addOrganizationButton.addEventListener('click', function () {
                 // Tambahkan validasi di sini sebelum menambahkan field baru
                 // Pastikan semua field wajib di group terakhir sudah terisi
                 let allCurrentItemsValid = true;
@@ -196,7 +211,7 @@
                         if (!input.value.trim()) {
                             input.classList.add('is-invalid');
                             const errorMsg = input.parentElement.querySelector(
-                            '.error-message');
+                                '.error-message');
                             if (errorMsg) {
                                 errorMsg.textContent = 'Field ini wajib diisi.';
                                 errorMsg.style.display = 'block';
@@ -225,13 +240,13 @@
 
         // Event listener for "Hapus" button on dynamic organization fields
         if (organizationHistoryContainer) {
-            organizationHistoryContainer.addEventListener('click', function(e) {
+            organizationHistoryContainer.addEventListener('click', function (e) {
                 if (e.target.classList.contains('remove-organization')) {
                     const targetId = e.target.dataset.targetId;
                     const elementToRemove = document.getElementById(targetId);
                     if (elementToRemove) {
                         elementToRemove.remove();
-                                                checkAndRemoveRiwayatOrganisasiRequiredAsterisk();
+                        checkAndRemoveRiwayatOrganisasiRequiredAsterisk();
 
                         // Re-index inputs jika diperlukan (penting jika Anda mengandalkan indeks berurutan di backend)
                         // Karena Anda menggunakan `idx` di name attribute, re-indexing manual akan diperlukan
@@ -241,14 +256,14 @@
                             'appFormorganization-experience-container': {
                                 type: 'organizational_experience',
                                 fields: [{
-                                        name: 'organization_name'
-                                    },
-                                    {
-                                        name: 'title_in_organization'
-                                    },
-                                    {
-                                        name: 'period'
-                                    }
+                                    name: 'organization_name'
+                                },
+                                {
+                                    name: 'title_in_organization'
+                                },
+                                {
+                                    name: 'period'
+                                }
                                 ]
                             }
                         };
@@ -262,6 +277,6 @@
         }
 
         // --- Validation Logic for Saving Sections (including the new organization_experience) ---
-       
+
     });
 </script>

@@ -342,15 +342,12 @@
                             <img src="/images/icon/social.png" alt="Instagram" class="myproject-footer__social-icon">
                         </a>
 
-                  <a href="https://id.linkedin.com/company/pt-pulauintan-bajaperkasa-konstruksi"
+                        <a href="https://id.linkedin.com/company/pt-pulauintan-bajaperkasa-konstruksi"
                             class="myproject-footer__social-link" aria-label="LinkedIn">
                             <img src="/images/icon/linkedin.png" alt="LinkedIn" class="myproject-footer__social-icon">
                         </a>
 
-                        <a href="https://www.instagram.com/pulauintanofficial/?hl=en"
-                            class="myproject-footer__social-link" aria-label="Facebook">
-                            <img src="/images/icon/facebook.png" alt="Instagram" class="myproject-footer__social-icon">
-                        </a>
+
 
                     </div>
                 </div>
