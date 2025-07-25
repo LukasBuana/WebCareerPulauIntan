@@ -415,7 +415,7 @@ class ApplicantController extends Controller
                 case 'work_achievements':
                     $this->syncSectionHasMany($applicant, 'workAchievements', $request->input('work_achievements'), [
                         'achievement_description',
-                        'year'
+                        'achievement_year'
                     ]);
                     break;
                 case 'health_declaration':
@@ -663,7 +663,7 @@ class ApplicantController extends Controller
                 $sectionRules = [
                     'work_achievements' => $allRules['work_achievements'],
                     'work_achievements.*.achievement_description' => 'required|string', // Changed to required
-                    'work_achievements.*.year' => 'nullable|integer|min:1900|max:' . date('Y'),
+                    'work_achievements.*.achievement_year' => 'nullable|integer|min:1900|max:' . date('Y'),
                 ];
                 break;
             case 'health_declaration':
@@ -983,7 +983,7 @@ class ApplicantController extends Controller
 
             'work_achievements' => 'nullable|array',
             'work_achievements.*.achievement_description' => 'nullable|string',
-            'work_achievements.*.year' => 'nullable|integer|min:1900|max:' . date('Y'),
+            'work_achievements.*.achievement_year' => 'nullable|integer|min:1900|max:' . date('Y'),
 
             // Health Declaration is hasOne, so directly on applicantData validation
             'weight_kg' => 'nullable|numeric|min:0',
@@ -1122,7 +1122,7 @@ class ApplicantController extends Controller
             ],
             'work_achievements' => [
                 'relation' => 'workAchievements',
-                'fields' => ['achievement_description', 'year']
+                'fields' => ['achievement_description', 'achievement_year']
             ],
         ];
 

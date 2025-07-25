@@ -7,7 +7,7 @@
                     data-bs-target="#{{ $section_prefix ?? '' }}AchievementMainCollapse" aria-expanded="false"
                     style="cursor: pointer;">
                     <h5 class="mb-0">
-                        <i class="fas fa-trophy me-2"></i>Prestasi Kerja<span class="required">*</span>
+                        <i class="fas fa-trophy me-2"></i>Prestasi Kerja
                     </h5>
                     <i class="fas fa-chevron-up collapse-icon"></i>
                 </div>
@@ -62,7 +62,7 @@
                                         <div class="col-md-12 text-end mt-4">
                                             <button type="submit"
                                                 class="btn btn-primary px-4 save-section-btn"
-                                                data-section="achievements"
+                                                data-section="work_achievements"
                                                 data-prefix="{{ $section_prefix ?? '' }}">
                                                 <i class="fas fa-save me-2"></i>Simpan Prestasi Kerja
                                             </button>
@@ -115,7 +115,7 @@
         }
 
         // --- Dynamic Fields for Prestasi Kerja ---
-        const existingAchievementData = @json($applicant->achievements ?? []); // Sesuaikan dengan nama relasi di model Applicant
+        const existingAchievementData = @json($applicant->workAchievements ?? []); // Sesuaikan dengan nama relasi di model Applicant
         let achievementCount = existingAchievementData.length;
         const achievementContainer = document.getElementById(
             '{{ $section_prefix ?? '' }}achievement-container');
@@ -131,20 +131,20 @@
         function addAchievementField(prefix, index, data = {}) {
             const id = data.id || '';
             const achievement_description = data.achievement_description || '';
-            const year = data.year || '';
+            const achievement_year = data.achievement_year || '';
 
             const achievementHtml = `
                 <div class="achievement-item border p-3 mb-3 rounded" id="${prefix}achievement-${index}">
-                    <input type="hidden" name="achievements[${index}][id]" value="${id}">
+                    <input type="hidden" name="work_achievements[${index}][id]" value="${id}">
                     <div class="row">
                         <div class="col-md-9 mb-3">
                             <label for="${prefix}achievement_description_${index}" class="form-label">Deskripsi Prestasi <span class="required">*</span></label>
-                            <textarea class="form-control" id="${prefix}achievement_description_${index}" name="achievements[${index}][achievement_description]" rows="2" placeholder="Contoh: Membangun proyek baru, merintis usaha, dsb" required>${achievement_description}</textarea>
+                            <textarea class="form-control" id="${prefix}achievement_description_${index}" name="work_achievements[${index}][achievement_description]" rows="2" placeholder="Contoh: Membangun proyek baru, merintis usaha, dsb" required>${achievement_description}</textarea>
                             <div class="error-message"></div>
                         </div>
                         <div class="col-md-3 mb-3">
-                            <label for="${prefix}year_${index}" class="form-label">Tahun <span class="required">*</span></label>
-                            <input type="number" class="form-control" id="${prefix}year_${index}" name="achievements[${index}][year]" value="${year}" placeholder="YYYY" min="1900" max="2100" required>
+                            <label for="${prefix}achievement_year_${index}" class="form-label">Tahun <span class="required">*</span></label>
+                            <input type="number" class="form-control" id="${prefix}achievement_year_${index}" name="work_achievements[${index}][achievement_year]" value="${achievement_year}" placeholder="YYYY" min="1900" max="2100" required>
                             <div class="error-message"></div>
                         </div>
                     </div>
