@@ -9,7 +9,7 @@
                     data-bs-target="#{{ $section_prefix ?? '' }}DataKeluargaMainCollapse" {{-- Unique ID for main collapse --}}
                     aria-expanded="true" {{-- Start collapsed by default --}} style="cursor: pointer;">
                     <h5 class="mb-0">
-                        <i class="fas fa-users me-2"></i>Data Keluarga<span class="required">*</span>
+                        <i class="fas fa-users me-2"></i>Data Keluarga<span class="required"id="{{ $section_prefix ?? '' }}dataKeluargaRequired">*</span>
                     </h5>
                     {{-- Icon will be handled by custom JS below for this main header --}}
                     <i class="fas fa-chevron-up collapse-icon"></i> {{-- Changed to down for initial collapsed state --}}
@@ -527,6 +527,108 @@
     const mainCollapseKeluarga = document.getElementById('{{ $section_prefix ?? '' }}DataKeluargaMainCollapse');
     const mainCardHeaderKeluarga = document.querySelector(`[data-bs-target="#${mainCollapseKeluarga.id}"]`); // Dapatkan header yang menargetkan collapse ini
     const mainCollapseIconKeluarga = mainCardHeaderKeluarga ? mainCardHeaderKeluarga.querySelector('.collapse-icon') : null;
+     const dataKeluargaRequiredAsterisk = document.getElementById('{{ $section_prefix ?? '' }}dataKeluargaRequired');
+        const sectionPrefix = '{{ $section_prefix ?? '' }}';
+     function isFormFilled(formId) {
+            const form = document.getElementById(formId);
+            if (!form) return false;
+
+            const requiredInputs = form.querySelectorAll('[required]');
+            for (const input of requiredInputs) {
+                if (input.value.trim() === '' || (input.tagName === 'SELECT' && input.value === '')) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // --- NEW: Function to check if dynamic sections have data ---
+        function hasDynamicData(containerId) {
+            const container = document.getElementById(containerId);
+            return container && container.children.length > 0;
+        }
+
+        // --- NEW: Function to check and toggle the "Data Keluarga" required asterisk ---
+        function checkAndToggleDataKeluargaRequiredAsterisk() {
+            const maritalStatusSelectElement = document.getElementById('marital_status');
+            const isDependentSectionVisible = (maritalStatusSelectElement && maritalStatusSelectElement.value !== 'Belum menikah');
+            let allFamilyDataComplete = true;
+
+            // 1. Check Data Tanggungan (only if visible)
+            if (isDependentSectionVisible) {
+                if (!hasDynamicData(`${sectionPrefix}dependents-container`)) {
+                    allFamilyDataComplete = false;
+                } else {
+                    const dependentForms = dependentsContainer.querySelectorAll('.dependent-item');
+                    if (dependentForms.length === 0) { // If visible but no dependents added
+                         allFamilyDataComplete = false;
+                    } else {
+                        dependentForms.forEach(item => {
+                            const requiredInputs = item.querySelectorAll('[required]');
+                            requiredInputs.forEach(input => {
+                                if (input.value.trim() === '' || (input.tagName === 'SELECT' && input.value === '')) {
+                                    allFamilyDataComplete = false;
+                                }
+                            });
+                        });
+                    }
+                }
+            }
+
+            // 2. Check Emergency Contact
+            if (!isFormFilled(`${sectionPrefix}formEmergencyContact`)) {
+                allFamilyDataComplete = false;
+            }
+
+            // 3. Check Susunan Keluarga
+            if (!hasDynamicData(`${sectionPrefix}family-members-container`)) {
+                allFamilyDataComplete = false;
+            } else {
+                const familyMemberForms = familyMembersContainer.querySelectorAll('.family-member-item');
+                if (familyMemberForms.length === 0) { // If visible but no family members added
+                    allFamilyDataComplete = false;
+                } else {
+                    familyMemberForms.forEach(item => {
+                        const requiredInputs = item.querySelectorAll('[required]');
+                        requiredInputs.forEach(input => {
+                            if (input.value.trim() === '' || (input.tagName === 'SELECT' && input.value === '')) {
+                                allFamilyDataComplete = false;
+                            }
+                        });
+                    });
+                }
+            }
+
+            // 4. Check Fixed Contact Persons
+            const fixedContactPersons = document.querySelectorAll('.contact-person-item');
+            if (fixedContactPersons.length < 4) { // Ensure all 4 fixed sections are present
+                allFamilyDataComplete = false;
+            } else {
+                fixedContactPersons.forEach(personItem => {
+                    const requiredInputs = personItem.querySelectorAll('[required]');
+                    requiredInputs.forEach(input => {
+                        if (input.value.trim() === '' || (input.tagName === 'SELECT' && input.value === '')) {
+                            allFamilyDataComplete = false;
+                        }
+                    });
+                });
+            }
+
+
+            if (dataKeluargaRequiredAsterisk) {
+                if (allFamilyDataComplete) {
+                    dataKeluargaRequiredAsterisk.remove();
+                } else {
+                    // If it's missing, add it back. This ensures it's only added once.
+                    if (!document.getElementById(`${sectionPrefix}dataKeluargaRequired`)) {
+                        const h5Element = mainCardHeaderKeluarga.querySelector('h5');
+                        h5Element.insertAdjacentHTML('beforeend',
+                            `<span class="required" id="${sectionPrefix}dataKeluargaRequired">*</span>`);
+                    }
+                }
+            }
+        }
+        
 
     if (mainCardHeaderKeluarga && mainCollapseKeluarga && mainCollapseIconKeluarga) {
         // Initial state
@@ -836,46 +938,8 @@
             });
         }
 
-        // Fungsi validateField (dari file data_pribadi.blade.php Anda) - PASTIKAN FUNGSI INI SUDAH DI DEFINISIKAN SECARA GLOBAL ATAU DI COPY KE SINI
-        // Saya asumsikan Anda telah mendefinisikan ini di tempat yang dapat diakses oleh kedua skrip,
-        // jika tidak, Anda perlu menyertakannya di sini juga.
-        function validateField(inputElement) {
-            let isValid = true;
-            const errorMessageElement = inputElement.parentElement.querySelector('.error-message');
+    
 
-            if (inputElement.hasAttribute('required')) {
-                if (inputElement.type === 'checkbox' || inputElement.type === 'radio') {
-                    const radioGroupName = inputElement.name;
-                    isValid = document.querySelector(`input[name="${radioGroupName}"]:checked`) !== null;
-                } else if (inputElement.tagName === 'SELECT') {
-                    isValid = inputElement.value.trim() !== '';
-                } else {
-                    isValid = inputElement.value.trim() !== '';
-                }
-            }
-
-            if (!isValid) {
-                inputElement.classList.add('is-invalid');
-                if (errorMessageElement) {
-                    errorMessageElement.textContent = inputElement.validationMessage || 'Field ini wajib diisi.';
-                    errorMessageElement.style.display = 'block';
-                }
-            } else {
-                inputElement.classList.remove('is-invalid');
-                if (errorMessageElement) {
-                    errorMessageElement.style.display = 'none';
-                }
-            }
-            return isValid;
-        }
-
-  
-        
-        // --- Event Listener for Marital Status Change ---
-        // ASUMSI: marital_status SELECT element ada di halaman data_pribadi.blade.php
-        // Pastikan elemen #marital_status dapat diakses dari script ini.
-        // Jika file data_keluarga.blade.php di-include di halaman yang sama dengan marital_status,
-        // maka document.getElementById('marital_status') akan berfungsi.
         const maritalStatusSelectElement = document.getElementById('marital_status'); 
         if (maritalStatusSelectElement) {
             maritalStatusSelectElement.addEventListener('change', function() {
@@ -914,6 +978,31 @@
             // Picu event change saat halaman dimuat untuk mengatur status awal
             // berdasarkan nilai yang ada di database atau old()
             maritalStatusSelectElement.dispatchEvent(new Event('change'));
+        }
+         checkAndToggleDataKeluargaRequiredAsterisk();
+
+        // Attach event listeners to all relevant forms and dynamic containers
+        // Make sure these elements exist before attaching listeners
+        const formEmergencyContact = document.getElementById(`${sectionPrefix}formEmergencyContact`);
+        if (formEmergencyContact) {
+            formEmergencyContact.addEventListener('input', checkAndToggleDataKeluargaRequiredAsterisk);
+            formEmergencyContact.addEventListener('change', checkAndToggleDataKeluargaRequiredAsterisk);
+        }
+        
+        if (dependentsContainer) {
+            dependentsContainer.addEventListener('input', checkAndToggleDataKeluargaRequiredAsterisk);
+            dependentsContainer.addEventListener('change', checkAndToggleDataKeluargaRequiredAsterisk);
+        }
+
+        if (familyMembersContainer) {
+            familyMembersContainer.addEventListener('input', checkAndToggleDataKeluargaRequiredAsterisk);
+            familyMembersContainer.addEventListener('change', checkAndToggleDataKeluargaRequiredAsterisk);
+        }
+        
+        const formKontakPerson = document.getElementById(`${sectionPrefix}formKontakPerson`);
+        if (formKontakPerson) {
+            formKontakPerson.addEventListener('input', checkAndToggleDataKeluargaRequiredAsterisk);
+            formKontakPerson.addEventListener('change', checkAndToggleDataKeluargaRequiredAsterisk);
         }
     });
 </script>

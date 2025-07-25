@@ -7,7 +7,7 @@
                     data-bs-target="#{{ $section_prefix ?? '' }}PublicationMainCollapse"
                     aria-expanded="false" style="cursor: pointer;">
                     <h5 class="mb-0">
-                        <i class="fas fa-book-open me-2"></i>Tulisan atau Karya Ilmiah<span class="required">*</span>
+                        <i class="fas fa-book-open me-2"></i>Tulisan atau Karya Ilmiah<span class="required"id="{{ $section_prefix ?? '' }}publicationRequiredAsterisk">*</span>
                     </h5>
                     <i class="fas fa-chevron-up collapse-icon"></i>
                 </div>
@@ -67,10 +67,14 @@
 </div>
 
 <script>
+
+
     document.addEventListener('DOMContentLoaded', function() {
-        // Assume $section_prefix is passed from a server-side template (like Blade in Laravel).
-        // If not using a server-side template, you might define it as a fixed string, e.g., const sectionPrefix = 'app_';
         const sectionPrefix = '{{ $section_prefix ?? '' }}';
+        const publicationContainer = document.getElementById(`${sectionPrefix}publication-container`);
+        const addPublicationButton = document.getElementById(`${sectionPrefix}add-publication`);
+        const noPublicationCheckbox = document.getElementById(`${sectionPrefix}no_publication_checkbox`);
+        const asteriskElement = document.getElementById(`${sectionPrefix}publicationRequiredAsterisk`);
 
         // --- Logic for Main Card Header Toggle (Tulisan atau Karya Ilmiah) ---
         const mainCardHeaderPublication = document.querySelector(
@@ -105,36 +109,81 @@
             }
         }
 
-        // --- Dynamic Fields for Publications/Scientific Works ---
-        // Assuming $applicant->publications holds existing data. If not, this will be an empty array.
-        const existingPublicationData = @json($applicant->publications ?? []);
-        let publicationCount = existingPublicationData.length;
-        const publicationContainer = document.getElementById(
-            `${sectionPrefix}publication-container`);
-        const addPublicationButton = document.getElementById(`${sectionPrefix}add-publication`);
-        const noPublicationCheckbox = document.getElementById(`${sectionPrefix}no_publication_checkbox`);
+        function validateField(field) {
+            const errorMessageElement = field.parentElement.querySelector('.error-message');
+            if (!field.checkValidity()) {
+                field.classList.add('is-invalid');
+                if (errorMessageElement) {
+                    errorMessageElement.textContent = field.validationMessage;
+                    errorMessageElement.style.display = 'block';
+                }
+            } else {
+                field.classList.remove('is-invalid');
+                if (errorMessageElement) {
+                    errorMessageElement.textContent = '';
+                    errorMessageElement.style.display = 'none';
+                }
+            }
+            checkAndTogglePublicationRequiredAsterisk(); // Re-check asterisk on field validation
+        }
+
+        function checkAndTogglePublicationRequiredAsterisk() {
+            if (!asteriskElement) return;
+
+            const isCheckboxChecked = noPublicationCheckbox.checked;
+            let isPublicationSectionComplete = false;
+
+            if (isCheckboxChecked) {
+                isPublicationSectionComplete = true; // If checkbox is checked, section is considered complete
+            } else {
+                const publicationItems = publicationContainer.querySelectorAll('.publication-item');
+                if (publicationItems.length > 0) {
+                    let allItemsValid = true;
+                    for (const item of publicationItems) {
+                        const requiredInputsInItem = item.querySelectorAll('input[required], select[required], textarea[required]');
+                        for (const input of requiredInputsInItem) {
+                            if (!input.checkValidity()) {
+                                allItemsValid = false;
+                                break;
+                            }
+                        }
+                        if (!allItemsValid) break;
+                    }
+                    isPublicationSectionComplete = allItemsValid;
+                } else {
+                    isPublicationSectionComplete = false; // No items, and checkbox not checked
+                }
+            }
+
+            if (isPublicationSectionComplete) {
+                asteriskElement.style.display = 'none';
+            } else {
+                asteriskElement.style.display = 'inline';
+            }
+        }
+
+        let publicationCount = 0; // Initialize publicationCount
 
         // Helper function to add a new publication field
         function addPublicationField(prefix, index, data = {}) {
-                                    const id = data.id || '';
-
+            const id = data.id || '';
             const publication_title = data.publication_title || '';
             const publication_type = data.publication_type || '';
 
             const publicationHtml = `
                 <div class="publication-item border p-3 mb-3 rounded" id="${prefix}publication-${index}">
-                                                        <input type="hidden" name="publications[${index}][id]" value="${id}"> 
+                    <input type="hidden" name="publications[${index}][id]" value="${id}"> 
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="${prefix}publication_title_${index}" class="form-label">Publication Title <span class="required">*</span></label>
                             <input type="text" class="form-control" id="${prefix}publication_title_${index}" name="publications[${index}][publication_title]" value="${publication_title}" required>
-                            <div class="error-message"></div>
+                            <div class="error-message text-danger small"></div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="${prefix}publication_type_${index}" class="form-label">Publication Type <span class="required">*</span></label>
                             <input type="text" class="form-control" id="${prefix}publication_type_${index}" name="publications[${index}][publication_type]" value="${publication_type}" required>
-                            <div class="error-message"></div>
+                            <div class="error-message text-danger small"></div>
                         </div>
                     </div>
                     <button type="button" class="btn btn-danger btn-sm remove-publication mt-2" data-target-id="${prefix}publication-${index}">Hapus</button>
@@ -142,75 +191,89 @@
             `;
             if (publicationContainer) {
                 publicationContainer.insertAdjacentHTML('beforeend', publicationHtml);
-                // After adding, immediately apply the required state based on the checkbox
-                togglePublicationFieldsRequired();
+                // Bind validation to newly added fields
+                const newFields = document.querySelectorAll(`#${prefix}publication-${index} input, #${prefix}publication-${index} select, #${prefix}publication-${index} textarea`);
+                newFields.forEach(field => {
+                    field.addEventListener('input', () => validateField(field));
+                    field.addEventListener('change', () => validateField(field));
+                });
+                checkAndTogglePublicationRequiredAsterisk();
             }
         }
 
-        // Function to toggle required attribute and clear/restore values for publications
         function togglePublicationFieldsRequired() {
-            // Select all input fields that are part of the dynamic publications list
-            const publicationFields = publicationContainer.querySelectorAll('input[name^="publications"]');
             const isChecked = noPublicationCheckbox.checked;
 
-            publicationFields.forEach(field => {
-                if (isChecked) {
-                    field.removeAttribute('required');
-                    field.dataset.originalRequired = 'true'; // Store original required state for potential restoration
-                    field.classList.remove('is-invalid'); // Remove validation styling
-                    const errorMessageElement = field.parentElement.querySelector('.error-message');
-                    if (errorMessageElement) {
-                         errorMessageElement.style.display = 'none'; // Hide error messages
-                    }
-                } else {
-                    // Only set required if it was originally required (or if no original state was stored, assume required)
-                    if (field.dataset.originalRequired === 'true' || field.hasAttribute('required')) {
-                        field.setAttribute('required', 'required');
-                    }
-                    // No need to delete data-originalRequired here, it's a marker.
-                }
-            });
+            localStorage.setItem(`${sectionPrefix}noPublicationChecked`, isChecked);
 
-            // Toggle "Tambah Karya" button and visibility of dynamic fields container
+            const publicationFields = publicationContainer.querySelectorAll('input[name^="publications"], select[name^="publications"], textarea[name^="publications"]');
+
             if (isChecked) {
                 addPublicationButton.style.display = 'none';
                 publicationContainer.style.display = 'none';
-                // Clear all input values in the container when checkbox is checked
-                publicationContainer.querySelectorAll('input[name^="publications"]').forEach(input => input.value = '');
+
+                publicationFields.forEach(field => {
+                    if (field.hasAttribute('required')) {
+                        field.dataset.originalRequired = 'true';
+                        field.removeAttribute('required');
+                    }
+                    field.classList.remove('is-invalid');
+                    const errorMessageElement = field.parentElement.querySelector('.error-message');
+                    if (errorMessageElement) {
+                        errorMessageElement.style.display = 'none';
+                    }
+                    if (field.type !== 'hidden') {
+                        field.value = '';
+                    }
+                });
+                // Clear existing dynamic fields
+                while (publicationContainer.firstChild) {
+                    publicationContainer.removeChild(publicationContainer.firstChild);
+                }
+                publicationCount = 0; // Reset count when clearing
             } else {
                 addPublicationButton.style.display = 'inline-block';
                 publicationContainer.style.display = 'block';
-                // If there are no fields and checkbox is unchecked, add one empty field by default
+
                 if (publicationContainer.children.length === 0) {
                     addPublicationField(sectionPrefix, 0);
                     publicationCount = 1;
+                } else {
+                    publicationFields.forEach(field => {
+                        if (field.dataset.originalRequired === 'true') {
+                            field.setAttribute('required', 'required');
+                            delete field.dataset.originalRequired;
+                        }
+                    });
                 }
             }
+            checkAndTogglePublicationRequiredAsterisk();
         }
 
         // --- Initialization on page load ---
+        const existingPublicationData = @json($applicant->publications ?? []);
+
         if (existingPublicationData && existingPublicationData.length > 0) {
             // If existing data is found, render it and ensure checkbox is unchecked
             existingPublicationData.forEach((data, index) => {
                 addPublicationField(sectionPrefix, index, data);
             });
+            publicationCount = existingPublicationData.length;
             noPublicationCheckbox.checked = false;
         } else {
-            // If no existing data, add one empty field by default (if you want one initially)
-            addPublicationField(sectionPrefix, 0);
-            publicationCount = 1;
-            noPublicationCheckbox.checked = false; // Ensure checkbox is unchecked by default if fields are shown
+            // If no existing data, check the checkbox and hide the fields
+            noPublicationCheckbox.checked = true;
+            publicationCount = 0; // Ensure count is 0 if no publications
         }
-        // Apply initial state for field requirements and visibility
+
+        // Apply initial state for field requirements and visibility based on the checkbox's initial state
         togglePublicationFieldsRequired();
 
         // --- Event Listeners ---
-        // Listener for the "Saya tidak memiliki Karya Tulis/Karya Ilmiah" checkbox
         if (noPublicationCheckbox) {
             noPublicationCheckbox.addEventListener('change', togglePublicationFieldsRequired);
         }
 
-        // Listener for the "Tambah Karya" button
         if (addPublicationButton) {
             addPublicationButton.addEventListener('click', function() {
                 addPublicationField(sectionPrefix, publicationCount);
@@ -218,7 +281,6 @@
             });
         }
 
-        // Listener for "Hapus" buttons on dynamic publication fields (event delegation)
         if (publicationContainer) {
             publicationContainer.addEventListener('click', function(e) {
                 if (e.target.classList.contains('remove-publication')) {
@@ -226,12 +288,25 @@
                     const elementToRemove = document.getElementById(targetId);
                     if (elementToRemove) {
                         elementToRemove.remove();
-                        // If all items are removed after deletion and the checkbox is NOT checked,
-                        // add one empty field back to ensure there's always at least one editable field.
+                        // Re-index remaining fields to maintain correct array indexing
+                        Array.from(publicationContainer.children).forEach((item, idx) => {
+                            item.id = `${sectionPrefix}publication-${idx}`;
+                            item.querySelector('input[type="hidden"]').name = `publications[${idx}][id]`;
+                            item.querySelector(`label[for^="${sectionPrefix}publication_title_"]`).setAttribute('for', `${sectionPrefix}publication_title_${idx}`);
+                            item.querySelector(`input[name^="publications["][name$="[publication_title]"]`).name = `publications[${idx}][publication_title]`;
+                            item.querySelector(`input[name^="publications["][name$="[publication_title]"]`).id = `${sectionPrefix}publication_title_${idx}`;
+                            item.querySelector(`label[for^="${sectionPrefix}publication_type_"]`).setAttribute('for', `${sectionPrefix}publication_type_${idx}`);
+                            item.querySelector(`input[name^="publications["][name$="[publication_type]"]`).name = `publications[${idx}][publication_type]`;
+                            item.querySelector(`input[name^="publications["][name$="[publication_type]"]`).id = `${sectionPrefix}publication_type_${idx}`;
+                            item.querySelector('.remove-publication').dataset.targetId = `${sectionPrefix}publication-${idx}`;
+                        });
+                        publicationCount = publicationContainer.children.length; // Update count after removal
+
                         if (publicationContainer.children.length === 0 && !noPublicationCheckbox.checked) {
                             addPublicationField(sectionPrefix, 0);
-                            publicationCount = 1; // Reset count for new additions
+                            publicationCount = 1;
                         }
+                        checkAndTogglePublicationRequiredAsterisk(); // Update asterisk after removal
                     }
                 }
             });

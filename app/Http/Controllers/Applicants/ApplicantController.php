@@ -638,7 +638,7 @@ class ApplicantController extends Controller
             case 'publications':
                 $sectionRules = [
                     'publications' => $allRules['publications'],
-                    'publications.*.publication_title' => 'required|string', // Changed to required
+                    'publications.*.publication_title' => 'nullable|string', // Changed to required
                     'publications.*.publication_type' => 'nullable|string|max:100',
                 ];
                 break;

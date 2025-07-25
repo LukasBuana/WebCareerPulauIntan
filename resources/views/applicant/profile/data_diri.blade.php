@@ -216,7 +216,7 @@
                         data-bs-toggle="collapse" data-bs-target="#dataPribadiCollapse" aria-expanded="true"
                         style="cursor: pointer;"id="mainCardHeaderToggle">
                         <h5 class="mb-0">
-                            <i class="fas fa-user me-2"></i>Data Pribadi<span class="required">*</span>
+                            <i class="fas fa-user me-2"></i>Data Pribadi<span class="required" id="personalDataRequiredAsterisk">*</span>
                         </h5>
                         <i class="fas fa-chevron-up collapse-icon"></i>
                     </div>
@@ -227,7 +227,7 @@
                             <form id="biodataForm">
                                 @csrf
                                 @if ($applicant->exists)
-                                    @method('PUT') {{-- Gunakan PUT untuk update --}}
+                                    @method('PUT')
                                 @endif
 
                                 {{-- Pesan sukses/error dari session --}}
@@ -1168,6 +1168,8 @@
                             if (response.ok) {
 
                                 alert(result.message);
+                                                checkAndTogglePersonalDataRequiredAsterisk(); // Panggil di sini
+
                                                                 window.location.reload(); // Fallback
 
 
@@ -1618,7 +1620,7 @@
                 label: 'Judul',
                 type: 'textarea',
                 placeholder: 'Judul Skripsi/Artikel/Buku',
-                required: true
+                required: false
             },
             {
                 name: 'type',
@@ -2066,11 +2068,120 @@
             }
         });
 
+           function checkAndTogglePersonalDataRequiredAsterisk() {
+        const asteriskElement = document.getElementById('personalDataRequiredAsterisk');
+        if (!asteriskElement) return;
+
+        // Daftar ID collapse sections yang membentuk "Data Pribadi"
+        const sectionsToCheck = [
+            'collapseInformasiUtama',
+            'collapseInformasiAlamat',
+            'collapseNomorIdentitas',
+            'collapseDetailPribadiLainnya',
+            'collapseSumberLowongan'
+        ];
+
+        let allPersonalDataSectionsValid = true;
+
+        for (const sectionId of sectionsToCheck) {
+            const sectionElement = document.getElementById(sectionId);
+            if (sectionElement) {
+                // --- Poin Krusial Perbaikan: Gunakan checkValidity() ---
+                // Iterasi semua input required di dalam setiap sectionElement
+                const requiredInputsInSection = sectionElement.querySelectorAll(
+                    'input[required]:not([type="file"]), select[required], textarea[required]'
+                );
+                for (const input of requiredInputsInSection) {
+                    if (!input.checkValidity()) { // checkValidity() akan memverifikasi apakah input memiliki nilai jika required
+                        allPersonalDataSectionsValid = false;
+                        // console.log(`Invalid standard input in ${sectionId}:`, input.name, input.value); // Debugging
+                        break; // Hentikan loop jika ada yang tidak valid
+                    }
+                }
+                if (!allPersonalDataSectionsValid) break; // Keluar dari loop sections jika ada yang tidak valid
+
+                // --- Pemeriksaan Radio Groups (tetap penting karena checkValidity() mungkin tidak cukup untuk group) ---
+                const requiredRadioGroupsInSection = Array.from(sectionElement.querySelectorAll(
+                        'input[type="radio"][required]'))
+                    .map(radio => radio.name)
+                    .filter((value, index, self) => self.indexOf(value) === index); // Ambil nama grup radio unik
+
+                for (const groupName of requiredRadioGroupsInSection) {
+                    // Cari apakah ada radio button yang dicentang di dalam grup ini
+                    if (!sectionElement.querySelector(`input[name="${groupName}"]:checked`)) {
+                        allPersonalDataSectionsValid = false;
+                        // console.log(`Invalid radio group in ${sectionId}:`, groupName); // Debugging
+                        break;
+                    }
+                }
+                if (!allPersonalDataSectionsValid) break;
+
+                // --- Penanganan Kasus Khusus: Tanggal Status Pernikahan ---
+                const maritalStatusSelect = sectionElement.querySelector('#marital_status');
+                if (maritalStatusSelect) {
+                    const marriedSinceDate = sectionElement.querySelector('#married_since_date');
+                    const widowedSinceDate = sectionElement.querySelector('#widowed_since_date');
+
+                    if (maritalStatusSelect.value === 'Menikah' && marriedSinceDate && marriedSinceDate
+                        .hasAttribute('required')) {
+                        if (!marriedSinceDate.checkValidity()) {
+                            allPersonalDataSectionsValid = false;
+                            // console.log("Invalid married date:", marriedSinceDate.value); // Debugging
+                            break;
+                        }
+                    }
+                    if (maritalStatusSelect.value === 'Janda-Duda' && widowedSinceDate && widowedSinceDate
+                        .hasAttribute('required')) {
+                        if (!widowedSinceDate.checkValidity()) {
+                            allPersonalDataSectionsValid = false;
+                            // console.log("Invalid widowed date:", widowedSinceDate.value); // Debugging
+                            break;
+                        }
+                    }
+                }
+                if (!allPersonalDataSectionsValid) break;
+
+                // --- Penanganan Kasus Khusus: Foto Profil (jika diperlukan) ---
+                const profileImageInput = sectionElement.querySelector('#profileImage');
+                const profilePreview = sectionElement.querySelector('#profilePreview');
+                // Asumsi profileImageInput selalu ada, required diatur di HTML
+                if (profileImageInput && profileImageInput.hasAttribute('required')) {
+                    const currentSrcIsPlaceholder = (profilePreview.src === "" || profilePreview.src.includes('placeholder.com'));
+                    const noNewFileSelected = (profileImageInput.files.length === 0);
+                    const noExistingImage = (!profilePreview.dataset.originalSrc); // Cek apakah ada originalSrc
+
+                    // Jika input required, dan belum ada file baru, dan belum ada gambar lama
+                    if (noNewFileSelected && noExistingImage) {
+                         allPersonalDataSectionsValid = false;
+                         // console.log("Profile image not uploaded or cleared."); // Debugging
+                         break;
+                    }
+                }
+                if (!allPersonalDataSectionsValid) break;
+
+            } else {
+                // Jika salah satu section tidak ditemukan (misalnya typo ID), anggap tidak valid
+                // Atau, bisa tambahkan logging/error handling di sini jika sectionId tidak valid
+                // console.warn(`Section element with ID "${sectionId}" not found.`);
+            }
+        }
+
+        // Tampilkan atau sembunyikan tanda bintang berdasarkan hasil validasi semua section
+        if (allPersonalDataSectionsValid) {
+            asteriskElement.style.display = 'none'; // Sembunyikan tanda bintang
+            // console.log("All personal data sections valid. Hiding asterisk."); // Debugging
+        } else {
+            asteriskElement.style.display = 'inline'; // Tampilkan tanda bintang
+            // console.log("Some personal data sections are invalid. Showing asterisk."); // Debugging
+        }
+    }
+
 
         document.addEventListener('DOMContentLoaded', function() {
             // Initial call for profile image display
             updateProfileImageDisplay();
             setupSectionSaveButtons();
+        checkAndTogglePersonalDataRequiredAsterisk();
 
             // Setup for main card header toggle (the first one)
             const mainCardHeader = document.getElementById('mainCardHeaderToggle'); // Get by its specific ID
@@ -2172,6 +2283,8 @@
             if (profileImageInput) {
                 profileImageInput.addEventListener('change', function() {
                     previewImage(this); // Call preview function when a new file is selected
+                                    checkAndTogglePersonalDataRequiredAsterisk(); // <-- TAMBAHKAN INI
+
                 });
             }
             // Initial call for full form validation to mark empty required fields

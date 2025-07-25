@@ -185,8 +185,6 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/dashboard/save-section/{sectionName}', [ApplicantController::class, 'saveSectionData'])->name('my_biodata.save_section');
 
-    // Jika perlu update per bagian juga, bisa pakai PUT, tapi POST cukup untuk save/update di sesi
-    // Route::put('/dashboard/update-section/{sectionName}', [ApplicantController::class, 'saveSectionData'])->name('my_biodata.update_section');
 
 
 
