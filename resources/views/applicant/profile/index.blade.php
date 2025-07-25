@@ -139,6 +139,9 @@
         @include('applicant.profile.data_bahasa_asing')
         @include('applicant.profile.data_keterampilan_komputer')
         @include('applicant.profile.data_karya_ilmiah')
+        @include('applicant.profile.data_pengalaman_kerja')
+        @include('applicant.profile.data_prestasi_kerja')
+
 
         <div class="submit-button-wrapper">
             <button type="button" class="submit-button">Print</button>
