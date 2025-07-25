@@ -141,6 +141,7 @@
         @include('applicant.profile.data_karya_ilmiah')
         @include('applicant.profile.data_pengalaman_kerja')
         @include('applicant.profile.data_prestasi_kerja')
+        @include('applicant.profile.data_form_kesehatan_prakerja')
 
 
         <div class="submit-button-wrapper">

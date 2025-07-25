@@ -1111,7 +1111,7 @@
                         yang menetapkan arah baru dalam dunia konstruksi Indonesia.
                     </p>
 
-                    <a href="#" class="learn-more-btn">
+                    <a href="https://pulauintan.com/our-profiles/" class="learn-more-btn">
                         Selengkapnya
                     </a>
                 </div>
